@@ -1,234 +1,244 @@
 
-<%-include("../../views/partials/user/header")%>
-  <script src="https://cdn.tailwindcss.com"></script>
-<div class="bg-[#1F1F1F] text-white">
-    <div
-        class="container mx-auto p-6 flex flex-col md:flex-row items-center justify-center text-center md:text-left">
-        <!-- Left Section -->
-        <div class="md:w-1/2 space-y-6">
-            <h1 class="text-2xl md:text-4xl font-bold">NEW WATCH <br> COLLECTIONS B720</h1>
-            <p class="text-gray-400 text-lg md:text-xl">Latest arrival of the new imported watches of the B720
-                series, with a modern and resistant design.</p>
-            <p class="text-[#EFBE8A] text-2xl md:text-3xl font-semibold">$1245</p>
-            <div class="flex justify-center md:justify-start gap-4">
-                <button class="bg-gray-600 text-white px-6 py-3 rounded text-lg">Discover</button>
-                <button class="bg-gray-400 text-white px-6 py-3 rounded text-lg">ADD TO CART</button>
+    <%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <div class="bg-[#1F1F1F] text-white">
+        <div
+            class="container mx-auto p-6 flex flex-col md:flex-row items-center justify-center text-center md:text-left">
+            <!-- Left Section -->
+            <div class="md:w-1/2 space-y-6">
+                <h1 class="text-2xl md:text-4xl font-bold">NEW WATCH <br> COLLECTIONS B720</h1>
+                <p class="text-gray-400 text-lg md:text-xl">Latest arrival of the new imported watches of the B720
+                    series, with a modern and resistant design.</p>
+                <p class="text-[#EFBE8A] text-2xl md:text-3xl font-semibold">$1245</p>
+                <div class="flex justify-center md:justify-start gap-4">
+                    <button class="bg-gray-600 text-white px-6 py-3 rounded text-lg">Discover</button>
+                    <button class="bg-gray-400 text-white px-6 py-3 rounded text-lg">ADD TO CART</button>
+                </div>
+            </div>
+
+            <!-- Right Section - Watch Image -->
+            <div class="md:w-1/2 flex justify-center mt-8 md:mt-0">
+                <div class="bg-[#EFBE8A] p-8 rounded-lg">
+                    <img src="/images/titan 4-Photoroom.png" alt="Watch" class="w-96 md:w-[450px]">
+                </div>
             </div>
         </div>
 
-        <!-- Right Section - Watch Image -->
-        <div class="md:w-1/2 flex justify-center mt-8 md:mt-0">
-            <div class="bg-[#EFBE8A] p-8 rounded-lg">
-                <img src="/images/titan 4-Photoroom.png" alt="Watch" class="w-96 md:w-[450px]">
+        <!-- Categories Section -->
+        <div class="container mx-auto m-16 grid grid-cols-1 md:grid-cols-3  gap-6 ">
+            <div class="relative ml-4">
+                <a href=""> <img src="/images/image.png" alt="Men's Watch" class="w-full rounded-lg"></a>
+                <p class="absolute  bottom-4 left-4 text-white text-xl font-bold">Men’s Watch</p>
+            </div>
+            <div class="relative">
+                <a href=""> <img src="/images/image copy.png" alt="Ladies Watch" class="w-full rounded-lg"></a>
+                <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Ladies Watch</p>
+            </div>
+            <div class="relative mr-4">
+                <a href=""> <img src="/images/image copy 2.png" alt="Couple's Watch" class="w-full rounded-lg"></a>
+                <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Couple’s Watch</p>
             </div>
         </div>
+
+        <section class="bg-[#1F1F1F] py-12 mt-16">
+            <div class="container mx-auto text-center">
+                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
+                <h2 class="text-white text-2xl font-sans mb-20">FEATURED</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:m-10">
+
+                    <!-- Watch 1 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
+                        <span
+                            class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
+                        <img src="/images/ethos 1-Photoroom.png" alt="Jazzmaster Watch"
+                            class="mx-auto w-64 h-64 object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">JAZZMASTER</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$1050</p>
+                        <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
+                    </div>
+
+                    <!-- Watch 2 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
+                        <span
+                            class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
+                        <img src="/images/titan3-Photoroom.png" alt="Ingersoll Watch"
+                            class="mx-auto w-64 h-64 object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">INGERSOLL</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$250</p>
+                        <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
+                    </div>
+
+                    <!-- Watch 3 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
+                        <span
+                            class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
+                        <img src="/images/puma 2-Photoroom.png" alt="Rose Gold Watch"
+                            class="mx-auto w-64 h-64  object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">ROSE GOLD</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$890</p>
+                        <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
+                    </div>
+                </div>
+
+                <!-- Show More Button -->
+                <button
+                    class="mt-6 px-6 py-3 bg-transparent border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
+                    Show more →
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-[#1F1F1F] py-16 px-6 md:px-20">
+            <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
+
+                <!-- Left Image Section -->
+                <div class="relative w-full md:w-1/2 flex justify-center">
+                    <!-- Beige Background Box -->
+                    <div class="absolute left-6 top-6 w-56 h-56 bg-[#E8B888] -z-10"></div>
+                    <!-- Watch Image -->
+                    <img src="/images/ethos ladies 3-Photoroom.png" alt="Luxury Watch" class="w-96 h-auto shadow-lg">
+                </div>
+
+                <!-- Right Text Section -->
+                <div class="w-full md:w-1/2 text-white mt-10 md:mt-0">
+                    <div class="mb-4">
+                        <div class="w-16 h-[2px] bg-[#E8B888]"></div>
+                        <p class="uppercase text-sm text-[#E8B888] tracking-widest mt-2">OUR STORY</p>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-4">Inspirational Watch of this year</h2>
+                    <p class="text-gray-400 mb-6">The latest and modern watches of this year are available in various
+                        presentations in this store. Discover them now.</p>
+                    <button
+                        class="px-6 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition">Discover</button>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="bg-[#1F1F1F] py-12">
+            <div class="container mx-auto text-center">
+                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
+                <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">
+                    PRODUCTS
+                </h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6  md:m-10">
+                    <!-- Product 1 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg">
+                        <img src="/images/puma ladies  1-Photoroom.png" alt="SPIRIT ROSE"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">SPIRIT ROSE</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$1500</p>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg">
+                        <img src="/images/puma 4-Photoroom.png" alt="KHAKI PILOT"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">KHAKI PILOT</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$1350</p>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="bg-[#2A2A2A] p-6 rounded-lg">
+                        <img src="/images/titan 2-Photoroom.png" alt="JUBILEE BLACK"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-white text-lg font-semibold mt-4">JUBILEE BLACK</h3>
+                        <p class="text-[#E8B888] text-xl font-semibold">$870</p>
+                    </div>
+
+
+                </div>
+
+                <!-- Show More Button -->
+                <button
+                    class="mt-6 px-6 py-3 border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
+                    Show more →
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-[#1F1F1F] py-12">
+            <div class="container mx-auto text-center">
+                <!-- Section Title -->
+                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
+                <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">BRANDS</h2>
+
+                <!-- Brand Buttons -->
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button
+                        class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">ROLEX</button>
+                    <button
+                        class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">PUMA</button>
+                    <button
+                        class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">TITAN</button>
+                    <button
+                        class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">ETHOS</button>
+                    <button
+                        class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">G-SHOCK</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-[#1F1F1F] py-12">
+            <div class="container mx-auto text-center">
+                <!-- Section Title -->
+                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
+                <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">NEW ARRIVALS</h2>
+
+                <!-- Product Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:m-10">
+                    <!-- Product 1 -->
+                    <div class="bg-[#E8B888] p-6 rounded-lg relative">
+                        <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
+                        <img src="/images/puma 3-Photoroom.png" alt="LONGINES ROSE"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-black text-lg font-semibold mt-4">LONGINES ROSE</h3>
+                        <p class="text-black text-xl font-semibold">$980</p>
+                        <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="bg-[#E8B888] p-6 rounded-lg">
+                        <img src="/images/g-shock ladies 1.webp" alt="JAZZMASTER"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-black text-lg font-semibold mt-4">JAZZMASTER</h3>
+                        <p class="text-black text-xl font-semibold">$1150</p>
+                        <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
+                    </div>
+
+                    <!-- Product 3 -->
+                    <div class="bg-[#E8B888] p-6 rounded-lg relative">
+                        <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
+                        <img src="/images/gshock4-Photoroom.png" alt="DREYFUSS GOLD"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-black text-lg font-semibold mt-4">DREYFUSS GOLD</h3>
+                        <p class="text-black text-xl font-semibold">$750</p>
+                        <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
+                    </div>
+
+                    <!-- Product 4 -->
+                    <div class="bg-[#E8B888] p-6 rounded-lg relative">
+                        <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
+                        <img src="/images/ethos 3-Photoroom.png" alt="PORTUGUESE ROSE"
+                            class="mx-auto w-48 h-64 object-contain">
+                        <h3 class="text-black text-lg font-semibold mt-4">PORTUGUESE ROSE</h3>
+                        <p class="text-black text-xl font-semibold">$1590</p>
+                        <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
+                    </div>
+                </div>
+
+                <!-- Show More Button -->
+                <button
+                    class="mt-6 px-6 py-3 border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
+                    Show more →
+                </button>
+            </div>
+        </section>
+
+
+
     </div>
 
-    <!-- Categories Section -->
-    <div class="container mx-auto m-16 grid grid-cols-1 md:grid-cols-3  gap-6 ">
-        <div class="relative ml-4">
-            <a href=""> <img src="/images/image.png" alt="Men's Watch" class="w-full rounded-lg"></a>
-            <p class="absolute  bottom-4 left-4 text-white text-xl font-bold">Men’s Watch</p>
-        </div>
-        <div class="relative">
-            <a href=""> <img src="/images/image copy.png" alt="Ladies Watch" class="w-full rounded-lg"></a>
-            <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Ladies Watch</p>
-        </div>
-        <div class="relative mr-4">
-            <a href=""> <img src="/images/image copy 2.png" alt="Couple's Watch" class="w-full rounded-lg"></a>
-            <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Couple’s Watch</p>
-        </div>
-    </div>
-
-    <section class="bg-[#1F1F1F] py-12 mt-16">
-        <div class="container mx-auto text-center">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-20">FEATURED</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:m-10">
-
-                <!-- Watch 1 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
-                    <span
-                        class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
-                    <img src="/images/ethos 1-Photoroom.png" alt="Jazzmaster Watch"
-                        class="mx-auto w-64 h-64 object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">JAZZMASTER</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$1050</p>
-                    <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                </div>
-
-                <!-- Watch 2 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
-                    <span
-                        class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
-                    <img src="/images/titan3-Photoroom.png" alt="Ingersoll Watch" class="mx-auto w-64 h-64 object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">INGERSOLL</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$250</p>
-                    <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                </div>
-
-                <!-- Watch 3 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg relative">
-                    <span
-                        class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
-                    <img src="/images/puma 2-Photoroom.png" alt="Rose Gold Watch" class="mx-auto w-64 h-64  object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">ROSE GOLD</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$890</p>
-                    <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                </div>
-            </div>
-
-            <!-- Show More Button -->
-            <button
-                class="mt-6 px-6 py-3 bg-transparent border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
-                Show more →
-            </button>
-        </div>
-    </section>
-
-    <section class="bg-[#1F1F1F] py-16 px-6 md:px-20">
-        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between">
-
-            <!-- Left Image Section -->
-            <div class="relative w-full md:w-1/2 flex justify-center">
-                <!-- Beige Background Box -->
-                <div class="absolute left-6 top-6 w-56 h-56 bg-[#E8B888] -z-10"></div>
-                <!-- Watch Image -->
-                <img src="/images/ethos ladies 3-Photoroom.png" alt="Luxury Watch" class="w-96 h-auto shadow-lg">
-            </div>
-
-            <!-- Right Text Section -->
-            <div class="w-full md:w-1/2 text-white mt-10 md:mt-0">
-                <div class="mb-4">
-                    <div class="w-16 h-[2px] bg-[#E8B888]"></div> <!-- Golden Line -->
-                    <p class="uppercase text-sm text-[#E8B888] tracking-widest mt-2">OUR STORY</p>
-                </div>
-                <h2 class="text-3xl font-bold mb-4">Inspirational Watch of this year</h2>
-                <p class="text-gray-400 mb-6">The latest and modern watches of this year are available in various
-                    presentations in this store. Discover them now.</p>
-                <button
-                    class="px-6 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition">Discover</button>
-            </div>
-
-        </div>
-    </section>
-
-    <section class="bg-[#1F1F1F] py-12">
-        <div class="container mx-auto text-center">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">
-                PRODUCTS
-            </h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6  md:m-10">
-                <!-- Product 1 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg">
-                    <img src="/images/puma ladies  1-Photoroom.png" alt="SPIRIT ROSE" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">SPIRIT ROSE</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$1500</p>
-                </div>
-
-                <!-- Product 2 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg">
-                    <img src="/images/puma 4-Photoroom.png" alt="KHAKI PILOT" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">KHAKI PILOT</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$1350</p>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="bg-[#2A2A2A] p-6 rounded-lg">
-                    <img src="/images/titan 2-Photoroom.png" alt="JUBILEE BLACK" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-white text-lg font-semibold mt-4">JUBILEE BLACK</h3>
-                    <p class="text-[#E8B888] text-xl font-semibold">$870</p>
-                </div>
-
-
-            </div>
-
-            <!-- Show More Button -->
-            <button
-                class="mt-6 px-6 py-3 border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
-                Show more →
-            </button>
-        </div>
-    </section>
-
-    <section class="bg-[#1F1F1F] py-12">
-        <div class="container mx-auto text-center">
-            <!-- Section Title -->
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">BRANDS</h2>
-
-            <!-- Brand Buttons -->
-            <div class="flex flex-wrap justify-center gap-4">
-                <button
-                    class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">ROLEX</button>
-                <button
-                    class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">PUMA</button>
-                <button
-                    class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">TITAN</button>
-                <button
-                    class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">ETHOS</button>
-                <button
-                    class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">G-SHOCK</button>
-            </div>
-        </div>
-    </section>
-
-    <section class="bg-[#1F1F1F] py-12">
-        <div class="container mx-auto text-center">
-            <!-- Section Title -->
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">NEW ARRIVALS</h2>
-
-            <!-- Product Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:m-10">
-                <!-- Product 1 -->
-                <div class="bg-[#E8B888] p-6 rounded-lg relative">
-                    <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
-                    <img src="/images/puma 3-Photoroom.png" alt="LONGINES ROSE" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-black text-lg font-semibold mt-4">LONGINES ROSE</h3>
-                    <p class="text-black text-xl font-semibold">$980</p>
-                    <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
-                </div>
-
-                <!-- Product 2 -->
-                <div class="bg-[#E8B888] p-6 rounded-lg">
-                    <img src="/images/g-shock ladies 1.webp" alt="JAZZMASTER" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-black text-lg font-semibold mt-4">JAZZMASTER</h3>
-                    <p class="text-black text-xl font-semibold">$1150</p>
-                    <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="bg-[#E8B888] p-6 rounded-lg relative">
-                    <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
-                    <img src="/images/gshock4-Photoroom.png" alt="DREYFUSS GOLD" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-black text-lg font-semibold mt-4">DREYFUSS GOLD</h3>
-                    <p class="text-black text-xl font-semibold">$750</p>
-                    <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="bg-[#E8B888] p-6 rounded-lg relative">
-                    <span class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
-                    <img src="/images/ethos 3-Photoroom.png" alt="PORTUGUESE ROSE" class="mx-auto w-48 h-64 object-contain">
-                    <h3 class="text-black text-lg font-semibold mt-4">PORTUGUESE ROSE</h3>
-                    <p class="text-black text-xl font-semibold">$1590</p>
-                    <button class="mt-4 bg-black text-white px-6 py-2 rounded-lg">ADD TO CART</button>
-                </div>
-            </div>
-
-            <!-- Show More Button -->
-            <button
-                class="mt-6 px-6 py-3 border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
-                Show more →
-            </button>
-        </div>
-    </section>
-
-
-
-</div>
-
-<%-include("../../views/partials/user/footer")%>
+    <%- include('../../views/partials/user/footer')%>

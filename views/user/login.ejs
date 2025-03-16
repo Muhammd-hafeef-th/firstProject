@@ -1,18 +1,19 @@
+<script src="https://cdn.tailwindcss.com"></script>
 <section>
     <div class="min-h-screen flex flex-col min-[1000px]:flex-row justify-center items-center">
         <div class="w-full min-[1000px]:w-1/2 px-8 sm:px-16 bg-white h-screen flex flex-col justify-center relative">
             <div class="absolute top-5 left-5 flex items-center">
-                <img src="/public/images/hand watch2.png" class="h-8 w-8">
+                <img src="/images/hand watch2.png" class="h-8 w-8">
                 <p class="text-black font-extrabold text-3xl ml-2">LB</p>
             </div>
 
             <h1 class="font-bold text-2xl text-black text-center">Welcome Back!</h1>
             <h6 class="text-black text-center mb-6">Enter your credentials to access your account</h6>
 
-            <form action="" class="flex flex-col w-full max-w-md mx-auto">
+            <form action="/login" method="POST"  class="flex flex-col w-full max-w-md mx-auto">
                 <label class="text-black">Email</label>
                 <input class="rounded-xl border p-2 text-black w-full" type="email" id="email" name="email"
-                    placeholder="email">
+                    placeholder="email" required>
 
                 <div class="relative mt-4 w-full">
                     <div class="flex justify-between">
@@ -20,10 +21,15 @@
                         <a href="#" class="text-blue-500 text-sm">Forgot password?</a>
                     </div>
                     <input class="rounded-xl border p-2 text-black w-full mt-1" type="password" id="password"
-                        name="password" placeholder="password">
+                        name="password" placeholder="password" required>
                 </div>
+                <%if(locals.message && message.length>0){%>
+                    <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
+                        <%=message%>
+                    </div>
+                <%}%>
 
-                <button class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
+                <button type="submit" class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
             </form>
 
             <p class="text-gray-400 mt-7 text-center">OR</p>
@@ -46,12 +52,21 @@
                 Login With Google
             </button>
 
-            <span class="text-black text-center mt-10">Don't have an account? <a class="text-blue-500" href="">Sign
+            <span class="text-black text-center mt-10">Don't have an account? <a class="text-blue-500" href="/signup">Sign
                     Up</a></span>
         </div>
         <div class="hidden min-[1000px]:block w-1/2 h-screen">
-            <img src="/public/images/watch 1.jpg" class="w-full h-full object-cover rounded-tl-3xl rounded-bl-3xl">
+            <img src="/images/watch 1.jpg" class="w-full h-full object-cover rounded-tl-3xl rounded-bl-3xl">
         </div>
     </div>
 </section>
-<script src="https://cdn.tailwindcss.com"></script>
+
+<script>
+    document.getElementById("password").addEventListener("focus", function() {
+        this.type = "text"; 
+    });
+
+    document.getElementById("password").addEventListener("blur", function() {
+        this.type = "password"; 
+    });
+</script>

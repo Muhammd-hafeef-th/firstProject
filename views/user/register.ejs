@@ -1,6 +1,6 @@
 <style>
-    .error-message{
-        color:red;
+    .error-message {
+        color: red;
         font-size: 0.75rem;
         display: none;
     }
@@ -15,37 +15,38 @@
                 <p class="text-black font-extrabold text-3xl ml-2">LB</p>
             </div>
 
-            <h1 class="font-bold text-2xl text-black text-center mb-4">Get Started Now</h1>
-         
+            <h1 class="font-bold text-2xl text-black text-center mb-2">Get Started Now</h1>
+
 
             <form id="signForm" action="/signup" method="post" class="flex flex-col w-full max-w-md mx-auto">
-                <label class="text-black">First Name</label>
+                <label class="text-black">Username</label>
                 <input class="rounded-xl border p-2 text-black w-full" type="text" id="firstname" name="firstname"
-                    placeholder="Enter the first name">
-                    <div id="error1" class="error-message"></div>
-                <label class="text-black mt-4">Second Name</label>
-                <input class="rounded-xl border p-2 text-black w-full" type="text" id="secondname" name="secondname"
-                    placeholder="Enter the second name">
-                    <div id="error2" class="error-message"></div>
-                <label class="text-black mt-4">Email</label>
+                    placeholder="Enter the username">
+                <div id="error1" class="error-message"></div>
+                <label class="text-black mt-2">Email</label>
                 <input class="rounded-xl border p-2 text-black w-full" type="email" id="email" name="email"
                     placeholder="Email">
-                    <div id="error3" class="error-message"></div>
-                    <label class="text-black mt-4">Password</label>
-                    <input class="rounded-xl border p-2 text-black w-full" type="text" id="password" name="password"
-                        placeholder="Enter the password">
-                        <div id="error4" class="error-message"></div>
+                <div id="error3" class="error-message"></div>
+                <label class="text-black mt-2">Password</label>
+                <input class="rounded-xl border p-2 text-black w-full" type="text" id="password" name="password"
+                    placeholder="Enter the password">
+                <div id="error4" class="error-message"></div>
 
-                <label class="text-black mt-4">Confirm Password</label>
-                <input class="rounded-xl border p-2 text-black w-full" type="text" id="confirmPassword" name="confirmPassword"
-                    placeholder="Confirm password">
-                    <div id="error5" class="error-message"></div>
-                <button class="bg-black text-white py-2 mt-7 rounded-2xl w-full">Signup</button>
+                <label class="text-black mt-2">Confirm Password</label>
+                <input class="rounded-xl border p-2 text-black w-full" type="text" id="confirmPassword"
+                    name="confirmPassword" placeholder="Confirm password">
+                <div id="error5" class="error-message"></div>
+                <%if(locals.message && message.length>0){%>
+                    <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
+                        <%=message%>
+                    </div>
+                <%}%>
+                <button class="bg-black text-white py-2 mt-6 rounded-2xl w-full">Signup</button>
             </form>
 
-            <p class="text-gray-400 mt-1 text-center">OR</p>
-            <button
-                class="bg-white border border-gray-400 py-2 rounded-2xl mt-5 flex justify-center items-center text-sm w-full max-w-md mx-auto">
+            <p class="text-gray-400 mt-0 text-center">OR</p>
+            <button 
+                class="bg-white border border-gray-400 py-2 rounded-2xl mt-3 flex justify-center items-center text-sm w-full max-w-md mx-auto">
                 <svg class="mr-2 w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
                     <path fill="#FFC107"
                         d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z">
@@ -60,10 +61,10 @@
                         d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z">
                     </path>
                 </svg>
-                Sign up With Google
+               <a href="/auth/google"> Sign up With Google </a> 
             </button>
 
-            <span class="text-black text-center mt-4">Have an account? <a class="text-blue-500" href="">Sign
+            <span class="text-black text-center mt-3">Have an account? <a class="text-blue-500" href="">Sign
                     In</a></span>
         </div>
         <div class="hidden min-[1000px]:block w-1/2 h-screen">
@@ -73,125 +74,101 @@
 </section>
 
 <script>
-const firstnameid=document.getElementById('firstname');
-const secondnameid=document.getElementById('secondname');
-const emailid=document.getElementById('email');
-const passwordid=document.getElementById('password');
-const cPasswordid=document.getElementById('confirmPassword');
-const error1=document.getElementById('error1')
-const error2=document.getElementById('error2')
-const error3=document.getElementById('error3')
-const error4=document.getElementById('error4')
-const error5=document.getElementById('error5')
-const signForm=document.getElementById('signForm')
+    const firstnameid = document.getElementById('firstname');
+    const emailid = document.getElementById('email');
+    const passwordid = document.getElementById('password');
+    const cPasswordid = document.getElementById('confirmPassword');
+    const error1 = document.getElementById('error1')
+    const error3 = document.getElementById('error3')
+    const error4 = document.getElementById('error4')
+    const error5 = document.getElementById('error5')
+    const signForm = document.getElementById('signForm')
 
 
-function firstnameValidateChecking(e){
-    const nameVal=firstnameid.value;
-    const namePattern=/^[A-Za-z/s]+$/;
+    function firstnameValidateChecking(e) {
+        const nameVal = firstnameid.value;
+        const namePattern = /^[A-Za-z/s]+$/;
 
-    if(nameVal.trim()===''){
-        error1.style.display='block';
-        error1.innerHTML="Please enter a valid name"
-    }
-    else if(!namePattern.test(nameVal)){
-        error1.style.display="block";
-        error1.innerHTML="Name can only contain Alphabets and spaces"
-    }
-    else{
-        error1.style.display='none';
-        error1.innerHTML="";
-    }
-}
-
-function secondnameValidateChecking(e){
-    const nameVal=secondnameid.value;
-    const namePattern=/^[A-Za-z/s]+$/;
-
-    if(nameVal.trim()===''){
-        error2.style.display='block';
-        error2.innerHTML="Please enter a valid name"
-    }
-    else if(!namePattern.test(nameVal)){
-        error2.style.display="block";
-        error2.innerHTML="Name can only contain Alphabets and spaces"
-    }
-    else{
-        error2.style.display='none';
-        error2.innerHTML="";
-    }
-}
-
-function emailValidateChecking(e){
-    const emailVal=emailid.value;
-    const emailPattern= /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-    if(!emailPattern.test(emailVal)){
-        error3.style.display='block'
-        error3.innerHTML='Invalid email format'
-    }
-    else{
-        error2.style.display='none';
-        error2.innerHTML="";
-    }
-}
-
-function passwordValidateChecking(e){
-    const passVal=passwordid.value;
-    const cpasVal=cPasswordid.value;
-    const passPattern=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    if(passVal.length<8){
-        error4.style.display='block'
-        error4.innerHTML='Should contain atleast 8 characters'
-    }else if(!passPattern.test(passVal)){
-        error4.style.display='block'
-        error4.innerHTML="Should Contain numbers and alphabets"
-    }else{
-        error4.style.display="none";
-        error4.innerHTML=''
-    }
-
-if(passVal!==cpasVal){
-    error5.style.display='block'
-    error5.innerHTML='Password donot match'
-}
-else{
-    error5.style.display='none'
-    error5.innerHTML=''
-}
-
-}
-
-document.addEventListener("DOMContentLoaded",function(){
-    signForm.addEventListener("submit",(e)=>{
-        firstnameValidateChecking();
-        secondnameValidateChecking();
-        emailValidateChecking();
-        passwordValidateChecking();
-
-        if(
-            !firstnameid||
-            !secondnameid||
-            !emailid||
-            !passwordid||
-            !error1||
-            !error2||
-            !error3||
-            !error4||
-            !error5||
-            !signForm
-        ){
-            console.log("One or more elements not found")
+        if (nameVal.trim() === '') {
+            error1.style.display = 'block';
+            error1.innerHTML = "Please enter a valid name"
         }
-        if(
-            error1.innerHTML||
-            error2.innerHTML||
-            error3.innerHTML||
-            error4.innerHTML||
-            error5.innerHTML
-        ){
-            e.preventDefault();
+        else if (!namePattern.test(nameVal)) {
+            error1.style.display = "block";
+            error1.innerHTML = "Name can only contain Alphabets and spaces"
         }
+        else {
+            error1.style.display = 'none';
+            error1.innerHTML = "";
+        }
+    }
+
+    function emailValidateChecking(e) {
+        const emailVal = emailid.value;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        if (!emailPattern.test(emailVal)) {
+            error3.style.display = 'block'
+            error3.innerHTML = 'Invalid email format'
+        }
+        else {
+            error3.style.display = 'none';
+            error3.innerHTML = "";
+        }
+    }
+
+    function passwordValidateChecking(e) {
+        const passVal = passwordid.value;
+        const cpasVal = cPasswordid.value;
+        const passPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (passVal.length < 8) {
+            error4.style.display = 'block'
+            error4.innerHTML = 'Should contain atleast 8 characters'
+        } else if (!passPattern.test(passVal)) {
+            error4.style.display = 'block'
+            error4.innerHTML = "Should Contain one number one caps and small alphabet and one symbol"
+        } else {
+            error4.style.display = "none";
+            error4.innerHTML = ''
+        }
+
+        if (passVal !== cpasVal) {
+            error5.style.display = 'block'
+            error5.innerHTML = 'Password donot match'
+        }
+        else {
+            error5.style.display = 'none'
+            error5.innerHTML = ''
+        }
+
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        signForm.addEventListener("submit", (e) => {
+            firstnameValidateChecking();
+            emailValidateChecking();
+            passwordValidateChecking();
+
+            if (
+                !firstnameid ||
+                !emailid ||
+                !passwordid ||
+                !error1 ||
+                !error3 ||
+                !error4 ||
+                !error5 ||
+                !signForm
+            ) {
+                console.log("One or more elements not found")
+            }
+            if (
+                error1.innerHTML ||
+                error3.innerHTML ||
+                error4.innerHTML ||
+                error5.innerHTML
+            ) {
+                e.preventDefault();
+            }
+        })
     })
-})
 </script>
