@@ -1,0 +1,29 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<section class="bg-[#121317] min-h-screen">
+    <div class="bg-[#121317] flex ">
+        <img src="/images/hand-watch - Copy.png " class="h-8 w-8 ml-10 mt-10">
+        <p class="text-white bg-[#121317] ml-1.5 mt-10 font-extrabold text-3xl">LB</p>
+    </div>
+    <div class=" flex justify-center items-center m-10">
+        <div class="bg-[#121317] flex">
+            <div class="w-1/2 md:block hidden">
+                <img class=" rounded-2xl" src="/images/img 6.webp">
+            </div>
+            <div class="md:w-1/2 px-16 bg-[#24262D]">
+                <h1 class="font-bold text-2xl text-white mt-10 ">Admin Login</h1>
+                <h6 class="text-white mt-14 ml-1">Email</h6>
+                <form method="POST" action="/admin/login" class="flex flex-col">
+                    <input class="rounded-xl border p-2 text-black" type="email" id="email" name="email"
+                        placeholder="email">
+                    <h6 class="text-white mt-7 ml-1">Password</h6>
+                    <input class="rounded-xl border p-2 text-black" type="password" id="password" name="password"
+                        placeholder="password">
+                    <button type="submit" class="bg-[#7E3AF2] text-white py-1 mt-8 mb-15">Login</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</section>

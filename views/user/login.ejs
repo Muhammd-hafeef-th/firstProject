@@ -1,3 +1,10 @@
+<style>
+    .error-message {
+        color: red;
+        font-size: 0.75rem;
+        display: none;
+    }
+</style>
 <script src="https://cdn.tailwindcss.com"></script>
 <section>
     <div class="min-h-screen flex flex-col min-[1000px]:flex-row justify-center items-center">
@@ -10,26 +17,30 @@
             <h1 class="font-bold text-2xl text-black text-center">Welcome Back!</h1>
             <h6 class="text-black text-center mb-6">Enter your credentials to access your account</h6>
 
-            <form action="/login" method="POST"  class="flex flex-col w-full max-w-md mx-auto">
+            <form id="loginForm" action="/userRouter/login" method="POST" class="flex flex-col w-full max-w-md mx-auto">
                 <label class="text-black">Email</label>
                 <input class="rounded-xl border p-2 text-black w-full" type="email" id="email" name="email"
                     placeholder="email" required>
+                <div id="error1" class="error-message"></div>
 
                 <div class="relative mt-4 w-full">
                     <div class="flex justify-between">
                         <label class="text-black">Password</label>
-                        <a href="#" class="text-blue-500 text-sm">Forgot password?</a>
+                        <a href="/forgot-password" class="text-blue-500 text-sm">Forgot password?</a>
                     </div>
                     <input class="rounded-xl border p-2 text-black w-full mt-1" type="password" id="password"
                         name="password" placeholder="password" required>
                 </div>
+                <div id="error2" class="error-message"></div>
                 <%if(locals.message && message.length>0){%>
                     <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
                         <%=message%>
                     </div>
-                <%}%>
+                    <%}%>
+                 
+                    
 
-                <button type="submit" class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
+                        <button class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
             </form>
 
             <p class="text-gray-400 mt-7 text-center">OR</p>
@@ -49,10 +60,11 @@
                         d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z">
                     </path>
                 </svg>
-                Login With Google
+                <a href="/auth/google/login">Login With Google</a>
             </button>
 
-            <span class="text-black text-center mt-10">Don't have an account? <a class="text-blue-500" href="/signup">Sign
+            <span class="text-black text-center mt-10">Don't have an account? <a class="text-blue-500"
+                    href="/signup">Sign
                     Up</a></span>
         </div>
         <div class="hidden min-[1000px]:block w-1/2 h-screen">
@@ -62,11 +74,58 @@
 </section>
 
 <script>
-    document.getElementById("password").addEventListener("focus", function() {
-        this.type = "text"; 
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const error1 = document.getElementById('error1');
+    const error2 = document.getElementById('error2');
+    const loginForm = document.getElementById('loginForm');
+
+    function passwordValidation() {
+        const passwordValue = password.value;
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+        if (passwordValue.length < 8) {
+            error2.style.display = 'block';
+            error2.innerHTML = 'Should contain at least 8 characters';
+        } else if (!passwordPattern.test(passwordValue)) {
+            error2.style.display = 'block';
+            error2.innerHTML = 'Should contain one number, one uppercase letter, one lowercase letter, and one symbol';
+        } else {
+            error2.style.display = 'none';
+            error2.innerHTML = '';
+        }
+    }
+
+    function emailValidation() {
+        const emailValue = email.value;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+        if (!emailPattern.test(emailValue)) {
+            error1.style.display = 'block';
+            error1.innerHTML = 'Invalid email format';
+        } else {
+            error1.style.display = 'none';
+            error1.innerHTML = '';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        loginForm.addEventListener("submit", (e) => {
+            emailValidation();
+            passwordValidation();
+
+            if (error1.innerHTML || error2.innerHTML) {
+                e.preventDefault();
+            }
+        });
     });
 
-    document.getElementById("password").addEventListener("blur", function() {
-        this.type = "password"; 
+    password.addEventListener("focus", function () {
+        this.type = "text";
     });
+
+    password.addEventListener("blur", function () {
+        this.type = "password";
+    });
+
 </script>

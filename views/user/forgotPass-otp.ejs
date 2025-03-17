@@ -28,7 +28,7 @@
                 <div id="timer" class="text-yellow-500 font-semibold text-lg mt-4 text-center md:text-left">1:00</div>
 
                 <!-- OTP Form -->
-                <form id="otpForm" action="/verify-otp" method="post" class="flex flex-col items-center md:items-start">
+                <form id="otpForm"  action="" method="post" class="flex flex-col items-center md:items-start">
                     <div class="flex justify-center gap-2 mt-4">
                         <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
                         <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
@@ -40,6 +40,11 @@
 
                     <button type="submit" class="w-full bg-black text-white py-3 mt-6 rounded-lg hover:bg-gray-800 transition">Verify Code</button>
                 </form>
+               <%if(locals.message && message.length>0){%>
+                <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
+                    <%=message%>
+                </div>
+                <%}%>
 
                 <p class="text-gray-500 text-sm mt-4 text-center md:text-left">
                     Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-blue-500 font-semibold">Resend OTP</a>
@@ -102,16 +107,31 @@
 
             $.ajax({
                 type:"POST",
-                url:'resend-otp',
+                url:'/resend-forgot-otp',
                 success:function(response){
-                    if(!response.success){
+                    if(response.success){
+                        Swal.fire({
+                            icon:"success",
+                            title:"Resend Otp successfull",
+                            showConfirmButton:false,
+                            timer:1500,
+                            
+                        })
+                    }else{
                         Swal.fire({
                             icon:"error",
                             title:"Error",
-                            text:"An error occured while resending otp . please try again"
+                            text:"Failed to resend otp . please try again"
                         })
                     }
                    
+                },
+                error:function (){
+                    Swal.fire({
+                        icon:"error",
+                        title:'Error',
+                        text:"Failed to resend otp .please try again" 
+                    })
                 }
             })
             return false
@@ -137,7 +157,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "/verify-otp",
+                url: "/verify-passForgot-otp",
                 data: { otp: otpValue },
                 success: function (response) {
                     if (response.success) {
@@ -152,7 +172,7 @@
                     } else {
                         Swal.fire({
                             icon: "error",
-                            title: "Error",
+                            title: "error", 
                             text: response.message
                         });
                     }
@@ -165,6 +185,7 @@
                     });
                 }
             });
+            return false
         };
 
         document.addEventListener("DOMContentLoaded", startTimer);
