@@ -40,9 +40,29 @@ const loadDashboard=async(req,res)=>{
     }
    }
 }
+const pageError=async(req,res)=>{
+    res.render("admin-error")
+}
+const logout=async(req,res)=>{
+    try {
+        req.session.destroy(err=>{
+            if(err){
+                console.log("Error occured destrou session",err);
+                return res.redirect("/pageError")
+            }
+            res.redirect('/admin/login')
+        })
+    } catch (error) {
+        console.log("Unexpected error during logout",error);
+        res.redirect('pageError')
+        
+    }
+}
 
 module.exports={
     loadLogin,
     login,
-    loadDashboard
+    loadDashboard,
+    pageError,
+    logout
 }

@@ -10,9 +10,17 @@ const brandSchema=new Schema({
         type:[String],
         required:true
     },
-    isBlocked:{
+    description:{
+        type:String,
+        required:true
+    },
+    isListed:{
         type:Boolean,
-        default:false
+        default:true
+    },
+    brandOffer:{
+        type:Number,
+        default:0
     },
     createdAt:{
         type:Date,

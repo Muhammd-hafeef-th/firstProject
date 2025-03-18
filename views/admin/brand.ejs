@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white">
+    
+    <!-- Navbar -->
+    <%- include('../../views/partials/admin/navbar')%>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <%- include('../../views/partials/admin/sidebar')%>
+
+        <!-- Content -->
+        <div class="container mx-auto p-4 md:p-6 w-full">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                <h1 class="text-2xl font-bold">Brands</h1>
+                <button class="bg-green-400 text-black px-4 py-2 rounded-lg font-semibold">
+                    <a href="/admin/add-brandItem">ADD BRAND +</a>
+                </button>
+            </div>
+            <!-- Brand Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full bg-gray-800 rounded-lg">
+                    <thead>
+                        <tr class="text-left bg-gray-700 text-sm md:text-base">
+                            <th class="p-3">NO</th>
+                            <th class="p-3">BRANDS</th>
+                            <th class="p-3">CATEGORY DESCRIPTION</th>
+                            <th class="p-3">LAST UPDATED</th>
+                            <th class="p-3">ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="brandTable">
+                        <% for(let i = 0; i < brands.length; i++) { %>
+                            <tr class="border-b border-gray-600 brand-row text-sm md:text-base">
+                                <td class="p-3"><%= i + 1 %></td>
+                                <td class="p-3 font-bold"><%= brands[i].name %></td>
+                                <td class="p-3">Starts from <%= brands[i].price %></td>
+                                <td class="p-3"><%= new Date(brands[i].updatedAt).toLocaleDateString() %></td>
+                                <td class="p-3 flex gap-2">
+                                    <a href="/admin/edit-brand?id=<%= brands[i]._id %>"
+                                       class="text-gray-400 hover:text-white text-lg">✏️</a>
+                                    <a href="/admin/delete-brand?id=<%= brands[i]._id %>"
+                                       class="text-gray-400 hover:text-white text-lg">🗑️</a>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        
+            <!-- Pagination -->
+            <div class="flex flex-wrap justify-center mt-4 gap-2">
+                <% for(let i = 1; i <= totalPages; i++) { %>
+                    <a href="?page=<%= i %>"
+                       class="px-3 py-1 rounded-md <%= i === currentPage ? 'bg-purple-500 text-white' : 'bg-gray-700 text-white hover:bg-gray-600' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        const menuBtn = document.getElementById('menu-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        }); 
+    </script>
+
+</body>
+</html>
