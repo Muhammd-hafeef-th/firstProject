@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Edit Brand</title>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+
+    <!-- Navbar -->
+    <%- include('../../views/partials/admin/navbar') %>
+
+        <div class="flex">
+            <!-- Sidebar -->
+            <%- include('../../views/partials/admin/sidebar') %>
+
+                <!-- Main Content -->
+                <div class="bg-gray-900 text-white p-6">
+                    <h1 class="text-2xl font-bold mb-6">Add Products</h1>
+
+                    <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-5xl mx-auto">
+                        <form id="addProductForm" enctype="multipart/form-data"
+                            class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                            <!-- Multiple Image Upload Section -->
+                            <div class="md:col-span-1">
+                                <label class="block mb-2">Add Images:</label>
+                                <div class="flex gap-2">
+                                    <div
+                                        class="w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload1" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload1"
+                                            class="cursor-pointer text-gray-400 text-sm">Upload</label>
+                                    </div>
+                                    <div
+                                        class="w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload2" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload2"
+                                            class="cursor-pointer text-gray-400 text-sm">Upload</label>
+                                    </div>
+                                    <div
+                                        class="w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload3" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload3"
+                                            class="cursor-pointer text-gray-400 text-sm">Upload</label>
+                                    </div>
+
+                                </div>
+                                <div id="image-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Product Details Section -->
+                            <div class="md:col-span-1 grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="block mb-1">Product Name:</label>
+                                    <input type="text" name="name" id="name"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                    <div id="name-error" class="error-message"></div>
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Product Description:</label>
+                                    <input type="text" name="description" id="description"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                    <div id="description-error" class="error-message"></div>
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Brand:</label>
+                                    <input type="text" name="brand" id="brand"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                    <div id="brand-error" class="error-message"></div>
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Category:</label>
+                                    <input type="text" name="category" placeholder="gents/ladies/couples" id="category"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-400">
+                                    <div id="category-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <!-- Product Amount & Stock -->
+                            <div>
+                                <label class="block mb-1">Product Amount:</label>
+                                <input type="number" name="amount" id="amount"
+                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                <div id="amount-error" class="error-message"></div>
+                            </div>
+                            <div>
+                                <label class="block mb-1">Stock Count:</label>
+                                <input type="number" name="stock" id="stock"
+                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                <div id="stock-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Feature & New Product Options -->
+                            <div class="flex flex-col">
+                                <label class="block mb-1">Featured:</label>
+                                <div class="flex gap-4">
+                                    <label><input type="radio" name="featured" value="yes" class="mr-1"> Yes</label>
+                                    <label><input type="radio" name="featured" value="no" class="mr-1"> No</label>
+                                </div>
+                                <div id="featured-error" class="error-message"></div>
+                            </div>
+
+                            <!-- New Product (Yes/No) -->
+                            <div class="flex flex-col">
+                                <label class="block mb-1">New Product:</label>
+                                <div class="flex gap-4">
+                                    <label><input type="radio" name="new" value="yes" class="mr-1"> Yes</label>
+                                    <label><input type="radio" name="new" value="no" class="mr-1"> No</label>
+                                </div>
+                                <div id="new-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Colors -->
+                            <div class="md:col-span-2">
+                                <label class="block mb-1">Colours Available:</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                    <input type="text" name="colors[]"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
+                                </div>
+                                <div id="colors-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="md:col-span-2 flex justify-center">
+                                <button type="submit" id="submitButton"
+                                    class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600">
+                                    ADD PRODUCT
+                                </button>
+
+                            </div>
+
+                        </form>
+                    </div>
+
+                </div>
+        </div>
+        <script>
+
+
+
+
+            document.addEventListener("DOMContentLoaded", function () {
+                let isSubmitting = false;
+                const submitButton = document.getElementById("submitButton");
+                const form = document.getElementById("addProductForm");
+
+                form.addEventListener("submit", handleFormSubmit);
+
+                function handleFormSubmit(event) {
+                    event.preventDefault();
+
+                    if (isSubmitting) return;
+                    isSubmitting = true;
+                    submitButton.disabled = true;
+
+                    console.log("Form submitted");
+
+                    if (!validationForm()) {
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        return false;
+                    }
+                    const formData = new FormData();
+                    formData.append("name", document.getElementById("name").value);
+                    formData.append("description", document.getElementById("description").value);
+                    formData.append("brand", document.getElementById("brand").value);
+                    formData.append("category", document.getElementById("category").value);
+                    formData.append("amount", document.getElementById("amount").value);
+                    formData.append("stock", document.getElementById("stock").value);
+                    formData.append("image1", document.getElementById("imageUpload1").files[0]);
+                    formData.append("image2", document.getElementById("imageUpload2").files[0]);
+                    formData.append("image3", document.getElementById("imageUpload3").files[0]);
+                    document.getElementsByName("colors[]").forEach((input) => {
+                        if (input.value.trim() !== "") {
+                            formData.append("colors[]", input.value);
+                        }
+                    });
+
+                    const featuredValue = document.querySelector('input[name="featured"]:checked');
+                    if (featuredValue) {
+                        formData.append("featured", featuredValue.value);
+                    }
+
+                    const newValue = document.querySelector('input[name="new"]:checked');
+                    if (newValue) {
+                        formData.append("new", newValue.value);
+                    }
+
+                    fetch("/admin/add-productItem", {
+                        method: "POST",
+                        body: formData,
+                    })
+                        .then(async (response) => {
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.error || "Something went wrong");
+                            }
+                            return response.json();
+                        })
+                        .then((data) => {
+                            Swal.fire({ icon: "success", title: "Success", text: data.message });
+                            window.location.href = "/admin/products";
+                        })
+                        .catch(error => {
+                            Swal.fire({ icon: "error", title: "Oops", text: error.message });
+                            submitButton.disabled = false;
+                        })
+                        .finally(() => {
+                            isSubmitting = false;
+                        });
+
+                    return false;
+
+                    form.submit();
+                }
+
+                function validationForm() {
+                    clearErrorMessage();
+                    const name = document.getElementById('name').value.trim();
+                    const description = document.getElementById('description').value.trim();
+                    const brand = document.getElementById("brand").value.trim();
+                    const category = document.getElementById('category').value.trim();
+                    const amount = document.getElementById("amount").value.trim();
+                    const stock = document.getElementById("stock").value.trim();
+                    const categoryMatch = /^(gents|ladies|couples)$/i;
+                    const featuredSelected = document.querySelector('input[name="featured"]:checked');
+                    const newSelected = document.querySelector('input[name="new"]:checked');
+
+                    const colorInputs = document.querySelectorAll('input[name="colors[]"]');
+                    let isColorFilled = Array.from(colorInputs).some(input => input.value.trim() !== "");
+
+                    const image1 = document.getElementById('imageUpload1').files[0];
+                    const image2 = document.getElementById('imageUpload2').files[0];
+                    const image3 = document.getElementById('imageUpload3').files[0];
+
+                    let isValid = true;
+
+                    if (name === "") {
+                        displayErrorMessage("name-error", "Please enter a name");
+                        isValid = false;
+                    } else if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+                        displayErrorMessage("name-error", "Product name should start with a capital letter and contain only alphabets");
+                        isValid = false;
+                    }
+
+                    if (description === "") {
+                        displayErrorMessage("description-error", "Please enter a description");
+                        isValid = false;
+                    }
+
+                    if (brand === "") {
+                        displayErrorMessage("brand-error", "Please enter the brand name");
+                        isValid = false;
+                    }
+
+                    if (category === "") {
+                        displayErrorMessage("category-error", "Please enter the category");
+                        isValid = false;
+                    } else if (!categoryMatch.test(category)) {
+                        displayErrorMessage("category-error", "Please enter a valid category - gents/ladies/couples");
+                        isValid = false;
+                    }
+
+                    if (amount === "") {
+                        displayErrorMessage("amount-error", "Please enter the amount of the product");
+                        isValid = false;
+                    }
+
+                    if (stock === "") {
+                        displayErrorMessage("stock-error", "Please enter the stock of the product");
+                        isValid = false;
+                    }
+
+                    if (!(image1 && image2 && image3)) {
+                        displayErrorMessage("image-error", "Please upload exactly three images.");
+                        isValid = false;
+                    }
+                    if (!featuredSelected) {
+                        displayErrorMessage("featured-error", "Please select if the product is featured");
+                        isValid = false;
+                    }
+
+                    if (!newSelected) {
+                        displayErrorMessage("new-error", "Please select if the product is new");
+                        isValid = false;
+                    }
+
+                    if (!isColorFilled) {
+                        displayErrorMessage("colors-error", "Please enter at least one color");
+                        isValid = false;
+                    }
+
+                    return isValid;
+                }
+
+                function displayErrorMessage(elementId, message) {
+                    var errorElement = document.getElementById(elementId);
+                    errorElement.innerText = message;
+                    errorElement.style.display = 'block';
+                }
+
+                function clearErrorMessage() {
+                    const errorElements = document.getElementsByClassName('error-message');
+                    Array.from(errorElements).forEach((element) => {
+                        element.innerText = "";
+                        element.style.display = "none";
+                    });
+                }
+            });
+
+            function displayBackendError(errorMessage) {
+                Swal.fire({ icon: "error", title: "Oops", text: errorMessage });
+            }
+
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const fileInput = document.getElementById("imageUpload");
+                const previewContainer = document.getElementById("imagePreview");
+
+                fileInput.addEventListener("change", function () {
+                    previewContainer.innerHTML = "";
+
+                    if (this.files.length > 3) {
+                        alert("You can only upload up to 3 images.");
+                        this.value = "";
+                        return;
+                    }
+
+                    Array.from(this.files).forEach(file => {
+                        if (!file.type.startsWith("image/")) {
+                            alert("Only image files are allowed.");
+                            fileInput.value = "";
+                            return;
+                        }
+
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement("img");
+                            img.src = e.target.result;
+                            img.classList.add("w-24", "h-24", "rounded-lg", "object-cover", "mr-2", "mb-2");
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+            });
+
+        </script>
+
+</body>
+
+</html>

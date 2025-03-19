@@ -1,11 +1,3 @@
-<style>
-    .error-message {
-        color: red;
-        font-size: 0.75rem;
-        display: none;
-    }
-</style>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -13,178 +5,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <title>Add Brand</title>
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.75rem;
+            display: none;
+        }
+    </style>
 </head>
 
 <body class="bg-gray-900 text-white">
-    
+
     <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar') %>
-    
-    <div class="flex">
-        <!-- Sidebar -->
-        <%- include('../../views/partials/admin/sidebar') %>
-        
-        <!-- Main Content -->
-        <div class="container mx-auto p-4 md:p-6">
-            <div class="max-w-4xl mx-auto bg-gray-800 p-4 rounded-lg shadow-lg">
-                
-                <!-- Page Title -->
-                <h1 class="text-2xl font-bold mb-4 text-center">Add Brand</h1>
-                
-                <!-- Add Brand Form -->
-                <form method="POST" action="/admin/addBrand" onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-                    
-                    <!-- Image Upload Section -->
-                    <div class="col-span-1 flex flex-col items-center">
-                        <label class="block text-sm font-medium mb-2">Add Image:</label>
-                        <div class="w-40 h-52 border-2 border-gray-500 rounded-md flex items-center justify-center bg-gray-700">
-                            <input type="file" id="fileInput" class="hidden" onchange="previewImage(event)" name="fileInput">
-                            <label for="fileInput" class="cursor-pointer flex items-center justify-center">
-                                <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
-                                <span id="uploadText" class="text-gray-400">Upload</span>
-                            </label>
-                            <div id="image-error" class="error-message"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Brand Information Fields -->
-                    <div class="col-span-2 grid grid-cols-1 md:grid-row-1 gap-4">
-                        
-                        <!-- Brand Name Field -->
-                        <div>
-                            <label class="block text-sm font-medium">Brand Name:</label>
-                            <input type="text" placeholder="Enter brand name" id="name" name="name"
-                                class="w-1/2 p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400">
-                                <div id="name-error" class="error-message"></div>
 
-                            </div>
-                        
-                        <!-- Description Field -->
-                        <div>
-                            <label class="block text-sm font-medium">Description:</label>
-                            <textarea id="description" name="description"
-                                class="w-1/2 p-2 h-24 rounded-md bg-gray-700 text-white border border-gray-600 outline-none focus:ring-2 focus:ring-blue-400"
-                                placeholder="Enter description..."></textarea>
-                                <div id="description-error" class="error-message"></div>
+        <div class="flex">
+            <!-- Sidebar -->
+            <%- include('../../views/partials/admin/sidebar') %>
 
+                <!-- Main Content -->
+                <div class="container mx-auto p-4 md:p-6">
+                    <div class="max-w-4xl mx-auto bg-gray-800 p-4 rounded-lg shadow-lg">
+
+                        <!-- Page Title -->
+                        <h1 class="text-2xl font-bold mb-4 text-center">Add Brand</h1>
+
+                        <!-- Add Brand Form -->
+                        <form  enctype="multipart/form-data"
+                            onsubmit="return handleFormSubmit(event)"
+                            class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+
+                            <!-- Image Upload Section -->
+                            <div class="col-span-1 flex flex-col items-center">
+                                <label class="block text-sm font-medium mb-2">Add Image:</label>
+                                <div
+                                    class="w-40 h-52 border-2 border-gray-500 rounded-md flex items-center justify-center bg-gray-700">
+                                    <input type="file" id="fileInput" class="hidden" onchange="previewImage(event)"
+                                        name="image">
+                                    <label for="fileInput" class="cursor-pointer flex items-center justify-center">
+                                        <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
+                                        <span id="uploadText" class="text-gray-400">Upload</span>
+                                    </label>
+                                </div>
+                                <div id="image-error" class="error-message"></div>
                             </div>
-                        
+
+                            <!-- Brand Name Field -->
+                            <div class="col-span-2 grid grid-cols-1 md:grid-row-1 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium">Brand Name:</label>
+                                    <input type="text" placeholder="Enter brand name" id="name" name="name"
+                                        class="w-1/2 p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400">
+                                    <div id="name-error" class="error-message"></div>
+                                </div>
+
+                                <!-- Description Field -->
+                                <div>
+                                    <label class="block text-sm font-medium">Description:</label>
+                                    <textarea id="description" name="description"
+                                        class="w-1/2 p-2 h-24 rounded-md bg-gray-700 text-white border border-gray-600 outline-none focus:ring-2 focus:ring-blue-400"
+                                        placeholder="Enter description..."></textarea>
+                                    <div id="description-error" class="error-message"></div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-span-3 flex justify-center">
+                                <button type="submit" id="submitButton"
+                                    class="bg-green-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-green-500 transition">
+                                    ADD BRAND
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    
-                    <!-- Submit Button -->
-                    <div class="col-span-3 flex justify-center">
-                        <button type="submit"
-                            class="bg-green-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-green-500 transition">
-                            ADD BRAND
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
         </div>
-    </div>
-    
-    <!-- JavaScript for Image Preview -->
-    <script>
-        function handleFormSubmit(event){
-            event.preventDefault();
-            if(!validationForm()){
-                return ;
-            }
-            const name=document.getElementsByName("name")[0].value;
-            const description=getElementById('description').value;
-            const image=document.getElementById('fileInput').files;
 
-            fetch("/admin/addBrand",{
-                method:"POST",
-                headers:{
-                    'content-type':'application/json'
-                },
-                body:JSON.stringify({name,description,image})
-            }).then(response=>{
-                if(!response.ok){
-                    return response.json().then(err=>{
-                        throw new Error(err.error);
-                    })
+        <!-- JavaScript for Validation and Form Submission -->
+        <script>
+            let isSubmitting = false;
+            const submitButton = document.getElementById("submitButton");
+
+            function handleFormSubmit(event) {
+                event.preventDefault(); // Prevent default submission
+
+                if (isSubmitting) return;
+                isSubmitting = true;
+                submitButton.disabled = true;
+
+                console.log("Form submitted");
+
+                if (!validationForm()) {
+                    isSubmitting = false;
+                    submitButton.disabled = false; // Re-enable button if validation fails
+                    return false;
                 }
-                return response.json();
-            })
-            .then(data=>{
-                location.reload();
-            })
-            .catch(error=>{
-                if(error.message==="Brand Already exists"){
-                    Swal.fire({
-                        icon:'error',
-                        title:"Oops",
-                        text:"Brand already exists"
+
+                const formData = new FormData();
+                formData.append("name", document.getElementById("name").value);
+                formData.append("description", document.getElementById("description").value);
+                formData.append("image", document.getElementById("fileInput").files[0]);
+
+                fetch("/admin/addBrand", {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then(async (response) => {
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || "Something went wrong");
+                        }
+                        return response.json();
                     })
-                }else{
-                    Swal.fire({
-                        icon:"error",
-                        title:'Oops',
-                        text:"An error occured while adding the brand" 
+                    .then((data) => {
+                        Swal.fire({ icon: "success", title: "Success", text: data.message });
+                        window.location.href = "/admin/brands";
                     })
+                    .catch(error => {
+                        Swal.fire({ icon: "error", title: "Oops", text: error.message });
+                        submitButton.disabled = false;
+                    })
+                    .finally(() => {
+                        isSubmitting = false;
+                    });
+
+                return false;
+            }
+
+            function validationForm() {
+                clearErrorMessage();
+                const name = document.getElementById('name').value.trim();
+                const description = document.getElementById('description').value.trim();
+                const image = document.getElementById('fileInput').files[0];
+                let isValid = true;
+
+                console.log("Validation Check: ", { name, description, image });
+
+                if (name === "") {
+                    displayErrorMessage("name-error", "Please enter a name");
+                    isValid = false;
+                } else if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+                    displayErrorMessage("name-error", "Brand name should start with a capital letter and contain only alphabets");
+                    isValid = false;
                 }
-            })
 
-        }
-        function validationForm(){
-            clearErrorMessage();
-            const name=document.getElementById('name')[0].value.trim();
-            const description=document.getElementById('description').value.trim();
-            const image=document.getElementById('fileInput').files[0]
-            isValid=true
+                if (description === "") {
+                    displayErrorMessage("description-error", "Please enter a description");
+                    isValid = false;
+                }
 
-            if(name===""){
-                displayErrorMessage("name-error","Please enter a name");
-                isValid=false
-            }
-            else if(!/^[A-Z][a-zA-Z\s]*$/.test(name)){
-                displayErrorMessage("name-error","Brand name should contain only alphabets and first letter should be a capital letter")
-                isValid=false
-            }
-            if(description===""){
-                displayErrorMessage('description-error','Please enter a description')
-                isValid=false
-            }
-            if(!image){
-                displayErrorMessage('image-error',"Please upload a image")
+                if (!image) {
+                    displayErrorMessage("image-error", "Please upload an image");
+                    isValid = false;
+                }
+
+                return isValid;
             }
 
-            return isValid;
-        }
-        function displayErrorMessage(elementId,message){
-            var errorElement=document.getElementById(elementId);
-            errorElement.innerText=message
-            errorElement.style.display='block'
-        }
-        function clearErrorMessage(){
-            const errorElement=document.getElementsByClassName('error-message');
-            Array.from(errorElement).forEach((element)=>{
-                element.innerText="";
-                element.style.display="none"
-            })
-        }
-
-
-
-        function previewImage(event) {
-            const file = event.target.files[0];
-            const reader = new FileReader();
-
-            reader.onload = function () {
-                const img = document.getElementById("imagePreview");
-                img.src = reader.result;
-                img.classList.remove("hidden");
-                document.getElementById("uploadText").classList.add("hidden");
-            };
-
-            if (file) {
-                reader.readAsDataURL(file);
+            function displayErrorMessage(elementId, message) {
+                var errorElement = document.getElementById(elementId);
+                errorElement.innerText = message;
+                errorElement.style.display = 'block';
             }
-        }
-    </script>
+
+            function clearErrorMessage() {
+                const errorElements = document.getElementsByClassName('error-message');
+                Array.from(errorElements).forEach((element) => {
+                    element.innerText = "";
+                    element.style.display = "none";
+                });
+            }
+
+            function displayBackendError(errorMessage) {
+                Swal.fire({ icon: "error", title: "Oops", text: errorMessage });
+            }
+
+            function previewImage(event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function () {
+                    const img = document.getElementById("imagePreview");
+                    img.src = reader.result;
+                    img.classList.remove("hidden");
+                    document.getElementById("uploadText").classList.add("hidden");
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            }); 
+        </script>
 
 </body>
 

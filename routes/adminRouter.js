@@ -4,6 +4,8 @@ const adminController=require('../controllers/admin/adminController');
 const {userAuth,adminAuth}=require("../middlewares/auth");
 const customerController=require("../controllers/admin/customerController");
 const brandController=require('../controllers/admin/brandController');
+const productController=require("../controllers/admin/productContoller")
+
 
 //login management
 router.get('/login',adminController.loadLogin);
@@ -21,9 +23,15 @@ router.get("/edit-user",adminAuth,customerController.editUser);
 
 //brand management
 router.get('/brands',adminAuth,brandController.brandInfo)
-router.post('/addBrand',adminAuth,brandController.addBrand)
+router.post("/addBrand", adminAuth, brandController.upload.single("image"), brandController.addBrand);
 router.get('/add-brandItem',adminAuth,brandController.addBrandItem)
+router.get("/edit-brand",adminAuth,brandController.editBrand)
+router.post("/editBrandDetails", adminAuth, brandController.upload.single("image"), brandController.editBrandDetails);
+router.post('/delete-brand',adminAuth,brandController.deleteBrand)
 
-
+//products management
+router.get('/products',adminAuth,productController.productInfo)
+router.get("/add-product",adminAuth,productController.addProduct)
+router.post("/add-productItem",adminAuth,productController.addProductItem,productController.upload.array('images',3))
 
 module.exports=router;

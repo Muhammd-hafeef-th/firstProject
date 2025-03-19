@@ -40,10 +40,18 @@ const productSchema=new Schema({
         required:true
     },
     productImage:{
-        type:[string],
+        type:[String],
         required:true
     },
     isBlocked:{
+        type:Boolean,
+        default:false
+    },
+    isFeatured:{
+        type:Boolean,
+        default:false
+    },
+    isNew:{
         type:Boolean,
         default:false
     },

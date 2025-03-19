@@ -8,10 +8,12 @@ const db = require("./config/db");
 const passport = require("./config/passport");
 const userRouter = require("./routes/userRouter");
 const adminRouter=require("./routes/adminRouter")
+const bodyParser = require("body-parser");
 
 db();
 
 app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
 
@@ -45,6 +47,8 @@ app.use((req, res, next) => {
 app.set("view engine", "ejs");
 app.set("views", [path.join(__dirname, "views/user"), path.join(__dirname, "views/admin")]);
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads"))); 
+
 
 app.use("/", userRouter);
 app.use('/admin',adminRouter);

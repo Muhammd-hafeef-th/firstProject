@@ -7,7 +7,7 @@ const brandSchema=new Schema({
         required:true
     },
     brandImage:{
-        type:[String],
+        type:String,
         required:true
     },
     description:{
@@ -22,11 +22,7 @@ const brandSchema=new Schema({
         type:Number,
         default:0
     },
-    createdAt:{
-        type:Date,
-        default:Date.now
-    }
-})
+},{timestamps:true})
 
 const Brand=mongoose.model("Brand",brandSchema)
 
