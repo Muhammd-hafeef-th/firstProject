@@ -11,6 +11,11 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage: storage });
+// Use .fields() to handle different image fields
+const upload = multer({ storage: storage }).fields([
+    { name: 'images1', maxCount: 1 },
+    { name: 'images2', maxCount: 1 },
+    { name: 'images3', maxCount: 1 }
+]);
 
 module.exports = upload;

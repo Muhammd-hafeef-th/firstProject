@@ -14,30 +14,41 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-const brandInfo=async (req,res)=>{
+const brandInfo = async (req, res) => {
     try {
-        const page=parseInt(req.query.page)||1
-        const limit=5 ;
-        const skip=(page-1)*limit;
+        let Search = "";
+        if (req.query.search) {
+            Search = req.query.search;
+        }
 
-        const  brandData=await Brand.find({})
-        .sort({createdAt:-1})
+        const page = parseInt(req.query.page) || 1;
+        const limit = 5;
+        const skip = (page - 1) * limit;
+
+        const brandData = await Brand.find({
+            brandName: { $regex: ".*" + Search + ".*", $options: "i" }
+        })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 
-        const totalBrand=await Brand.countDocuments();
-        const totalPages=Math.ceil(totalBrand/limit);
-        res.render('brand',{
-            brands:brandData,
-            currentPage:page,
-            totalPages:totalPages,
-            totalBrands:totalBrand  
+        const totalBrand = await Brand.countDocuments({
+            brandName: { $regex: ".*" + Search + ".*", $options: "i" }
+        });
+
+        const totalPages = Math.ceil(totalBrand / limit);
+        res.render('brand', {
+            brands: brandData,
+            currentPage: page,
+            totalPages: totalPages,
+            totalBrands: totalBrand  
         });
     } catch (error) {
-        console.log("Something error in brandinfo",error)
-        res.redirect("/pageError")
+        console.log("Something error in brandInfo", error);
+        res.redirect("/pageError");
     }
-}
+};
+
 
 const addBrand = async (req, res) => {
     try {
@@ -113,7 +124,7 @@ const editBrandDetails = async (req, res) => {
         );
         res.redirect("/admin/brands");
     } catch (error) {
-        console.log("Error in editBrandDetails:", error);
+        console.log("Error in edit Brand Details:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };

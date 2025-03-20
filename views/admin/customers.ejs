@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
 </head>
 
 <body class="bg-gray-900 text-white min-h-screen">
@@ -26,10 +28,21 @@
             </div>
 
             <!-- Search Input -->
-            <div class="mb-4 w-full">
-                <input type="text" id="search" placeholder="Search users..."
-                    class="w-full p-2 rounded-md text-black outline-none" onkeyup="filterUsers()">
-            </div>
+             <div class="flex gap-5 w-2/6">
+                <div class="mb-4  relative">
+                    <input type="text" id="search" placeholder="Search users..."
+                        class="w-full p-2 pr-10 rounded-md text-black outline-none" onkeyup="filterUsers()">
+                    <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                </div>
+                <form action="/admin/users">
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600" >
+                        Clear
+                    </button>
+                </form>
+             </div>
+            
+            
+            
 
             <!-- User Table -->
             <div class="overflow-x-auto">

@@ -5,6 +5,7 @@ const {userAuth,adminAuth}=require("../middlewares/auth");
 const customerController=require("../controllers/admin/customerController");
 const brandController=require('../controllers/admin/brandController');
 const productController=require("../controllers/admin/productContoller")
+const upload = require('../middlewares/multerConfig');
 
 
 //login management
@@ -32,6 +33,10 @@ router.post('/delete-brand',adminAuth,brandController.deleteBrand)
 //products management
 router.get('/products',adminAuth,productController.productInfo)
 router.get("/add-product",adminAuth,productController.addProduct)
-router.post("/add-productItem",adminAuth,productController.addProductItem,productController.upload.array('images',3))
+router.post("/add-productItem", adminAuth, productController.upload.array('images', 3), productController.addProductItem);
+router.get("/edit-product", adminAuth, productController.editProduct);
+router.post("/edit-productItem", adminAuth, upload, productController.editProductItem);
+router.post("/delete-product",adminAuth,productController.deleteProduct)
+
 
 module.exports=router;
