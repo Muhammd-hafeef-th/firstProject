@@ -40,9 +40,10 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-    res.locals.message = req.flash("error");
+    res.locals.messages = req.flash(); 
     next();
 });
+
 
 app.set("view engine", "ejs");
 app.set("views", [path.join(__dirname, "views/user"), path.join(__dirname, "views/admin")]);

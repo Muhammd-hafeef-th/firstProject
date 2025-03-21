@@ -2,15 +2,31 @@ const User = require('../../models/userSchema');
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
+const Product=require('../../models/productSchema')
+const Brand=require("../../models/brandSchema")
 
 const loadHomepage = async (req, res) => {
     try {
         const user=req.session.user
+        let productsData=await Product.find({quantity:{$gt:0}})
+        let featuredData=await Product.find({isFeatured:true,quantity:{$gt:0}})
+        let newArrivalsData=await Product.find({isNew:true,quantity:{$gt:0}})
+        const brandData=await Brand.find({})
+         
+        productsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        productsData=productsData.slice(0,3)
+
+        featuredData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        featuredData=featuredData.slice(0,3);
+
+        newArrivalsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        newArrivalsData=newArrivalsData.slice(0,4);
+
         if(user){
             const userData=await User.findOne({_id:user._id})
-            res.render('home', { user:userData });
+            res.render('home', { user:userData,products:productsData,featured:featuredData,newArrival:newArrivalsData,brands:brandData});
         }else{
-            return res.render('home');
+            return res.render('home',{products:productsData,featured:featuredData,newArrival:newArrivalsData,brands:brandData});
         }
        
     } catch (error) {
@@ -216,6 +232,81 @@ const logout = (req, res) => {
     });
 };
 
+
+
+const featuredProducts=async (req,res)=>{
+    try {
+        let featuredData=await Product.find({isFeatured:true,quantity:{$gt:0}})
+        featuredData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        res.render("featured-products",{featured:featuredData})
+    } catch (error) {
+        console.log("Featured products error")
+        res.redirect('/pageNotFound');
+    }
+}
+const products=async (req,res)=>{
+    try {
+        let productsData=await Product.find({quantity:{$gt:0}})
+        productsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+
+        res.render("products",{products:productsData})
+    } catch (error) {
+        console.log("Products error")
+        res.redirect('/pageNotFound');
+        
+    }
+}
+const newArrivals=async (req,res)=>{
+    try {
+        let newArrivalsData=await Product.find({isNew:true,quantity:{$gt:0}})
+        newArrivalsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+
+        res.render("new-arrivals",{newArrivals:newArrivalsData})
+    } catch (error) {
+        console.log("New Arrivals error")
+        res.redirect('/pageNotFound');
+    }
+}
+
+const mensWatch=async (req,res)=>{
+    try {
+        let gentsMatch = /gents/i;
+        let mensWatch=await Product.find({category:gentsMatch});
+        res.render("mens-watch",{gents:mensWatch})
+    } catch (error) {
+        console.log("mens watch error")
+        res.redirect('/pageNotFound');
+    }
+}
+const ladiesWatch=async (req,res)=>{
+    try {
+        let ladiesMatch = /ladies/i;
+        let ladiesWatch=await Product.find({category:ladiesMatch});
+        res.render("ladies-watch",{ladies:ladiesWatch})
+    } catch (error) {
+        console.log("ladies watch error")
+        res.redirect('/pageNotFound');
+        
+    }
+}
+const couplesWatch=async (req,res)=>{
+    try {
+        let couplesMatch = /couples/i;
+        let couplesWatch=await Product.find({category:couplesMatch});
+        res.render("couples-watch",{couples:couplesWatch})
+    } catch (error) {
+        console.log("couples watch error")
+        res.redirect('/pageNotFound');
+        
+    }
+}
+const brandButton =async (req,res)=>{
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -225,5 +316,12 @@ module.exports = {
     resendOtp,
     loadLogin,
     login,
-    logout
+    logout,
+    featuredProducts,
+    products,
+    newArrivals,
+    mensWatch,
+    ladiesWatch,
+    couplesWatch,
+    brandButton
 };

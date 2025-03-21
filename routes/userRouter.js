@@ -47,5 +47,14 @@ router.post('/forgot-email-valid',profileController.forgotEmailValid);
 router.post("/verify-passForgot-otp",profileController.verifyForgotPassOtp)
 router.get("/reset-password",profileController.resetPassword)
 router.post('/resend-forgot-otp',profileController.resendOtp)
-router.post('/reset-password',profileController.postNewPassword);    
+router.post('/reset-password',profileController.postNewPassword);  
+
+router.get("/featured",userController.featuredProducts);
+router.get("/products",userController.products);
+router.get("/newArrivals",userController.newArrivals);
+router.get("/mensWatch",userController.mensWatch)
+router.get("/ladiesWatch",userController.ladiesWatch)
+router.get("/couplesWatch",userController.couplesWatch)
+router.get("/brandButton",userController.brandButton)
+
 module.exports = router;

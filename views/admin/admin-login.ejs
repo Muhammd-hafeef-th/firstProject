@@ -1,4 +1,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
+<style>
+    .error-message {
+        color: red;
+        font-size: 0.75rem;
+        display: none;
+    }
+</style>
 
 <section class="bg-[#121317] min-h-screen">
     <div class="bg-[#121317] flex ">
@@ -13,17 +20,72 @@
             <div class="md:w-1/2 px-16 bg-[#24262D]">
                 <h1 class="font-bold text-2xl text-white mt-10 ">Admin Login</h1>
                 <h6 class="text-white mt-14 ml-1">Email</h6>
-                <form method="POST" action="/admin/login" class="flex flex-col">
+                <form method="POST" action="/admin/login" id="loginForm" class="flex flex-col" >
                     <input class="rounded-xl border p-2 text-black" type="email" id="email" name="email"
                         placeholder="email">
+                        <div id="error-email" class="error-message"></div>
                     <h6 class="text-white mt-7 ml-1">Password</h6>
                     <input class="rounded-xl border p-2 text-black" type="password" id="password" name="password"
                         placeholder="password">
+                        <div id="error-password" class="error-message"></div>
+                        <% if (messages.error && messages.error.length > 0) { %>
+                            <div class="bg-red-500 text-white mt-3 text-center rounded-xl h-8">
+                                <%= messages.error[0] %>  
+                            </div>
+                        <% } %>
                     <button type="submit" class="bg-[#7E3AF2] text-white py-1 mt-8 mb-15">Login</button>
+                
                 </form>
+                
+                
             </div>
 
         </div>
     </div>
 
 </section>
+<script>
+    const password=document.getElementById("password")  
+     const email=document.getElementById('email')
+     const errorPassword=document.getElementById("error-password")
+     const errorEmail=document.getElementById("error-email")
+     const loginForm=document.getElementById('loginForm')
+    function passwordValidation(){
+        const passwordValue=password.value
+     if(passwordValue===""){
+        errorPassword.style.display = 'block';
+        errorPassword.innerHTML = 'Please enter the password';
+       
+     }
+     else{
+        errorPassword.style.display = 'none';
+        errorPassword.innerHTML = '';
+        
+     }
+     
+    }
+    function emailValidation(){
+        const emailValue=email.value;
+        if(emailValue===""){
+        errorEmail.style.display = 'block';
+        errorEmail.innerHTML = 'Please enter the email';
+      
+     }
+     else{
+        errorEmail.style.display = 'none';
+        errorEmail.innerHTML = '';
+      
+     }
+    }
+    document.addEventListener("DOMContentLoaded", function () {
+        loginForm.addEventListener("submit", (e) => {
+            emailValidation();
+            passwordValidation();
+
+            if (errorPassword.innerHTML || errorEmail.innerHTML) {
+                e.preventDefault();
+            }
+        });
+    });
+
+</script>

@@ -1,0 +1,33 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <section class="bg-[#1F1F1F] py-12">
+        <div class="container mx-auto text-center">
+            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
+            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">NEW ARRIVALS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:m-10">
+                <% newArrivals.forEach(watch=> { %>
+                    <div class="bg-[#E8B888] p-6 rounded-lg relative">
+                        <a href="/productDetails?id=<%= watch._id %>">
+                            <span
+                                class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
+                            <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
+                                class="mx-auto w-48 h-64 object-contain">
+                        </a>
+                        <h3 class="text-black text-lg font-semibold mt-4">
+                            <%= watch.productName %>
+                        </h3>
+                        <p class="text-black text-xl font-semibold">$
+                            <%= watch.regularPrice %>
+                        </p>
+                        <a href="/addtoCart?id=<%= watch._id %>">
+                            <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
+                        </a>
+                    </div>
+                    <% }) %>
+            </div>
+    </section>
+
+
+
+
+    <%- include('../../views/partials/user/footer')%>

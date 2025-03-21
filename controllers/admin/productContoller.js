@@ -3,6 +3,7 @@ const Product = require("../../models/productSchema");
 const fs = require('fs');
 const path = require("path");
 const multer = require('multer')
+const Brand = require("../../models/brandSchema")
 
 const productInfo = async (req, res) => {
     try {
@@ -53,6 +54,12 @@ const addProductItem = async (req, res) => {
         if (!productImages) {
             return res.status(400).json({ error: "Please upload three images" });
         }
+        const brandExists = await Brand.findOne({ brandName: brand.trim() });
+        if (!brandExists) {
+            return res.status(400).json({ error: "Brand does not exist. Please add the brand first." });
+        }
+
+
 
         const newProduct = new Product({
             productName: name.trim(),
@@ -111,11 +118,11 @@ const editProductItem = async (req, res) => {
     try {
         const productId = req.body.productId;
         if (!productId) {
-            return res.status(400).json({ error: "Product ID is missing" });
+            return res.redirect(`/admin/edit-product?id=${productId}&error=Product ID is missing`);
         }
         const product = await Product.findById(productId);
         if (!product) {
-            return res.status(404).json({ error: "Product not found" });
+            return res.redirect(`/admin/edit-product?id=${productId}&error=Product not found`);
         }
         const { name, description, brand, category, amount, stock, featured, new: isNew, colors } = req.body;
         const colorArray = Array.isArray(colors) ? colors.filter(c => c.trim() !== "") : (colors ? [colors] : []);
@@ -133,6 +140,10 @@ const editProductItem = async (req, res) => {
                 productImages[2] = '/uploads/' + req.files['images3'][0].filename; 
             }
         }
+        const brandExists = await Brand.findOne({ brandName: brand.trim() });
+        if (!brandExists) {
+            return res.redirect(`/admin/edit-product?id=${productId}&error=Brand does not exist. Please add the brand first`);
+        }
         const updateData = {
             productName: name,
             description,
@@ -147,14 +158,14 @@ const editProductItem = async (req, res) => {
         };
         const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true });
         if (!updatedProduct) {
-            return res.status(400).json({ error: "No changes made to the product" });
+            return res.redirect(`/admin/edit-product?id=${productId}&error=No changes made to the product`);
         }
 
         res.redirect("/admin/products");
 
     } catch (error) {
         console.error("Error updating product:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        return res.redirect(`/admin/edit-product?id=${productId}&error=Internal Server Error`);
     }
 };
 

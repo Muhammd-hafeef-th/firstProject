@@ -12,7 +12,7 @@ const upload = require('../middlewares/multerConfig');
 router.get('/login',adminController.loadLogin);
 router.post('/login',adminController.login);
 router.get('/',adminAuth,adminController.loadDashboard)
-router.get('/logout',adminController.logout);
+router.post('/logout',adminController.logout);
 
 router.get('/pageError',adminController.pageError);
 //user management
