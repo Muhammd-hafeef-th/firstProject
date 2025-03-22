@@ -1,0 +1,122 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+
+    <main class="main">
+        <div class="bg-[#1F1F1F] py-4">
+
+
+            <section class=" mb-12 bg-[#1F1F1F]">
+                <div class="container  ">
+                    <% productDet.forEach(watch=> { %>
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div class="relative w-3/5 lg:ml-32 overflow-hidden">
+                                <span class="absolute top-2 right-2 p-2 bg-black bg-opacity-50 rounded-full">
+                                    <i class="fas fa-search text-white text-lg"></i>
+                                </span>
+                                <div class="h-96 w-full rounded-lg overflow-hidden">
+                                    <img id="zoomImage" class="w-full h-full object-cover"
+                                        src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>">
+                                </div>
+                                <div class="flex space-x-2 mt-5 ml-24">
+                                    <% watch.productImage.forEach((image, index)=> { %>
+                                        <img class="w-16 h-16 object-cover rounded-lg cursor-pointer" src="<%= image %>"
+                                            alt="Thumbnail <%= index + 1 %>" onclick="changeMainImage('<%= image %>')">
+                                        <% }) %>
+                                </div>
+                            </div>
+
+
+                            <div>
+                                <h2 class="text-2xl font-bold mb-2 text-white">
+                                    <%= watch.productName %>
+                                </h2>
+                                <div class="flex items-center justify-between text-sm text-gray-300">
+                                    <span>Brands: <a href="#" class="text-yellow-300">
+                                            <%=watch.brand%>
+                                        </a></span>
+                                    <div class="flex items-center">
+                                        <div class="flex space-x-1 text-yellow-200">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <span class="ml-2">(25 reviews)</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-300 my-4"></div>
+                                <div class="flex items-center space-x-4 mt-4">
+                                    <span class="text-2xl text-yellow-300 font-semibold">
+                                        <%=watch.regularPrice%>
+                                    </span>
+                                    <span class="line-through text-gray-400 text-lg"></span>
+                                </div>
+                                <div class="border-t border-gray-300 my-4"></div>
+                                <p class="text-gray-300 ">
+                                    <%=watch.description%>
+                                </p>
+                                <h4 class="text-yellow-300 mb-4">
+                                    Colour Available: <span class="text-gray-300"><%= watch.color %></span>
+                                </h4>
+                                <ul class="text-sm text-gray-300 space-y-2">
+                                    <li><i class="fi-rs-crown mr-2"></i> 1 Year Brand Warranty</li>
+                                    <li><i class="fi-rs-refresh mr-2"></i> 30 Day Return Policy</li>
+                                    <li><i class="fi-rs-credit-card mr-2"></i> Cash on Delivery available</li>
+                                </ul>
+                                <div class="border-t border-gray-300 my-6"></div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex items-center border border-gray-300 rounded-lg px-3 py-2">
+                                        <button class="text-gray-300" onclick="">-</button>
+                                        <span class="mx-4 text-white" id="quantity">1</span>
+                                        <button class="text-gray-300" onclick="">+</button>
+                                    </div>
+                                    <button class="bg-yellow-300 text-white px-6 py-2 rounded-lg">Add to Cart</button>
+                                    <a href="#" class="text-gray-300 hover:text-red-500"><i class="fi-rs-heart"></i></a>
+                                </div>
+                                <ul class="text-sm text-gray-300 mt-6">
+                                    <li>Stock Code: <a href="#" class="text-yellow-300">FWM15VKT</a></li>
+                                    <li>Tags: <a href="#" class="text-yellow-300">
+                                            <%=watch.category%>
+                                        </a>
+                                    </li>
+                                    <li>Availability: <span class="text-green-500">
+                                            <%=watch.quantity%>
+                                        </span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+        </div>
+        </section>
+    </main>
+
+
+    <script>
+        const zoomImage = document.getElementById('zoomImage');
+
+        zoomImage.addEventListener('mousemove', function (event) {
+            let { left, top, width, height } = zoomImage.getBoundingClientRect();
+            let x = ((event.pageX - left) / width) * 100;
+            let y = ((event.pageY - top) / height) * 100;
+            zoomImage.style.transformOrigin = `${x}% ${y}%`;
+            zoomImage.style.transform = "scale(2)";
+        });
+
+        zoomImage.addEventListener('mouseleave', function () {
+            zoomImage.style.transform = "scale(1)";
+        });
+
+        function changeMainImage(newSrc) {
+            zoomImage.src = newSrc;
+        }
+    </script>
+
+
+
+
+
+    <%- include('../../views/partials/user/footer')%>

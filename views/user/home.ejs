@@ -189,7 +189,18 @@
                 </button>
         </section>
 
-
+<script>
+     document.getElementById("search-toggle").addEventListener("click", function() {
+        let searchBox = document.getElementById("mobile-search");
+        searchBox.classList.toggle("hidden");
+      });
+  
+      // Toggle mobile menu
+      document.getElementById("menu-toggle").addEventListener("click", function() {
+        let menu = document.getElementById("navbar-search");
+        menu.classList.toggle("hidden");
+      });
+</script>
 
     </div>
 

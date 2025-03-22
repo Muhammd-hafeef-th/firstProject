@@ -56,5 +56,9 @@ router.get("/mensWatch",userController.mensWatch)
 router.get("/ladiesWatch",userController.ladiesWatch)
 router.get("/couplesWatch",userController.couplesWatch)
 router.get("/brandButton",userController.brandButton)
+router.post("/filter-product",userController.filterProduct);
+
+
+router.get("/productDetails",userController.productDetails)
 
 module.exports = router;

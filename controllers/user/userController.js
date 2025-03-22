@@ -2,33 +2,34 @@ const User = require('../../models/userSchema');
 const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
-const Product=require('../../models/productSchema')
-const Brand=require("../../models/brandSchema")
+const Product = require('../../models/productSchema')
+const Brand = require("../../models/brandSchema");
+const { trace } = require('../../routes/userRouter');
 
 const loadHomepage = async (req, res) => {
     try {
-        const user=req.session.user
-        let productsData=await Product.find({quantity:{$gt:0}})
-        let featuredData=await Product.find({isFeatured:true,quantity:{$gt:0}})
-        let newArrivalsData=await Product.find({isNew:true,quantity:{$gt:0}})
-        const brandData=await Brand.find({})
-         
-        productsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-        productsData=productsData.slice(0,3)
+        const user = req.session.user
+        let productsData = await Product.find({ quantity: { $gt: 0 } })
+        let featuredData = await Product.find({ isFeatured: true, quantity: { $gt: 0 } })
+        let newArrivalsData = await Product.find({ isNew: true, quantity: { $gt: 0 } })
+        const brandData = await Brand.find({})
 
-        featuredData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-        featuredData=featuredData.slice(0,3);
+        productsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        productsData = productsData.slice(0, 3)
 
-        newArrivalsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-        newArrivalsData=newArrivalsData.slice(0,4);
+        featuredData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        featuredData = featuredData.slice(0, 3);
 
-        if(user){
-            const userData=await User.findOne({_id:user._id})
-            res.render('home', { user:userData,products:productsData,featured:featuredData,newArrival:newArrivalsData,brands:brandData});
-        }else{
-            return res.render('home',{products:productsData,featured:featuredData,newArrival:newArrivalsData,brands:brandData});
+        newArrivalsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        newArrivalsData = newArrivalsData.slice(0, 4);
+
+        if (user) {
+            const userData = await User.findOne({ _id: user._id })
+            res.render('home', { user: userData, products: productsData, featured: featuredData, newArrival: newArrivalsData, brands: brandData });
+        } else {
+            return res.render('home', { products: productsData, featured: featuredData, newArrival: newArrivalsData, brands: brandData });
         }
-       
+
     } catch (error) {
         console.error('Home page is not found', error);
         res.status(500).send('Server error');
@@ -52,41 +53,41 @@ const loadSignup = async (req, res) => {
     }
 };
 
-function generateOtp(){
-    const digits='1234567890';
-    let otp='';
-    for(let i=0;i<6;i++){
-        otp+=digits[Math.floor(Math.random()*10)];
+function generateOtp() {
+    const digits = '1234567890';
+    let otp = '';
+    for (let i = 0; i < 6; i++) {
+        otp += digits[Math.floor(Math.random() * 10)];
     }
     return otp
 }
 
-const sendVerificationEmail =async (email,otp)=>{
+const sendVerificationEmail = async (email, otp) => {
     try {
-        const transporter=nodemailer.createTransport({
-            service:'gmail',
-            port:587,
-            secure:false,
-            requireTLS:true,
-            auth:{
-                user:process.env.NODEMAILER_EMAIL,
-                pass:process.env.NODEMAILER_PASSWORD
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
             }
         })
-        const mailOptions={
-            from:process.env.NODEMAILER_EMAIL,
-            to:email,
-            subject:"You OTP for Singup your email",
-            text:`You OTP is${otp}`,
-            html:`<b><h4>Your OTP:${otp}</h4><br></b>`
+        const mailOptions = {
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: "You OTP for Singup your email",
+            text: `You OTP is${otp}`,
+            html: `<b><h4>Your OTP:${otp}</h4><br></b>`
         }
 
-        const info=await transporter.sendMail(mailOptions);
-        console.log('Email Send:',info.messageId);
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email Send:', info.messageId);
         return true;
 
-    } catch (error) { 
-        console.error('Error sending email',error)
+    } catch (error) {
+        console.error('Error sending email', error)
         return false;
     }
 }
@@ -111,7 +112,7 @@ const signup = async (req, res) => {
         if (!emailSent) {
             return res.json({ success: false, message: 'Error sending email' });
         }
-        console.log("Otp is:",otp)
+        console.log("Otp is:", otp)
         req.session.userOtp = otp;
         req.session.userData = { firstname, email, password };
 
@@ -234,77 +235,136 @@ const logout = (req, res) => {
 
 
 
-const featuredProducts=async (req,res)=>{
+const featuredProducts = async (req, res) => {
     try {
-        let featuredData=await Product.find({isFeatured:true,quantity:{$gt:0}})
-        featuredData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-        res.render("featured-products",{featured:featuredData})
+        let featuredData = await Product.find({ isFeatured: true, quantity: { $gt: 0 } })
+        featuredData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        res.render("featured-products", { featured: featuredData })
     } catch (error) {
         console.log("Featured products error")
         res.redirect('/pageNotFound');
     }
 }
-const products=async (req,res)=>{
+const products = async (req, res) => {
     try {
-        let productsData=await Product.find({quantity:{$gt:0}})
-        productsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
-
-        res.render("products",{products:productsData})
+        let searchQuery = "";
+        if(req.query.search){
+            searchQuery=req.query.search
+        } 
+        let productsData = await Product.find({
+            quantity: { $gt: 0 },
+            productName:{$regex:searchQuery,$options:"i"}
+        });
+    
+        productsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+    
+        let brand = await Brand.find({});
+    
+        res.render("products", { products: productsData, brands: brand });
     } catch (error) {
         console.log("Products error")
         res.redirect('/pageNotFound');
-        
+
     }
 }
-const newArrivals=async (req,res)=>{
+const newArrivals = async (req, res) => {
     try {
-        let newArrivalsData=await Product.find({isNew:true,quantity:{$gt:0}})
-        newArrivalsData.sort((a,b)=>new Date(b.createdOn)-new Date(a.createdOn));
+        let newArrivalsData = await Product.find({ isNew: true, quantity: { $gt: 0 } })
+        newArrivalsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
 
-        res.render("new-arrivals",{newArrivals:newArrivalsData})
+        res.render("new-arrivals", { newArrivals: newArrivalsData })
     } catch (error) {
         console.log("New Arrivals error")
         res.redirect('/pageNotFound');
     }
 }
 
-const mensWatch=async (req,res)=>{
+const mensWatch = async (req, res) => {
     try {
         let gentsMatch = /gents/i;
-        let mensWatch=await Product.find({category:gentsMatch});
-        res.render("mens-watch",{gents:mensWatch})
+        let mensWatch = await Product.find({ category: gentsMatch });
+        res.render("mens-watch", { gents: mensWatch })
     } catch (error) {
         console.log("mens watch error")
         res.redirect('/pageNotFound');
     }
 }
-const ladiesWatch=async (req,res)=>{
+const ladiesWatch = async (req, res) => {
     try {
         let ladiesMatch = /ladies/i;
-        let ladiesWatch=await Product.find({category:ladiesMatch});
-        res.render("ladies-watch",{ladies:ladiesWatch})
+        let ladiesWatch = await Product.find({ category: ladiesMatch });
+        res.render("ladies-watch", { ladies: ladiesWatch })
     } catch (error) {
         console.log("ladies watch error")
         res.redirect('/pageNotFound');
-        
+
     }
 }
-const couplesWatch=async (req,res)=>{
+const couplesWatch = async (req, res) => {
     try {
         let couplesMatch = /couples/i;
-        let couplesWatch=await Product.find({category:couplesMatch});
-        res.render("couples-watch",{couples:couplesWatch})
+        let couplesWatch = await Product.find({ category: couplesMatch });
+        res.render("couples-watch", { couples: couplesWatch })
     } catch (error) {
         console.log("couples watch error")
         res.redirect('/pageNotFound');
-        
+
     }
 }
-const brandButton =async (req,res)=>{
+
+const productDetails = async (req, res) => {
     try {
-        
+        let productId = req.query.id;
+        let productDe = await Product.find({ _id: productId })
+        res.render("product-details", { productDet: productDe })
     } catch (error) {
-        
+        console.log("Something error in product details")
+        res.redirect("/pageNotFound")
+    }
+}
+
+const filterProduct = async (req, res) => {
+    try {
+        const brandsdetails = await Brand.find({});
+        const { category, brands, sortByPrice, priceTo, priceFrom } = req.body;
+        const filter = {};
+        if (category) {
+            filter.category = category;
+        }
+        if (brands) {
+            filter.brand = brands;
+        }
+        if (priceTo || priceFrom) {
+            filter.regularPrice = {};
+            if (priceFrom) filter.regularPrice.$gte = parseInt(priceFrom);
+            if (priceTo) filter.regularPrice.$lte = parseInt(priceTo);
+        }
+
+        let sortOption = {};
+        if (sortByPrice === "AtoZ") {
+            sortOption.productName = 1;
+        } else if (sortByPrice === "ZtoA") {
+            sortOption.productName = -1;
+        } else if (sortByPrice === "highToLow") {
+            sortOption.regularPrice = -1;
+        } else if (sortByPrice === "lowToHigh") {
+            sortOption.regularPrice = 1;
+        }
+        const products = await Product.find(filter).sort(sortOption);
+        return res.render("products", { products: products, brands: brandsdetails });
+    } catch (error) {
+        console.error("Error in filterProduct:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+};
+
+
+
+const brandButton = async (req, res) => {
+    try {
+
+    } catch (error) {
+
     }
 }
 module.exports = {
@@ -323,5 +383,7 @@ module.exports = {
     mensWatch,
     ladiesWatch,
     couplesWatch,
-    brandButton
+    brandButton,
+    productDetails,
+    filterProduct
 };
