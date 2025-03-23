@@ -55,10 +55,6 @@ const productSchema = new Schema({
         required: true,
         default:[],
     },
-    isBlocked: {
-        type: Boolean,
-        default: false,
-    },
     isFeatured: {
         type: Boolean,
         default: false,
@@ -73,6 +69,17 @@ const productSchema = new Schema({
         required: true,
         default: "Available",
     },
+    review:[{
+        userId:mongoose.Schema.Types.ObjectId,
+        username:String,
+        rating:Number,
+        Comment:String,
+        createdAt:{
+            type:Date,
+            default:Date.now
+        }
+    }],
+
 }, { timestamps: true }
 );
 

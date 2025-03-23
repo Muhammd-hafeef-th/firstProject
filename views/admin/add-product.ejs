@@ -33,7 +33,7 @@
                         <form id="addProductForm" enctype="multipart/form-data"
                             class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                            <!-- Multiple Image Upload Section -->
+                           
                             <div class="md:col-span-1">
                                 <label class="block mb-2">Add Images:</label>
                                 <div class="flex gap-4">
@@ -60,7 +60,7 @@
                                 <div id="image-error" class="error-message"></div>
                             </div>
 
-                            <!-- Product Details Section -->
+                            
                             <div class="md:col-span-1 grid grid-cols-1 gap-4">
                                 <div>
                                     <label class="block mb-1">Product Name:</label>
@@ -88,12 +88,17 @@
                                 </div>
                             </div>
 
-                            <!-- Product Amount & Stock -->
                             <div>
-                                <label class="block mb-1">Product Amount:</label>
+                                <label class="block mb-1">Regular Amount:</label>
                                 <input type="number" name="amount" id="amount"
                                     class="w-full p-2 rounded bg-gray-700 border border-gray-600">
                                 <div id="amount-error" class="error-message"></div>
+                            </div>
+                            <div>
+                                <label class="block mb-1">Sales Amount:</label>
+                                <input type="number" name="salesAmount" id="salesAmount"
+                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                <div id="salesAmount-error" class="error-message"></div>
                             </div>
                             <div>
                                 <label class="block mb-1">Stock Count:</label>
@@ -102,7 +107,7 @@
                                 <div id="stock-error" class="error-message"></div>
                             </div>
 
-                            <!-- Feature & New Product Options -->
+                           
                             <div class="flex flex-col">
                                 <label class="block mb-1">Featured:</label>
                                 <div class="flex gap-4">
@@ -112,7 +117,7 @@
                                 <div id="featured-error" class="error-message"></div>
                             </div>
 
-                            <!-- New Product (Yes/No) -->
+                         
                             <div class="flex flex-col">
                                 <label class="block mb-1">New Product:</label>
                                 <div class="flex gap-4">
@@ -122,7 +127,7 @@
                                 <div id="new-error" class="error-message"></div>
                             </div>
 
-                            <!-- Colors -->
+                          
                             <div class="md:col-span-2">
                                 <label class="block mb-1">Colours Available:</label>
                                 <div class="grid grid-cols-3 gap-2">
@@ -142,7 +147,7 @@
                                 <div id="colors-error" class="error-message"></div>
                             </div>
 
-                            <!-- Submit Button -->
+                           
                             <div class="md:col-span-2 flex justify-center">
                                 <button type="submit" id="submitButton"
                                     class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 mt-5">
@@ -188,6 +193,7 @@
                     formData.append("brand", document.getElementById("brand").value);
                     formData.append("category", document.getElementById("category").value);
                     formData.append("amount", document.getElementById("amount").value);
+                    formData.append("salesAmount",document.getElementById('salesAmount').value);
                     formData.append("stock", document.getElementById("stock").value);
                     formData.append("images", document.getElementById("imageUpload1").files[0]);
                     formData.append("images", document.getElementById("imageUpload2").files[0]);
@@ -244,6 +250,7 @@
                     const brand = document.getElementById("brand").value.trim();
                     const category = document.getElementById('category').value.trim();
                     const amount = document.getElementById("amount").value.trim();
+                    const salesAmount=document.getElementById("salesAmount").value.trim();
                     const stock = document.getElementById("stock").value.trim();
                     const categoryMatch = /^(gents|ladies|couples)$/i;
                     const featuredSelected = document.querySelector('input[name="featured"]:checked');
@@ -286,6 +293,10 @@
 
                     if (amount === "") {
                         displayErrorMessage("amount-error", "Please enter the amount of the product");
+                        isValid = false;
+                    }
+                    if (salesAmount === "") {
+                        displayErrorMessage("salesAmount-error", "Please enter the sales amount of the product");
                         isValid = false;
                     }
 

@@ -49,7 +49,7 @@ const addProduct = async (req, res) => {
 }
 const addProductItem = async (req, res) => {
     try {
-        const { name, description, brand, category, amount, stock, featured, new: isNew, colors } = req.body;
+        const { name, description, brand, category, amount,salesAmount, stock, featured, new: isNew, colors } = req.body;
         const productImages = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
         if (!productImages) {
             return res.status(400).json({ error: "Please upload three images" });
@@ -68,6 +68,7 @@ const addProductItem = async (req, res) => {
             brand: brand,
             category: category,
             regularPrice: amount,
+            salePrice:salesAmount,
             quantity: stock,
             color: colors,
             isFeatured: featured,

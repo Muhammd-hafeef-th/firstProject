@@ -68,7 +68,6 @@ const addBrand = async (req, res) => {
             return res.status(400).json({ error: "Brand already exists" });
         }
 
-        // Save brand
         const newBrand = new Brand({
             brandName: name.trim(),
             brandImage: image,

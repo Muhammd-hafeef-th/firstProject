@@ -59,6 +59,7 @@ router.get("/brandButton",userController.brandButton)
 router.post("/filter-product",userController.filterProduct);
 
 
-router.get("/productDetails",userController.productDetails)
+router.get("/productDetails", userController.productDetails);
+router.post("/add-review", userController.addReview);
 
 module.exports = router;

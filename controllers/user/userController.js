@@ -315,13 +315,45 @@ const couplesWatch = async (req, res) => {
 const productDetails = async (req, res) => {
     try {
         let productId = req.query.id;
-        let productDe = await Product.find({ _id: productId })
-        res.render("product-details", { productDet: productDe })
+        let productDe = await Product.findById(productId);
+        
+        let avgRating = 0;
+        if (productDe.review.length > 0) {
+            let total = productDe.review.reduce((sum, review) => sum + review.rating, 0);
+            avgRating = total / productDe.review.length;
+        }
+
+        res.render("product-details", { productDet: productDe, avgRating });
     } catch (error) {
-        console.log("Something error in product details")
-        res.redirect("/pageNotFound")
+        console.log("Something went wrong in product details:", error);
+        res.redirect("/pageNotFound");
     }
-}
+};
+
+const addReview = async (req, res) => {
+    try {
+        const { productId, username, rating, comment } = req.body;
+
+        await Product.findByIdAndUpdate(
+            productId,
+            {
+                $push: {
+                    review: {
+                        username,
+                        rating: parseInt(rating),
+                        Comment: comment,
+                    },
+                },
+            },
+            { new: true }
+        );
+
+        res.redirect(`/productDetails?id=${productId}`);
+    } catch (error) {
+        console.log("Error adding review:", error);
+        res.redirect("/pageNotFound");
+    }
+};
 
 const filterProduct = async (req, res) => {
     try {
@@ -362,9 +394,16 @@ const filterProduct = async (req, res) => {
 
 const brandButton = async (req, res) => {
     try {
+        const brandId=req.query.id;
+        const brand=await Brand.findOne({_id:brandId})
+        const products=await Product.find({brand:brand.brandName})
+        const brandItem=await Brand.find({})
 
+        res.render("brands-details",{products:products,brands:brand,brandItems:brandItem})
+        
     } catch (error) {
-
+        console.log("something error in brand Button");
+        res.redirect("/pageNotFound");
     }
 }
 module.exports = {
@@ -385,5 +424,6 @@ module.exports = {
     couplesWatch,
     brandButton,
     productDetails,
-    filterProduct
+    filterProduct,
+    addReview
 };

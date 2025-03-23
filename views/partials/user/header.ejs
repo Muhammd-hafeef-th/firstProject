@@ -2,42 +2,30 @@
 <header>
   <nav class="bg-white border-gray-200 dark:bg-[#1F1F1F]">
     <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-      <!-- Logo -->
       <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse">
         <img src="/images/hand-watch - Copy.png" class="h-8 w-8">
         <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">LB</span>
       </a>
-
-      <!-- Mobile Search Bar -->
       <div id="mobile-search" class="hidden w-full mt-4 lg:hidden">
         <input type="text" class="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search...">
       </div>
-
-      <!-- Search and Icons -->
       <div class="flex items-center lg:order-2 gap-x-4">
-        <!-- Mobile Search Button -->
         <button type="button" id="search-toggle" class="lg:hidden text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-[#FFB568] focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
           <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
           </svg>
         </button>
-
-        <!-- Cart Icon -->
         <a href="#" class="flex items-center text-gray-300 hover:text-[#FFB568]">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
           </svg>
           <span>Cart</span>
         </a>
-
-        <!-- Profile Icon -->
         <a href="#" class="text-gray-300 hover:text-[#FFB568]">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </a>
-
-        <!-- Mobile Menu Button -->
         <button data-collapse-toggle="navbar-search" id="menu-toggle" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg lg:hidden hover:bg-[#FFB568] focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
           <span class="sr-only">Open main menu</span>
           <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -45,8 +33,6 @@
           </svg>
         </button>
       </div>
-
-      <!-- Navigation Links + Search Bar for Large Screens -->
       <div class="items-center justify-between hidden w-full lg:flex lg:w-auto lg:order-1" id="navbar-search">
         <ul class="flex flex-col p-4 lg:p-0 mt-4 font-medium border border-gray-100 rounded-lg bg-gray-50 lg:space-x-8 rtl:space-x-reverse lg:flex-row lg:mt-0 lg:border-0 lg:bg-white dark:bg-[#1F1F1F] lg:dark:bg-[#1F1F1F] dark:border-gray-700">
           <li><a href="/" class="block py-2 px-3 text-white rounded-sm lg:bg-transparent lg:text-white hover:text-[#FFB568] ">Home</a></li>
@@ -62,13 +48,13 @@
     </div>
   </nav>   
     <script>
-      // Toggle mobile search bar
+     
       document.getElementById("search-toggle").addEventListener("click", function() {
         let searchBox = document.getElementById("mobile-search");
         searchBox.classList.toggle("hidden");
       });
   
-      // Toggle mobile menu
+     
       document.getElementById("menu-toggle").addEventListener("click", function() {
         let menu = document.getElementById("navbar-search");
         menu.classList.toggle("hidden");

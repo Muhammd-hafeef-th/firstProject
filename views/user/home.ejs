@@ -27,15 +27,15 @@
         <!-- Categories Section -->
         <div class="container mx-auto m-16 grid grid-cols-1 md:grid-cols-3  gap-6 ">
             <div class="relative ml-4">
-                <a href="/mensWatch"> <img src="/images/image.png" alt="Men's Watch" class="w-full rounded-lg"></a>
+                <a href="/mensWatch"> <img src="/images/image.png" alt="Men's Watch" class="w-full rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"></a>
                 <p class="absolute  bottom-4 left-4 text-white text-xl font-bold">Men’s Watch</p>
             </div>
             <div class="relative">
-                <a href="/ladiesWatch"> <img src="/images/image copy.png" alt="Ladies Watch" class="w-full rounded-lg"></a>
+                <a href="/ladiesWatch"> <img src="/images/image copy.png" alt="Ladies Watch" class="w-full rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"></a>
                 <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Ladies Watch</p>
             </div>
             <div class="relative mr-4">
-                <a href="/couplesWatch"> <img src="/images/image copy 2.png" alt="Couple's Watch" class="w-full rounded-lg"></a>
+                <a href="/couplesWatch"> <img src="/images/image copy 2.png" alt="Couple's Watch" class="w-full rounded-lg transition-transform duration-300 ease-in-out hover:scale-105"></a>
                 <p class="absolute bottom-4 left-4 text-white text-xl font-bold">Couple’s Watch</p>
             </div>
         </div>
@@ -51,7 +51,7 @@
                                 class="absolute left-0 top-4 bg-[#E8B888] text-black px-3 py-1 font-semibold text-sm">SALE</span>
                             <a href="/productDetails?id=<%= watch._id %>">
                                 <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
-                                    class="mx-auto w-64 h-64 object-contain">
+                                    class="mx-auto w-64 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
 
                             </a>
                             <h3 class="text-white text-lg font-semibold mt-4">
@@ -67,8 +67,6 @@
                         <% }) %>
 
                 </div>
-
-                <!-- Show More Button -->
                 <button
                     class="mt-6 px-6 py-3 bg-transparent border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
                     <a href="/featured"> Show more →</a>
@@ -81,9 +79,7 @@
 
                 <!-- Left Image Section -->
                 <div class="relative w-full md:w-1/2 flex justify-center">
-                    <!-- Beige Background Box -->
                     <div class="absolute left-6 top-6 w-56 h-56 bg-[#E8B888] -z-10"></div>
-                    <!-- Watch Image -->
                     <img src="/images/ethos ladies 3-Photoroom.png" alt="Luxury Watch" class="w-96 h-auto shadow-lg">
                 </div>
 
@@ -115,7 +111,7 @@
                         <div class="bg-[#2A2A2A] p-6 rounded-lg">
                             <a href="/productDetails?id=<%= watch._id %>">
                                 <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
-                                    class="mx-auto w-48 h-64 object-contain">
+                                    class="mx-auto w-48 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
                             </a>
                             <h3 class="text-white text-lg font-semibold mt-4">
                                 <%= watch.productName %>
@@ -129,8 +125,6 @@
                         </div>
                         <% }) %>
                 </div>
-
-                <!-- Show More Button -->
                 <button
                     class="mt-6 px-6 py-3 border-2 border-[#E8B888] text-[#E8B888] rounded-lg flex items-center mx-auto">
                     <a href="/products">Show more →</a>
@@ -142,11 +136,10 @@
             <div class="container mx-auto text-center">
                 <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
                 <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">BRANDS</h2>
-                <!-- Brand Buttons -->
                 <div class="flex flex-wrap justify-center gap-4">
                     <% brands.forEach(brand => { %>
                         <a href="/brandButton?id=<%=brand._id%>">
-                        <button class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold">
+                        <button class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold transition-transform duration-300 ease-in-out hover:scale-110">
                             <%= brand.brandName %>
                         </button>
                     </a>
@@ -157,11 +150,8 @@
 
         <section class="bg-[#1F1F1F] py-12">
             <div class="container mx-auto text-center">
-                <!-- Section Title -->
                 <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
                 <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">NEW ARRIVALS</h2>
-
-                <!-- Product Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:m-10">
                     <% newArrival.forEach(watch=> { %>
                         <div class="bg-[#E8B888] p-6 rounded-lg relative">
@@ -169,7 +159,7 @@
                                 <span
                                     class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
                                 <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
-                                    class="mx-auto w-48 h-64 object-contain">
+                                    class="mx-auto w-48 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
                             </a>
                             <h3 class="text-black text-lg font-semibold mt-4">
                                 <%= watch.productName %>
@@ -188,20 +178,6 @@
                     <a href="/newArrivals">Show more →</a>
                 </button>
         </section>
-
-<script>
-     document.getElementById("search-toggle").addEventListener("click", function() {
-        let searchBox = document.getElementById("mobile-search");
-        searchBox.classList.toggle("hidden");
-      });
-  
-      // Toggle mobile menu
-      document.getElementById("menu-toggle").addEventListener("click", function() {
-        let menu = document.getElementById("navbar-search");
-        menu.classList.toggle("hidden");
-      });
-</script>
-
     </div>
 
     <%- include('../../views/partials/user/footer')%>
