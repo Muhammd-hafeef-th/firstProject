@@ -281,9 +281,10 @@ const newArrivals = async (req, res) => {
 
 const mensWatch = async (req, res) => {
     try {
+        let brands=await Brand.find({})
         let gentsMatch = /gents/i;
         let mensWatch = await Product.find({ category: gentsMatch });
-        res.render("mens-watch", { gents: mensWatch })
+        res.render("mens-watch", { gents: mensWatch,brands:brands })
     } catch (error) {
         console.log("mens watch error")
         res.redirect('/pageNotFound');
@@ -291,9 +292,10 @@ const mensWatch = async (req, res) => {
 }
 const ladiesWatch = async (req, res) => {
     try {
+        let brands=await Brand.find({})
         let ladiesMatch = /ladies/i;
         let ladiesWatch = await Product.find({ category: ladiesMatch });
-        res.render("ladies-watch", { ladies: ladiesWatch })
+        res.render("ladies-watch", { ladies: ladiesWatch,brands:brands })
     } catch (error) {
         console.log("ladies watch error")
         res.redirect('/pageNotFound');
@@ -302,9 +304,10 @@ const ladiesWatch = async (req, res) => {
 }
 const couplesWatch = async (req, res) => {
     try {
+        let brands=await Brand.find({})
         let couplesMatch = /couples/i;
         let couplesWatch = await Product.find({ category: couplesMatch });
-        res.render("couples-watch", { couples: couplesWatch })
+        res.render("couples-watch", { couples: couplesWatch,brands:brands })
     } catch (error) {
         console.log("couples watch error")
         res.redirect('/pageNotFound');
@@ -389,6 +392,23 @@ const filterProduct = async (req, res) => {
         return res.status(500).send("Internal Server Error");
     }
 };
+const categoryBrandFilter =async (req,res)=>{
+    try {
+        
+        let ladiesMatch = /ladies/i;
+        let ladiesWatch = await Product.find({ category: ladiesMatch });
+        const brandsdetails = await Brand.find({});
+        const {brand}=req.body;
+        const filter={}
+        if (brand) {
+            filter.brand = brand;
+        }
+        const product=await Product.find({filter,category:ladiesWatch});
+        return res.render("ladies-watch",{ladies:product,brands:brandsdetails})
+    } catch (error) {
+        
+    }
+}
 
 
 
@@ -425,5 +445,6 @@ module.exports = {
     brandButton,
     productDetails,
     filterProduct,
-    addReview
+    addReview,
+    categoryBrandFilter
 };

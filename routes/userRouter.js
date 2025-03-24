@@ -57,6 +57,7 @@ router.get("/ladiesWatch",userController.ladiesWatch)
 router.get("/couplesWatch",userController.couplesWatch)
 router.get("/brandButton",userController.brandButton)
 router.post("/filter-product",userController.filterProduct);
+router.post("/category-brandFilter",userController.categoryBrandFilter);
 
 
 router.get("/productDetails", userController.productDetails);

@@ -44,7 +44,7 @@ const brandInfo = async (req, res) => {
             totalBrands: totalBrand  
         });
     } catch (error) {
-        console.log("Something error in brandInfo", error);
+       
         res.redirect("/pageError");
     }
 };

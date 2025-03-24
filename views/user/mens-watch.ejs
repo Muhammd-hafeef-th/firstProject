@@ -16,10 +16,29 @@
 
     <section class="bg-[#1F1F1F] p-10">
         <div class="container mx-auto text-center">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">
-                Mens Watch
-            </h2>
+            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto  mb-5"></div>
+            <div class="relative flex justify-center items-center mb-6 ">
+                <h2 class="text-white text-2xl font-sans">Mens Watch</h2>
+                <button id="toggleFilters"
+                    class="absolute right-0 bg-[#E8B888] text-black px-4 py-2 mr-20 rounded-md shadow-md">
+                    Sort by brands ▼
+                </button>
+            </div>
+            <form action="" method="post" id="filterMenu"  class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-64 absolute top-90 right-10 shadow-lg">
+                    <select name="brands" class="p-2 w-full rounded bg-[#3A3A3A] text-white border border-gray-600">
+                        <option value="">All</option>
+                        <% brands.forEach(watch=> { %>
+                            <option value="<%= watch.brandName %>">
+                                <%= watch.brandName %>
+                            </option>
+                            <% }) %>
+                    </select>
+                    <button type="submit" id="applyFilters"
+                    class="mt-4 bg-[#E8B888] text-black p-2 w-full rounded-md">Apply
+                    Filters</button>
+
+            </form>
+
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 mt-6  md:m-10">
                 <% gents.forEach(watch=> { %>
@@ -43,7 +62,20 @@
         </div>
     </section>
     
+    <script>
+        document.getElementById('toggleFilters').addEventListener('click', function () {
+                document.getElementById('filterMenu').classList.toggle('hidden');
+            });
     
+            document.addEventListener('click', function (event) {
+                const filterMenu = document.getElementById('filterMenu');
+                const sortButton = document.getElementById('toggleFilters');
+    
+                if (!filterMenu.contains(event.target) && event.target !== sortButton) {
+                    filterMenu.classList.add('hidden');
+                }
+            });
+    </script>
     
     
 
