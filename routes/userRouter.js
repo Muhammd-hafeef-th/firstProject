@@ -14,17 +14,25 @@ router.post("/resend-otp", userController.resendOtp);
 
 router.get(
     "/auth/google/signup",
+    (req, res, next) => {
+        if (req.session.user) {
+            return res.redirect("/"); 
+        }
+        next();
+    },
     passport.authenticate("google-signup", { scope: ["profile", "email"] })
 );
+
 
 router.get(
     "/auth/google/signup/callback",
     passport.authenticate("google-signup", { failureRedirect: "/login", failureFlash: true }),
     (req, res) => {
         req.session.user = req.user; 
-        res.redirect("/");
+        res.redirect(302, "/"); 
     }
 );
+
 
 router.get(
     "/auth/google/login",
@@ -57,7 +65,10 @@ router.get("/ladiesWatch",userController.ladiesWatch)
 router.get("/couplesWatch",userController.couplesWatch)
 router.get("/brandButton",userController.brandButton)
 router.post("/filter-product",userController.filterProduct);
-router.post("/category-brandFilter",userController.categoryBrandFilter);
+router.post("/ladies-brandFilter",userController.ladiesBrandFilter);
+router.post("/gents-brandFilter",userController.gentsBrandFilter);
+router.post("/couples-brandFilter",userController.couplesBrandFilter);
+router.post('/brand-categoryFilter',userController.brandCategoryFilter);
 
 
 router.get("/productDetails", userController.productDetails);

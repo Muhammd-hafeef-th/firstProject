@@ -46,12 +46,16 @@ const pageNotFound = async (req, res) => {
 
 const loadSignup = async (req, res) => {
     try {
+        if (req.session.user) {
+            return res.redirect('/');
+        }
         res.render('register');
     } catch (error) {
         console.error('Signup page is not loading', error);
         res.status(500).send('Server error');
     }
 };
+
 
 function generateOtp() {
     const digits = '1234567890';
@@ -237,42 +241,114 @@ const logout = (req, res) => {
 
 const featuredProducts = async (req, res) => {
     try {
-        let featuredData = await Product.find({ isFeatured: true, quantity: { $gt: 0 } })
-        featuredData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-        res.render("featured-products", { featured: featuredData })
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+
+        let baseQuery = {
+            quantity: { $gt: 0 },
+            isFeatured: true
+        };
+        let featuredData = await Product.find(baseQuery)
+            .sort({ createdOn: -1 })
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalProducts = await Product.countDocuments(baseQuery);
+        const totalPages = Math.ceil(totalProducts / limit);
+        res.render("featured-products", {
+            featured: featuredData,
+            currentPage: page,
+            totalPages: totalPages,
+            query: req.query
+        });
     } catch (error) {
-        console.log("Featured products error")
+        console.log("Featured products error:", error);
         res.redirect('/pageNotFound');
     }
-}
+};
 const products = async (req, res) => {
     try {
-        let searchQuery = "";
-        if(req.query.search){
-            searchQuery=req.query.search
-        } 
-        let productsData = await Product.find({
-            quantity: { $gt: 0 },
-            productName:{$regex:searchQuery,$options:"i"}
-        });
-    
-        productsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
-    
-        let brand = await Brand.find({});
-    
-        res.render("products", { products: productsData, brands: brand });
-    } catch (error) {
-        console.log("Products error")
-        res.redirect('/pageNotFound');
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+        const { search, category, brand, sort, priceFrom, priceTo } = req.query;
+        const query = {
+            quantity: { $gt: 0 }
+        };
+        if (search) {
+            query.productName = { $regex: search, $options: "i" };
+        }
+        if (category) {
+            query.category = category;
+        }
+        if (brand) {
+            query.brand = brand;
+        }
+        if (priceFrom || priceTo) {
+            query.regularPrice = {};
+            if (priceFrom) query.regularPrice.$gte = Number(priceFrom);
+            if (priceTo) query.regularPrice.$lte = Number(priceTo);
+        }
+        let sortOption = {};
+        switch (sort) {
+            case 'ZtoA': sortOption = { productName: -1 }; break;
+            case 'highToLow': sortOption = { regularPrice: -1 }; break;
+            case 'lowToHigh': sortOption = { regularPrice: 1 }; break;
+            default: sortOption = { productName: 1 };
+        }
+        const productsData = await Product.find(query)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit)
+            .exec();
 
+        const totalProducts = await Product.countDocuments(query);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        const brands = await Brand.find({});
+        const filters = new URLSearchParams(req.query).toString().replace(/page=\d+&?/, '');
+
+        res.render("products", {
+            products: productsData,
+            brands,
+            currentPage: page,
+            totalPages,
+            searchQuery: search,
+            query: req.query,
+            filters: filters.replace(/^&|&$/g, '')
+        });
+    } catch (error) {
+        console.log("Products error:", error);
+        res.redirect('/pageNotFound');
     }
-}
+};
 const newArrivals = async (req, res) => {
     try {
-        let newArrivalsData = await Product.find({ isNew: true, quantity: { $gt: 0 } })
-        newArrivalsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        const page = parseInt(req.query.page) || 1;
+        const limit = 12;
+        const skip = (page - 1) * limit;
 
-        res.render("new-arrivals", { newArrivals: newArrivalsData })
+        let baseQuery = {
+            quantity: { $gt: 0 },
+            isNew: true
+        };
+        let newArrivalsData = await Product.find(baseQuery)
+            .sort({ createdOn: -1 })
+            .skip(skip)
+            .limit(limit)
+            .exec();
+
+        const totalProducts = await Product.countDocuments(baseQuery);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+
+        res.render("new-arrivals", {
+            newArrivals: newArrivalsData,
+            currentPage: page,
+            totalPages: totalPages,
+            query: req.query
+        })
     } catch (error) {
         console.log("New Arrivals error")
         res.redirect('/pageNotFound');
@@ -281,10 +357,29 @@ const newArrivals = async (req, res) => {
 
 const mensWatch = async (req, res) => {
     try {
-        let brands=await Brand.find({})
+        let page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+
+        let brands = await Brand.find({})
         let gentsMatch = /gents/i;
-        let mensWatch = await Product.find({ category: gentsMatch });
-        res.render("mens-watch", { gents: mensWatch,brands:brands })
+
+        let mensWatch = await Product.find({ category: gentsMatch })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+
+        const totalProducts = await Product.countDocuments({ category: gentsMatch });
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render("mens-watch", {
+            gents: mensWatch,
+            brands: brands,
+            currentPage: page,
+            totalPages: totalPages,
+            query: req.query,
+            selectedBrand: ""
+        })
     } catch (error) {
         console.log("mens watch error")
         res.redirect('/pageNotFound');
@@ -292,22 +387,58 @@ const mensWatch = async (req, res) => {
 }
 const ladiesWatch = async (req, res) => {
     try {
-        let brands=await Brand.find({})
-        let ladiesMatch = /ladies/i;
-        let ladiesWatch = await Product.find({ category: ladiesMatch });
-        res.render("ladies-watch", { ladies: ladiesWatch,brands:brands })
-    } catch (error) {
-        console.log("ladies watch error")
-        res.redirect('/pageNotFound');
+        let page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
 
+        const brands = await Brand.find({});
+        const ladiesMatch = /ladies/i;
+        const ladiesProducts = await Product.find({ category: ladiesMatch })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+
+        const totalProducts = await Product.countDocuments({ category: ladiesMatch });
+        const totalPages = Math.ceil(totalProducts / limit);
+
+
+        res.render("ladies-watch", {
+            ladies: ladiesProducts,
+            brands: brands,
+            query: req.query,
+            selectedBrand: '',
+            currentPage: page,
+            totalPages: totalPages,
+        });
+    } catch (error) {
+        console.error("Ladies watch error:", error);
+        res.redirect('/pageNotFound');
     }
-}
+};
 const couplesWatch = async (req, res) => {
     try {
-        let brands=await Brand.find({})
+        let page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+
+        let brands = await Brand.find({})
         let couplesMatch = /couples/i;
-        let couplesWatch = await Product.find({ category: couplesMatch });
-        res.render("couples-watch", { couples: couplesWatch,brands:brands })
+        let couplesWatch = await Product.find({ category: couplesMatch })
+            .skip(skip)
+            .limit(limit)
+            .exec()
+
+        const totalProducts = await Product.countDocuments({ category: couplesMatch });
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render("couples-watch", {
+            couples: couplesWatch,
+            brands: brands,
+            query: req.query,
+            selectedBrand: "",
+            currentPage: page,
+            totalPages: totalPages,
+        })
     } catch (error) {
         console.log("couples watch error")
         res.redirect('/pageNotFound');
@@ -319,7 +450,7 @@ const productDetails = async (req, res) => {
     try {
         let productId = req.query.id;
         let productDe = await Product.findById(productId);
-        
+
         let avgRating = 0;
         if (productDe.review.length > 0) {
             let total = productDe.review.reduce((sum, review) => sum + review.rating, 0);
@@ -392,40 +523,147 @@ const filterProduct = async (req, res) => {
         return res.status(500).send("Internal Server Error");
     }
 };
-const categoryBrandFilter =async (req,res)=>{
+const ladiesBrandFilter = async (req, res) => {
     try {
-        
-        let ladiesMatch = /ladies/i;
-        let ladiesWatch = await Product.find({ category: ladiesMatch });
-        const brandsdetails = await Brand.find({});
-        const {brand}=req.body;
-        const filter={}
-        if (brand) {
-            filter.brand = brand;
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+        const { brands: selectedBrand } = req.body;
+        const filter = { category: /ladies/i };
+
+        if (selectedBrand) {
+            filter.brand = selectedBrand;
         }
-        const product=await Product.find({filter,category:ladiesWatch});
-        return res.render("ladies-watch",{ladies:product,brands:brandsdetails})
+
+        const brands = await Brand.find({});
+        const filteredProducts = await Product.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render("ladies-watch", {
+            ladies: filteredProducts,
+            brands: brands,
+            selectedBrand: selectedBrand,
+            currentPage: page,
+            totalPages: totalPages
+        });
     } catch (error) {
-        
+        console.error("Filter error:", error);
+        res.redirect('/pageNotFound');
     }
-}
+};
+const gentsBrandFilter = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+        const { brands: selectedBrand } = req.body;
+        const filter = { category: /gents/i };
+
+        if (selectedBrand) {
+            filter.brand = selectedBrand;
+        }
+
+        const brands = await Brand.find({});
+        const filteredProducts = await Product.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render("mens-watch", {
+            gents: filteredProducts,
+            brands: brands,
+            selectedBrand: selectedBrand,
+            currentPage: page,
+            totalPages: totalPages
+        });
+    } catch (error) {
+        console.error("Filter error:", error);
+        res.redirect('/pageNotFound');
+    }
+};
+const couplesBrandFilter = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 9;
+        const skip = (page - 1) * limit;
+        const { brands: selectedBrand } = req.body;
+        const filter = { category: /couples/i };
+
+        if (selectedBrand) {
+            filter.brand = selectedBrand;
+        }
+
+        const brands = await Brand.find({});
+        const filteredProducts = await Product.find(filter)
+            .skip(skip)
+            .limit(limit)
+            .exec();
+        const totalProducts = await Product.countDocuments(filter);
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render("couples-watch", {
+            couples: filteredProducts,
+            brands: brands,
+            selectedBrand: selectedBrand,
+            currentPage: page,
+            totalPages: totalPages
+        });
+    } catch (error) {
+        console.error("Filter error:", error);
+        res.redirect('/pageNotFound');
+    }
+};
 
 
 
 const brandButton = async (req, res) => {
     try {
-        const brandId=req.query.id;
-        const brand=await Brand.findOne({_id:brandId})
-        const products=await Product.find({brand:brand.brandName})
-        const brandItem=await Brand.find({})
+        const brandId = req.query.id;
+        const brand = await Brand.findOne({ _id: brandId })
+        const products = await Product.find({ brand: brand.brandName })
+        const brandItem = await Brand.find({})
 
-        res.render("brands-details",{products:products,brands:brand,brandItems:brandItem})
-        
+        res.render("brands-details", { products: products, brands: brand, brandItems: brandItem })
+
     } catch (error) {
         console.log("something error in brand Button");
         res.redirect("/pageNotFound");
     }
 }
+const brandCategoryFilter = async (req, res) => {
+    try {
+        const { category } = req.body;
+        const brandId = req.query.id;
+        const brand = await Brand.findById(brandId);
+        if (!brand) {
+            return res.redirect('/pageNotFound');
+        }
+        const brandItems = await Brand.find({});
+        const filter = { brand: brand.brandName };
+        if (category) {
+            filter.category = category;
+        }
+        const products = await Product.find(filter);
+
+        res.render("brands-details", {
+            products: products,
+            brands: brand,
+            brandItems: brandItems,
+            selectedCategory: category || '' 
+        });
+        
+    } catch (error) {
+        console.error("Brand filter error:", error);
+        res.redirect('/pageNotFound');
+    }
+};
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -446,5 +684,8 @@ module.exports = {
     productDetails,
     filterProduct,
     addReview,
-    categoryBrandFilter
+    ladiesBrandFilter,
+    gentsBrandFilter,
+    couplesBrandFilter,
+    brandCategoryFilter
 };

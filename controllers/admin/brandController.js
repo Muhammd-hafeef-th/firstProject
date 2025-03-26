@@ -112,19 +112,30 @@ const editBrandDetails = async (req, res) => {
     try {
         const { brandId, name, description } = req.body;
         const image = req.file ? `/uploads/${req.file.filename}` : null;
+
         if (!brandId) {
-            return res.status(400).send("Invalid Brand ID");
+            req.flash("error", "Invalid Brand ID");
+            return res.redirect("/admin/brands");
         }
+
+        const existingBrand = await Brand.findOne({ brandName: { $regex: new RegExp(`^${name}$`, "i") } });
+
+        if (existingBrand) {
+            req.flash("error", "Brand already exists!");
+            return res.redirect(`/admin/edit-brand?id=${brandId}`); 
+        }
+
         let updateData = { brandName: name, description };
         if (image) updateData.brandImage = image;
-           await Brand.updateOne(
-            { _id: brandId },
-            { $set: updateData }
-        );
-        res.redirect("/admin/brands");
+
+        await Brand.updateOne({ _id: brandId }, { $set: updateData });
+
+        req.flash("success", "Brand updated successfully!");
+        return res.redirect("/admin/brands"); 
     } catch (error) {
-        console.log("Error in edit Brand Details:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.log("Error in editBrandDetails:", error);
+        req.flash("error", "Internal Server Error");
+        return res.redirect(`/admin/edit-brand?id=${brandId}`); 
     }
 };
 

@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <title>Edit Brand</title>
     <style>
         .error-message {
@@ -33,34 +36,54 @@
                         <form id="addProductForm" enctype="multipart/form-data"
                             class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                           
+
                             <div class="md:col-span-1">
                                 <label class="block mb-2">Add Images:</label>
                                 <div class="flex gap-4">
-                                    <div class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
-                                        <input type="file" name="images" id="imageUpload1" class="hidden" accept="image/*">
-                                        <label for="imageUpload1" class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
+                                    <div
+                                        class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload1" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload1"
+                                            class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
                                         <img id="preview1" class="w-full h-full object-cover rounded-lg hidden">
                                     </div>
-                        
-                                    <div class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
-                                        <input type="file" name="images" id="imageUpload2" class="hidden" accept="image/*">
-                                        <label for="imageUpload2" class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
+                                    <div
+                                        class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload2" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload2"
+                                            class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
                                         <img id="preview2" class="w-full h-full object-cover rounded-lg hidden">
                                     </div>
-                        
-                                    <div class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
-                                        <input type="file" name="images" id="imageUpload3" class="hidden" accept="image/*">
-                                        <label for="imageUpload3" class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
+                                    <div
+                                        class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center">
+                                        <input type="file" name="images" id="imageUpload3" class="hidden"
+                                            accept="image/*">
+                                        <label for="imageUpload3"
+                                            class="cursor-pointer text-gray-400 text-sm absolute inset-0 flex items-center justify-center">Upload</label>
                                         <img id="preview3" class="w-full h-full object-cover rounded-lg hidden">
                                     </div>
                                 </div>
-
-                                </div>
                                 <div id="image-error" class="error-message"></div>
                             </div>
+                            <div id="cropModal"
+                                class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden">
+                                <div class="bg-white p-4 rounded-lg w-[450px] max-w-full shadow-lg">
+                                    <h2 class="text-black text-xl mb-4">Crop Image</h2>
+                                    <div>
+                                        <img id="cropImage" style="max-width: 100%;">
+                                    </div>
+                                    <div class="mt-4 flex justify-end">
+                                        <button id="cropButton"
+                                            class="bg-green-500 text-white px-4 py-2 rounded">Crop</button>
+                                        <button id="cancelCrop"
+                                            class="ml-2 bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
 
-                            
+
                             <div class="md:col-span-1 grid grid-cols-1 gap-4">
                                 <div>
                                     <label class="block mb-1">Product Name:</label>
@@ -76,10 +99,17 @@
                                 </div>
                                 <div>
                                     <label class="block mb-1">Brand:</label>
-                                    <input type="text" name="brand" id="brand"
-                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                    <select name="brand" id="brand" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                                        <option value="">Select a brand</option>
+                                        <% brand.forEach(watch=> { %>
+                                            <option value="<%= watch.brandName %>">
+                                                <%= watch.brandName %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
                                     <div id="brand-error" class="error-message"></div>
                                 </div>
+                                
                                 <div>
                                     <label class="block mb-1">Category:</label>
                                     <input type="text" name="category" placeholder="gents/ladies/couples" id="category"
@@ -107,7 +137,7 @@
                                 <div id="stock-error" class="error-message"></div>
                             </div>
 
-                           
+
                             <div class="flex flex-col">
                                 <label class="block mb-1">Featured:</label>
                                 <div class="flex gap-4">
@@ -117,7 +147,7 @@
                                 <div id="featured-error" class="error-message"></div>
                             </div>
 
-                         
+
                             <div class="flex flex-col">
                                 <label class="block mb-1">New Product:</label>
                                 <div class="flex gap-4">
@@ -127,7 +157,7 @@
                                 <div id="new-error" class="error-message"></div>
                             </div>
 
-                          
+
                             <div class="md:col-span-2">
                                 <label class="block mb-1">Colours Available:</label>
                                 <div class="grid grid-cols-3 gap-2">
@@ -147,7 +177,7 @@
                                 <div id="colors-error" class="error-message"></div>
                             </div>
 
-                           
+
                             <div class="md:col-span-2 flex justify-center">
                                 <button type="submit" id="submitButton"
                                     class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 mt-5">
@@ -162,9 +192,6 @@
                 </div>
         </div>
         <script>
-
-
-
 
             document.addEventListener("DOMContentLoaded", function () {
                 let isSubmitting = false;
@@ -193,7 +220,7 @@
                     formData.append("brand", document.getElementById("brand").value);
                     formData.append("category", document.getElementById("category").value);
                     formData.append("amount", document.getElementById("amount").value);
-                    formData.append("salesAmount",document.getElementById('salesAmount').value);
+                    formData.append("salesAmount", document.getElementById('salesAmount').value);
                     formData.append("stock", document.getElementById("stock").value);
                     formData.append("images", document.getElementById("imageUpload1").files[0]);
                     formData.append("images", document.getElementById("imageUpload2").files[0]);
@@ -250,7 +277,7 @@
                     const brand = document.getElementById("brand").value.trim();
                     const category = document.getElementById('category').value.trim();
                     const amount = document.getElementById("amount").value.trim();
-                    const salesAmount=document.getElementById("salesAmount").value.trim();
+                    const salesAmount = document.getElementById("salesAmount").value.trim();
                     const stock = document.getElementById("stock").value.trim();
                     const categoryMatch = /^(gents|ladies|couples)$/i;
                     const featuredSelected = document.querySelector('input[name="featured"]:checked');
@@ -278,49 +305,8 @@
                         isValid = false;
                     }
 
-                    if (brand === "") {
-                        displayErrorMessage("brand-error", "Please enter the brand name");
-                        isValid = false;
-                    }
-
-                    if (category === "") {
-                        displayErrorMessage("category-error", "Please enter the category");
-                        isValid = false;
-                    } else if (!categoryMatch.test(category)) {
-                        displayErrorMessage("category-error", "Please enter a valid category - gents/ladies/couples");
-                        isValid = false;
-                    }
-
-                    if (amount === "") {
-                        displayErrorMessage("amount-error", "Please enter the amount of the product");
-                        isValid = false;
-                    }
-                    if (salesAmount === "") {
-                        displayErrorMessage("salesAmount-error", "Please enter the sales amount of the product");
-                        isValid = false;
-                    }
-
-                    if (stock === "") {
-                        displayErrorMessage("stock-error", "Please enter the stock of the product");
-                        isValid = false;
-                    }
-
                     if (!(image1 && image2 && image3)) {
                         displayErrorMessage("image-error", "Please upload exactly three images.");
-                        isValid = false;
-                    }
-                    if (!featuredSelected) {
-                        displayErrorMessage("featured-error", "Please select if the product is featured");
-                        isValid = false;
-                    }
-
-                    if (!newSelected) {
-                        displayErrorMessage("new-error", "Please select if the product is new");
-                        isValid = false;
-                    }
-
-                    if (!isColorFilled) {
-                        displayErrorMessage("colors-error", "Please enter at least one color");
                         isValid = false;
                     }
 
@@ -340,44 +326,98 @@
                         element.style.display = "none";
                     });
                 }
-            });
+                document.addEventListener("DOMContentLoaded", function () {
+                    function handleFileInput(inputId, previewId) {
+                        const fileInput = document.getElementById(inputId);
+                        const previewImage = document.getElementById(previewId);
 
-            const menuBtn = document.getElementById('menu-btn');
-            const sidebar = document.getElementById('sidebar');
+                        fileInput.addEventListener("change", function () {
+                            if (this.files.length === 0) return;
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-            });
+                            const file = this.files[0];
 
-            document.addEventListener("DOMContentLoaded", function () {
-            function handleFileInput(inputId, previewId) {
-                const fileInput = document.getElementById(inputId);
-                const previewImage = document.getElementById(previewId);
+                            if (!file.type.startsWith("image/")) {
+                                alert("Only image files are allowed.");
+                                fileInput.value = "";
+                                return;
+                            }
 
-                fileInput.addEventListener("change", function () {
-                    if (this.files.length === 0) return;
-
-                    const file = this.files[0];
-
-                    if (!file.type.startsWith("image/")) {
-                        alert("Only image files are allowed.");
-                        fileInput.value = "";
-                        return;
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                previewImage.src = e.target.result;
+                                previewImage.classList.remove("hidden");
+                            };
+                            reader.readAsDataURL(file);
+                        });
                     }
 
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        previewImage.src = e.target.result;
-                        previewImage.classList.remove("hidden");
-                    };
-                    reader.readAsDataURL(file);
+                    handleFileInput("imageUpload1", "preview1");
+                    handleFileInput("imageUpload2", "preview2");
+                    handleFileInput("imageUpload3", "preview3");
                 });
-            }
+                // Cropper.js Integration
+                const imageInputs = [
+                    document.getElementById("imageUpload1"),
+                    document.getElementById("imageUpload2"),
+                    document.getElementById("imageUpload3")
+                ];
 
-            handleFileInput("imageUpload1", "preview1");
-            handleFileInput("imageUpload2", "preview2");
-            handleFileInput("imageUpload3", "preview3");
-        });
+                const previewImages = [
+                    document.getElementById("preview1"),
+                    document.getElementById("preview2"),
+                    document.getElementById("preview3")
+                ];
+
+                const cropperContainer = document.getElementById("cropperContainer");
+                const cropperImage = document.getElementById("cropperImage");
+                const cropButton = document.getElementById("cropButton");
+                const croppedImageInput = document.getElementById("croppedImageInput");
+                let cropper;
+                let selectedFileIndex = 0;
+
+                imageInputs.forEach((input, index) => {
+                    input.addEventListener("change", function (event) {
+                        const file = event.target.files[0];
+                        if (!file) return;
+
+                        selectedFileIndex = index;
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.getElementById("cropImage").src = e.target.result;
+                            document.getElementById("cropModal").classList.remove("hidden");
+
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+
+                            cropper = new Cropper(document.getElementById("cropImage"), {
+                                aspectRatio: 1,
+                                viewMode: 2,
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+
+
+                document.getElementById("cropButton").addEventListener("click", function () {
+                    if (cropper) {
+                        const canvas = cropper.getCroppedCanvas();
+                        if (canvas) {
+                            previewImages[selectedFileIndex].src = canvas.toDataURL();
+                            previewImages[selectedFileIndex].classList.remove("hidden");
+
+                            document.getElementById("cropModal").classList.add("hidden");
+                        }
+                    }
+                });
+
+                document.getElementById("cancelCrop").addEventListener("click", function () {
+                    document.getElementById("cropModal").classList.add("hidden");
+                });
+
+            });
+
         </script>
 
 </body>

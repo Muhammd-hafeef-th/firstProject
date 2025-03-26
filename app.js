@@ -43,6 +43,10 @@ app.use((req, res, next) => {
     res.locals.messages = req.flash(); 
     next();
 });
+app.use((req, res, next) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    next();
+});
 
 
 app.set("view engine", "ejs");

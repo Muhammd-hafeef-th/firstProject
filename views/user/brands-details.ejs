@@ -35,7 +35,22 @@
 
         </div>
     </div>
-
+    <button id="toggleFilters" class="absolute right-0 bg-[#E8B888] text-black px-4 py-2 mr-20 rounded-md shadow-md">
+        Sort by category ▼
+    </button>
+    <!-- Change your form to show selected category -->
+    <form action="/brand-categoryFilter?id=<%=brands._id%>" method="post" id="filterMenu"
+        class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-64 absolute top-90 right-10 shadow-lg">
+        <select name="category" class="p-2 w-full rounded bg-[#3A3A3A] text-white border border-gray-600">
+            <option value="">All</option>
+            <option value="ladies" >Ladies</option>
+            <option value="gents" >Mens</option>
+            <option value="couples">Couples</option>
+        </select>
+        <button type="submit" id="applyFilters" class="mt-4 bg-[#E8B888] text-black p-2 w-full rounded-md">
+            Apply Filters
+        </button>
+    </form>
     <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 bg-[#1F1F1F] p-16">
         <% products.forEach(watch=> { %>
             <div class="bg-[#2A2A2A] p-6 rounded-lg text-center">
@@ -55,5 +70,19 @@
             </div>
             <% }) %>
     </div>
+    <script>
+        document.getElementById('toggleFilters').addEventListener('click', function () {
+            document.getElementById('filterMenu').classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function (event) {
+            const filterMenu = document.getElementById('filterMenu');
+            const sortButton = document.getElementById('toggleFilters');
+
+            if (!filterMenu.contains(event.target) && event.target !== sortButton) {
+                filterMenu.classList.add('hidden');
+            }
+        });
+    </script>
 
     <%- include('../../views/partials/user/footer')%>

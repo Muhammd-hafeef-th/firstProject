@@ -1,4 +1,12 @@
 <%- include('../../views/partials/user/header')%>
+<script>
+    window.history.pushState(null, null, window.location.href);
+    window.onpopstate = function () {
+        window.history.go(1); // Prevents going back
+    };
+</script>
+
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <div class="bg-[#1F1F1F] text-white">
@@ -179,5 +187,9 @@
                 </button>
         </section>
     </div>
+
+    
+    
+    
 
     <%- include('../../views/partials/user/footer')%>

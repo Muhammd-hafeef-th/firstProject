@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
     <title>Edit Product</title>
     <style>
         .error-message {
@@ -30,14 +33,13 @@
                             onsubmit="return handleFormSubmit(event)" action="/admin/edit-productItem" method="post"
                             class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                          
+
                             <div class="md:col-span-2">
                                 <label class="block mb-2 text-lg font-semibold">Edit Images:</label>
                                 <div class="flex gap-4">
                                     <% for (let i=1; i <=3; i++) { %>
                                         <div
                                             class="relative w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden">
-                                         
                                             <label for="imageUpload<%= i %>"
                                                 class="absolute w-full h-full cursor-pointer">
                                                 <% if (product && product.productImage && product.productImage[i - 1]) {
@@ -50,23 +52,13 @@
                                                         <% } %>
                                             </label>
                                             <input type="file" name="images<%= i %>" id="imageUpload<%= i %>"
-                                                class="hidden" accept="image/*"
-                                                onchange="previewImage(event, <%= i %>)">
-                                            <input type="hidden" name="imageIndex<%= i %>" id="imageIndex<%= i %>"
-                                                value="<%= i %>">
+                                                class="hidden" accept="image/*" onchange="openCropper(event, <%= i %>)">
                                         </div>
                                         <% } %>
                                 </div>
                                 <div id="image-error" class="error-message"></div>
                             </div>
-
-
-
-
                             <input type="hidden" name="productId" value="<%= product._id %>">
-
-
-
                             <!-- Product Details -->
                             <div class="grid grid-cols-1 gap-4">
 
@@ -84,10 +76,18 @@
 
                                 <div>
                                     <label class="block mb-1">Brand:</label>
-                                    <input type="text" name="brand" value="<%= product.brand %>"
-                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                    <select name="brand" id="brand"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                                        <option value="">Select a brand</option>
+                                        <% brand.forEach(watch=> { %>
+                                            <option value="<%= watch.brandName %>" <%=product.brand===watch.brandName
+                                                ? 'selected' : '' %>>
+                                                <%= watch.brandName %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                    <div id="brand-error" class="error-message"></div>
                                 </div>
-
                                 <div>
                                     <label class="block mb-1">Category:</label>
                                     <input type="text" name="category" value="<%= product.category %>"
@@ -148,7 +148,7 @@
                                 </div>
                             </div>
 
-                           
+
                             <div class="md:col-span-2 flex justify-center mt-5">
                                 <button id="submitButton" type="submit"
                                     class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 transition">
@@ -159,181 +159,227 @@
                         </form>
                     </div>
                 </div>
+                <div id="cropModal"
+                    class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
+                    <div class="bg-white p-4 rounded-lg w-96 text-black">
+                        <h2 class="text-lg font-bold mb-2">Crop Image</h2>
+                        <div class="crop-container">
+                            <img id="cropImage" class="w-full">
+                        </div>
+                        <div class="flex justify-end mt-4">
+                            <button onclick="closeCropper()"
+                                class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Cancel</button>
+                            <button onclick="cropImage()" class="bg-blue-500 text-white px-4 py-2 rounded">Crop</button>
+                        </div>
+                    </div>
+                </div>
 
-        </div>
-        <script>
-            let isSubmitting = false;
-            const submitButton = document.getElementById("submitButton");
+                <script>
+                    let isSubmitting = false;
+                    const submitButton = document.getElementById("submitButton");
 
-            function handleFormSubmit(event) {
-                event.preventDefault();
+                    function handleFormSubmit(event) {
+                        event.preventDefault();
 
-                if (isSubmitting) return;
-                isSubmitting = true;
-                submitButton.disabled = true;
+                        if (isSubmitting) return;
+                        isSubmitting = true;
+                        submitButton.disabled = true;
 
-                console.log("Form submission triggered");
+                        console.log("Form submission triggered");
 
-                if (!validateForm()) {
-                    isSubmitting = false;
-                    submitButton.disabled = false;
-                    return false;
-                }
-
-                console.log("Form validation passed, submitting...");
-                event.target.submit();
-            }
-
-            function validateForm() {
-                clearErrorMessage();
-                const name = document.querySelector('input[name="name"]').value.trim();
-                const description = document.querySelector('textarea[name="description"]').value.trim(); // Corrected selector
-                const brand = document.querySelector('input[name="brand"]').value.trim();
-                const category = document.querySelector('input[name="category"]').value.trim();
-                const amount = document.querySelector('input[name="amount"]').value.trim();
-                const stock = document.querySelector('input[name="stock"]').value.trim();
-                const colors = document.querySelectorAll('input[name="colors[]"]');
-                const validColors = Array.from(colors).filter(color => color.value.trim() !== "");
-
-                let isValid = true;
-
-                if (name === "") {
-                    displayErrorMessage("name-error", "Please enter a name");
-                    isValid = false;
-                }
-
-                if (description === "") {
-                    displayErrorMessage("description-error", "Please enter a description");
-                    isValid = false;
-                }
-
-                if (brand === "") {
-                    displayErrorMessage("brand-error", "Please enter the brand name");
-                    isValid = false;
-                }
-
-                if (category === "") {
-                    displayErrorMessage("category-error", "Please enter the category");
-                    isValid = false;
-                }
-
-                if (amount === "") {
-                    displayErrorMessage("amount-error", "Please enter a valid amount");
-                    isValid = false;
-                }
-
-                if (stock === "") {
-                    displayErrorMessage("stock-error", "Please enter a valid stock quantity");
-                    isValid = false;
-                }
-
-                if (validColors.length === 0) {
-                    displayErrorMessage("color-error", "Please enter at least one color");
-                    isValid = false;
-                }
-
-                return isValid;
-            }
-
-            function displayErrorMessage(elementId, message) {
-                let errorElement = document.getElementById(elementId);
-                if (!errorElement) {
-                    errorElement = document.createElement("div");
-                    errorElement.id = elementId;
-                    errorElement.classList.add("error-message");
-                    errorElement.style.color = "red";
-                    document.querySelector("form").appendChild(errorElement);
-                }
-                errorElement.innerText = message;
-                errorElement.style.display = 'block';
-            }
-
-            function clearErrorMessage() {
-                document.querySelectorAll('.error-message').forEach(el => el.style.display = "none");
-            }
-
-            document.getElementById("editProductForm").addEventListener("submit", handleFormSubmit);
-
-
-            function handleFileInput(inputId) {
-                const fileInput = document.getElementById(inputId);
-
-                fileInput.addEventListener("change", function () {
-                    if (this.files.length > 0) {
-                        const file = this.files[0];
-
-                        if (!file.type.startsWith("image/")) {
-                            alert("Only image files are allowed.");
-                            fileInput.value = "";
-                            return;
+                        if (!validateForm()) {
+                            isSubmitting = false;
+                            submitButton.disabled = false;
+                            return false;
                         }
 
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            fileInput.nextElementSibling.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-md">`;
-                        };
-                        reader.readAsDataURL(file);
+                        console.log("Form validation passed, submitting...");
+                        event.target.submit();
                     }
-                });
-            }
 
-            handleFileInput("imageUpload1");
-            handleFileInput("imageUpload2");
-            handleFileInput("imageUpload3");
+                    function validateForm() {
+                        clearErrorMessage();
+                        const name = document.querySelector('input[name="name"]').value.trim();
+                        const description = document.querySelector('textarea[name="description"]').value.trim();
+                        const brand = document.getElementById('brand').value.trim(); // Changed to select by ID
+                        const category = document.querySelector('input[name="category"]').value.trim();
+                        const amount = document.querySelector('input[name="amount"]').value.trim();
+                        const stock = document.querySelector('input[name="stock"]').value.trim();
+                        const colors = document.querySelectorAll('input[name="colors[]"]');
+                        const validColors = Array.from(colors).filter(color => color.value.trim() !== "");
 
-            function displayBackendError(errorMessage) {
-                Swal.fire({ icon: "error", title: "Oops", text: errorMessage });
-            }
+                        let isValid = true;
 
-            const menuBtn = document.getElementById('menu-btn');
-            const sidebar = document.getElementById('sidebar');
-
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-            });
-
-
-            function previewImage(event, index) {
-                const file = event.target.files[0];
-                const reader = new FileReader();
-
-                if (file) {
-                    reader.onload = function (e) {
-                        const img = document.getElementById('imagePreview' + index);
-                        if (img) {
-                            img.src = e.target.result;
+                        if (name === "") {
+                            displayErrorMessage("name-error", "Please enter a name");
+                            isValid = false;
                         }
-                    };
-                    reader.readAsDataURL(file);
-                }
-                const imageIndexInput = document.getElementById('imageIndex' + index);
-                if (imageIndexInput) {
-                    imageIndexInput.value = index;
-                }
-            }
-            function setImageIndex(index) {
-                document.getElementById("imageIndex").value = index;
-                console.log("Selected image index:", index);
-            }
 
-            function getQueryParam(param) {
-                const urlParams = new URLSearchParams(window.location.search);
-                return urlParams.get(param);
-            }
+                        if (description === "") {
+                            displayErrorMessage("description-error", "Please enter a description");
+                            isValid = false;
+                        }
 
-            const errorMessage = getQueryParam('error');
-            if (errorMessage) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                });
+                        if (brand === "") {
+                            displayErrorMessage("brand-error", "Please select a brand");
+                            isValid = false;
+                        }
 
-                const newUrl = window.location.origin + window.location.pathname + window.location.search.replace(/&?error=[^&]*/, '');
-                history.replaceState(null, '', newUrl);
-            }
+                        if (category === "") {
+                            displayErrorMessage("category-error", "Please enter the category");
+                            isValid = false;
+                        }
 
-        </script>
+                        if (amount === "") {
+                            displayErrorMessage("amount-error", "Please enter a valid amount");
+                            isValid = false;
+                        }
+
+                        if (stock === "") {
+                            displayErrorMessage("stock-error", "Please enter a valid stock quantity");
+                            isValid = false;
+                        }
+
+                        if (validColors.length === 0) {
+                            displayErrorMessage("color-error", "Please enter at least one color");
+                            isValid = false;
+                        }
+
+                        return isValid;
+                    }
+
+                    function displayErrorMessage(elementId, message) {
+                        let errorElement = document.getElementById(elementId);
+                        if (!errorElement) {
+                            errorElement = document.createElement("div");
+                            errorElement.id = elementId;
+                            errorElement.classList.add("error-message");
+                            errorElement.style.color = "red";
+                            document.querySelector("form").appendChild(errorElement);
+                        }
+                        errorElement.innerText = message;
+                        errorElement.style.display = 'block';
+                    }
+
+                    function clearErrorMessage() {
+                        document.querySelectorAll('.error-message').forEach(el => el.style.display = "none");
+                    }
+
+                    document.getElementById("editProductForm").addEventListener("submit", handleFormSubmit);
+
+
+                    function handleFileInput(inputId) {
+                        const fileInput = document.getElementById(inputId);
+
+                        fileInput.addEventListener("change", function () {
+                            if (this.files.length > 0) {
+                                const file = this.files[0];
+
+                                if (!file.type.startsWith("image/")) {
+                                    alert("Only image files are allowed.");
+                                    fileInput.value = "";
+                                    return;
+                                }
+
+                                const reader = new FileReader();
+                                reader.onload = function (e) {
+                                    fileInput.nextElementSibling.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-md">`;
+                                };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+                    }
+
+                    handleFileInput("imageUpload1");
+                    handleFileInput("imageUpload2");
+                    handleFileInput("imageUpload3");
+
+                    function displayBackendError(errorMessage) {
+                        Swal.fire({ icon: "error", title: "Oops", text: errorMessage });
+                    }
+
+                    const menuBtn = document.getElementById('menu-btn');
+                    const sidebar = document.getElementById('sidebar');
+
+                    menuBtn.addEventListener('click', () => {
+                        sidebar.classList.toggle('-translate-x-full');
+                    });
+
+
+                    function previewImage(event, index) {
+                        const file = event.target.files[0];
+                        const reader = new FileReader();
+
+                        if (file) {
+                            reader.onload = function (e) {
+                                const img = document.getElementById('imagePreview' + index);
+                                if (img) {
+                                    img.src = e.target.result;
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                        const imageIndexInput = document.getElementById('imageIndex' + index);
+                        if (imageIndexInput) {
+                            imageIndexInput.value = index;
+                        }
+                    }
+                    function setImageIndex(index) {
+                        document.getElementById("imageIndex").value = index;
+                        console.log("Selected image index:", index);
+                    }
+
+                    function getQueryParam(param) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        return urlParams.get(param);
+                    }
+
+                    const errorMessage = getQueryParam('error');
+                    if (errorMessage) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                        });
+
+                        const newUrl = window.location.origin + window.location.pathname + window.location.search.replace(/&?error=[^&]*/, '');
+                        history.replaceState(null, '', newUrl);
+                    }
+
+                    let cropper;
+                    let currentImageIndex;
+
+                    function openCropper(event, index) {
+                        const file = event.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                document.getElementById('cropImage').src = e.target.result;
+                                document.getElementById('cropModal').classList.remove('hidden');
+                                if (cropper) cropper.destroy();
+                                cropper = new Cropper(document.getElementById('cropImage'), {
+                                    aspectRatio: 1,
+                                    viewMode: 2,
+                                });
+                                currentImageIndex = index;
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }
+
+                    function cropImage() {
+                        const canvas = cropper.getCroppedCanvas({ width: 200, height: 200 });
+                        const croppedImage = canvas.toDataURL("image/png");
+                        document.getElementById('imagePreview' + currentImageIndex).src = croppedImage;
+                        document.getElementById('cropModal').classList.add('hidden');
+                    }
+
+                    function closeCropper() {
+                        document.getElementById('cropModal').classList.add('hidden');
+                        if (cropper) cropper.destroy();
+                    }
+
+                </script>
 </body>
 
 </html>

@@ -25,6 +25,33 @@
                     </div>
                     <% }) %>
             </div>
+            <% if (totalPages> 1) { %>
+                <div class="flex justify-center mt-8 pb-10">
+                    <div class="flex items-center gap-2">
+                        <% if (currentPage> 1) { %>
+                            <a href="/newArrivals?page=<%= currentPage - 1 %>"
+                                class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
+                                ←
+                            </a>
+                            <% } %>
+
+                                <% for (let i=1; i <=totalPages; i++) { %>
+                                    <a href="/newArrivals?page=<%= i %>"
+                                        class="px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition">
+                                        <%= i %>
+                                    </a>
+                                    <% } %>
+
+                                        <% if (currentPage < totalPages) { %>
+                                            <a href="/newArrivals?page=<%= currentPage + 1 %>"
+                                                class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
+                                                →
+                                            </a>
+                                            <% } %>
+                    </div>
+                </div>
+                <% } %>
+
     </section>
 
 

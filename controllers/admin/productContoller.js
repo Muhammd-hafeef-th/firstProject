@@ -40,8 +40,9 @@ const productInfo = async (req, res) => {
 }
 
 const addProduct = async (req, res) => {
+    const brand= await Brand.find({})
     try {
-        res.render('add-product')
+        res.render('add-product',{brand:brand})
     } catch (error) {
         console.log("something error in adding product")
         res.status(500).json({ error: "Internal Server Error" });
@@ -99,6 +100,7 @@ const upload = multer({ storage: storage });
 
 
 const editProduct = async (req, res) => {
+    const brand=await Brand.find({})
     try {
         const productId = req.query.id;
         if (!productId) {
@@ -108,7 +110,7 @@ const editProduct = async (req, res) => {
         if (!product) {
             return res.status(404).send("Product not found");
         }
-        res.render("edit-product", { product });
+        res.render("edit-product", { product,brand:brand });
     } catch (error) {
         console.error("Error fetching product:", error);
         res.status(500).send("Internal Server Error");
