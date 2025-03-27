@@ -36,16 +36,17 @@
         </div>
     </div>
     <button id="toggleFilters" class="absolute right-0 bg-[#E8B888] text-black px-4 py-2 mr-20 rounded-md shadow-md">
-        Sort by category ▼
+        Sort by category: <%= selectedCategory ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
+            : 'All' %> ▼
     </button>
-    <!-- Change your form to show selected category -->
-    <form action="/brand-categoryFilter?id=<%=brands._id%>" method="post" id="filterMenu"
+    <form action="/brandButton" method="get" id="filterMenu"
         class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-64 absolute top-90 right-10 shadow-lg">
+        <input type="hidden" name="id" value="<%= brands._id %>">
         <select name="category" class="p-2 w-full rounded bg-[#3A3A3A] text-white border border-gray-600">
             <option value="">All</option>
-            <option value="ladies" >Ladies</option>
-            <option value="gents" >Mens</option>
-            <option value="couples">Couples</option>
+            <option value="ladies" <%=selectedCategory==='ladies' ? 'selected' : '' %>>Ladies</option>
+            <option value="gents" <%=selectedCategory==='gents' ? 'selected' : '' %>>Mens</option>
+            <option value="couples" <%=selectedCategory==='couples' ? 'selected' : '' %>>Couples</option>
         </select>
         <button type="submit" id="applyFilters" class="mt-4 bg-[#E8B888] text-black p-2 w-full rounded-md">
             Apply Filters
@@ -69,6 +70,33 @@
                 </a>
             </div>
             <% }) %>
+                <% if (totalPages> 1) { %>
+                    <div class="flex justify-center w-full mt-8 pb-10 col-span-full"> <!-- Changed this line -->
+                        <div class="flex items-center gap-2">
+                            <% if (currentPage> 1) { %>
+                                <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage - 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                    class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
+                                    ←
+                                </a>
+                                <% } %>
+
+                                    <% for (let i=1; i <=totalPages; i++) { %>
+                                        <a href="/brandButton?id=<%= brands._id %>&page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                            class="px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition">
+                                            <%= i %>
+                                        </a>
+                                        <% } %>
+
+                                            <% if (currentPage < totalPages) { %>
+                                                <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage + 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                                    class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
+                                                    →
+                                                </a>
+                                                <% } %>
+                        </div>
+                    </div>
+                    <% } %>
+
     </div>
     <script>
         document.getElementById('toggleFilters').addEventListener('click', function () {

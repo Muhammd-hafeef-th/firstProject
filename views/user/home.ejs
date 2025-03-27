@@ -146,7 +146,7 @@
                 <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">BRANDS</h2>
                 <div class="flex flex-wrap justify-center gap-4">
                     <% brands.forEach(brand => { %>
-                        <a href="/brandButton?id=<%=brand._id%>">
+                        <a href="/brandButton?id=<%= brand._id %>">
                         <button class="border border-white text-white px-6 py-2 rounded-lg text-lg font-semibold transition-transform duration-300 ease-in-out hover:scale-110">
                             <%= brand.brandName %>
                         </button>

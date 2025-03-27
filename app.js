@@ -34,10 +34,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-app.use((req, res, next) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
-    next();
-});
 
 app.use((req, res, next) => {
     res.locals.messages = req.flash(); 

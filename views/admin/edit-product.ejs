@@ -164,7 +164,7 @@
                     <div class="bg-white p-4 rounded-lg w-96 text-black">
                         <h2 class="text-lg font-bold mb-2">Crop Image</h2>
                         <div class="crop-container">
-                            <img id="cropImage" class="w-full">
+                            <img id="cropImage" style="max-width: 65%;">
                         </div>
                         <div class="flex justify-end mt-4">
                             <button onclick="closeCropper()"
@@ -358,7 +358,7 @@
                                 document.getElementById('cropModal').classList.remove('hidden');
                                 if (cropper) cropper.destroy();
                                 cropper = new Cropper(document.getElementById('cropImage'), {
-                                    aspectRatio: 1,
+                                    aspectRatio: 0,
                                     viewMode: 2,
                                 });
                                 currentImageIndex = index;

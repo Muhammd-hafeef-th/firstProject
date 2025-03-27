@@ -72,7 +72,7 @@
                                 <div class="bg-white p-4 rounded-lg w-[450px] max-w-full shadow-lg">
                                     <h2 class="text-black text-xl mb-4">Crop Image</h2>
                                     <div>
-                                        <img id="cropImage" style="max-width: 100%;">
+                                        <img id="cropImage" style="max-width: 65%;">
                                     </div>
                                     <div class="mt-4 flex justify-end">
                                         <button id="cropButton"
@@ -355,7 +355,7 @@
                     handleFileInput("imageUpload2", "preview2");
                     handleFileInput("imageUpload3", "preview3");
                 });
-                // Cropper.js Integration
+                
                 const imageInputs = [
                     document.getElementById("imageUpload1"),
                     document.getElementById("imageUpload2"),
@@ -391,7 +391,7 @@
                             }
 
                             cropper = new Cropper(document.getElementById("cropImage"), {
-                                aspectRatio: 1,
+                                aspectRatio: 0,
                                 viewMode: 2,
                             });
                         };

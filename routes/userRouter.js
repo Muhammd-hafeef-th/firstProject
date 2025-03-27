@@ -68,7 +68,7 @@ router.post("/filter-product",userController.filterProduct);
 router.post("/ladies-brandFilter",userController.ladiesBrandFilter);
 router.post("/gents-brandFilter",userController.gentsBrandFilter);
 router.post("/couples-brandFilter",userController.couplesBrandFilter);
-router.post('/brand-categoryFilter',userController.brandCategoryFilter);
+
 
 
 router.get("/productDetails", userController.productDetails);

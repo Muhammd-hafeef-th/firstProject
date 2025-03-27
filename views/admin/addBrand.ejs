@@ -76,7 +76,7 @@
             <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
                 <h2 class="text-xl font-bold mb-4">Crop Image</h2>
                 <div class="flex justify-center">
-                    <img id="cropperImage" class="max-w-xs rounded-md">
+                    <img id="cropperImage" class=" rounded-md" style="max-width: 60%;">
                 </div>
                 <div class="flex justify-end mt-4">
                     <button onclick="cancelCrop()"
@@ -175,7 +175,7 @@
                         document.getElementById("cropperImage").src = e.target.result;
                         document.getElementById("cropperModal").classList.remove("hidden");
                         cropper = new Cropper(document.getElementById("cropperImage"), {
-                            aspectRatio: 1,
+                            aspectRatio: 0,
                             viewMode: 2,
                         });
                     };
