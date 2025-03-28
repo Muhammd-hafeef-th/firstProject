@@ -1,0 +1,212 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <body class="bg-[#1F1F1F] text-white">
+        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
+                <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
+                <ul>
+                    <li class="mb-2 text-[#88903F]"><a href="/profile">Personal Info</a></li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Addresses</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
+                    <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                        <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
+                        <% } %>
+                </ul>
+                <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+                    <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
+                    <% } %>
+            </div>
+
+            <div class="flex-1 flex justify-center p-4 md:p-10">
+                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">OTP VERIFICATION</h2>
+                    </div>
+                    <div class="border border-white w-1/2 items-center rounded-lg mt-10">
+                        <h2 class="text-2xl font-semibold mt-6 ml-2 text-center md:text-left">Enter OTP</h2>
+                        <p class="text-gray-500 text-sm mt-2 ml-2 text-center md:text-left">Please enter the OTP sent to your
+                            registered email ID</p>
+                        <div id="timer" class="text-yellow-500 font-semibold text-lg mt-4 ml-2 text-center md:text-left">1:00
+                        </div>
+                        <!-- OTP Form -->
+                        <form id="otpForm" action="" method="post" class="flex flex-col items-center md:items-center">
+                            <div class="flex justify-center gap-2 mt-4">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg  text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg  text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg  text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg  text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                                <input type="text" maxlength="1"
+                                    class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg  text-black focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                            </div>
+
+                            <button type="submit"
+                                class="w-full bg-yellow-400 text-white py-3 mt-6 rounded-lg hover:bg-yellow-500 transition">Verify
+                                Code</button>
+                        </form>
+                        <p class="text-gray-500 text-sm m-5 text-center md:text-left">
+                            Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-blue-500 font-semibold">Resend OTP</a>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
+    <script>
+        let timer = 60; 
+        let timerInterval;
+
+        function startTimer() {
+            clearInterval(timerInterval); 
+            timer = 60;
+
+            timerInterval = setInterval(() => {
+                let minutes = Math.floor(timer / 60);
+                let seconds = timer % 60;
+                document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                timer--;
+
+                if (timer < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("timer").classList.add("text-red-500");
+                    document.getElementById("timer").textContent = "Expired";
+
+                    document.querySelectorAll(".otp-input").forEach(input => {
+                        input.disabled = true;
+                    });
+                }
+            }, 1000);
+        }
+
+        function resendOtp() {
+            Swal.fire({
+                icon: "info",
+                title: "Otp Resend successfully!",
+                text: "A new OTP has been sent to your email.",
+                timer: 1500,
+                showConfirmButton: false
+            });
+
+            document.querySelectorAll(".otp-input").forEach(input => {
+                input.disabled = false;
+                input.value = "";
+            });
+
+            document.getElementById("timer").classList.remove("text-red-500");
+            startTimer(); 
+
+            $.ajax({
+                type:"POST",
+                url:'/resendProfileOtp',
+                success:function(response){
+                    if(response.success){
+                        Swal.fire({
+                            icon:"success",
+                            title:"Resend Otp successfull",
+                            showConfirmButton:false,
+                            timer:1500,
+                            
+                        })
+                    }else{
+                        Swal.fire({
+                            icon:"error",
+                            title:"Error",
+                            text:"Failed to resend otp . please try again"
+                        })
+                    }
+                   
+                },
+                error:function (){
+                    Swal.fire({
+                        icon:"error",
+                        title:'Error',
+                        text:"Failed to resend otp .please try again" 
+                    })
+                }
+            })
+            return false
+
+        }
+
+        document.getElementById("otpForm").onsubmit = function (event) {
+            event.preventDefault();
+
+            let otpValue = "";
+            document.querySelectorAll(".otp-input").forEach(input => {
+                otpValue += input.value.trim();
+            });
+
+            if (otpValue.length !== 6) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid OTP',
+                    text: 'Please enter all 6 digits'
+                });
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/verifyProfileOtp",
+                data: { otp: otpValue },
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "OTP Verified",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = response.redirectUrl;
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "error", 
+                            text: response.message
+                        });
+                    }
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: 'error',
+                        title: "Invalid OTP",
+                        text: "Please try again"
+                    });
+                }
+            });
+            return false
+        };
+
+        document.addEventListener("DOMContentLoaded", startTimer);
+
+
+    document.querySelectorAll(".otp-input").forEach((input, index, inputs) => {
+    input.addEventListener("input", (e) => {
+        if (e.target.value.length === 1 && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+        }
+    });
+
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && index > 0 && e.target.value === "") {
+            inputs[index - 1].focus();
+        }
+    });
+});
+
+    </script>
+
+    <%- include('../../views/partials/user/footer')%>

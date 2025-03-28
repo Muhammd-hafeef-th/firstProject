@@ -5,6 +5,19 @@ const bcrypt = require('bcrypt');
 const Product = require('../../models/productSchema')
 const Brand = require("../../models/brandSchema");
 const { trace } = require('../../routes/userRouter');
+const multer = require("multer");
+
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "public/uploads/profile-image/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 const loadHomepage = async (req, res) => {
     try {
@@ -22,20 +35,17 @@ const loadHomepage = async (req, res) => {
         newArrivalsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
         newArrivalsData = newArrivalsData.slice(0, 4);
 
-        const user = await User.findOne({ _id: req.session.user});
+        const user = await User.findOne({ _id: req.session.user });
 
         let userData = null;
         if (req.session.user) {
-            console.log("1")
             if (user.isBlocked) {
-                console.log("2")
                 req.session.destroy((err) => {
                     if (err) console.error('Session destroy error:', err);
                 });
                 res.redirect('/login')
             }
             else if (user) {
-                console.log("3")
                 userData = user;
             }
         }
@@ -204,7 +214,7 @@ const resendOtp = async (req, res) => {
 const loadLogin = async (req, res) => {
     try {
         if (req.session.user) {
-            return res.redirect('/');
+            return res.redirect('/profile');
         }
         res.render('login');
     } catch (error) {
@@ -687,6 +697,197 @@ const brandButton = async (req, res) => {
         res.redirect("/pageNotFound");
     }
 }
+
+const profile = async (req, res) => {
+    try {
+        let userData = null
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user._id })
+        }
+
+        res.render("profile", { userDatas: userData })
+    } catch (error) {
+        console.log("Something error in profile", error)
+        res.redirect("/pageNotFound");
+    }
+}
+const profileEdit = async (req, res) => {
+    try {
+        let userData = null
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user._id })
+        }
+        res.render('profile-edit', { userDatas: userData })
+    } catch (error) {
+
+    }
+}
+const profileUpdate = async (req, res) => {
+    try {
+        console.log('Request body:', req.body);
+        console.log('Uploaded file:', req.file);
+        const updates = {
+            firstname: req.body.username,
+            phNumber: req.body.phone,
+            email: req.body.email,
+            gender: req.body.gender
+        };
+
+        if (req.file) {
+            updates.userImage = `/uploads/profile-image/${req.file.filename}`;
+        }
+
+        await User.findByIdAndUpdate(req.user._id, updates);
+
+        res.json({
+            success: true,
+            message: 'Profile updated successfully'
+        });
+
+    } catch (error) {
+        console.error('Update error:', error);
+        res.status(500).json({
+            success: false,
+            message: error.message || 'Profile update failed'
+        });
+    }
+}
+
+const changePassword = async (req, res) => {
+    try {
+        let userData = null
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user._id })
+        }
+        res.render("userChange-password", { userDatas: userData })
+    } catch (error) {
+        console.log("Something error in user change password", error)
+        res.redirect("/pageNotFound")
+    }
+}
+const profileEmailOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const findUser = await User.findOne({ email: email });
+        let userData = null
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user._id })
+        }
+        if (findUser) {
+            const otp = generateOtp();
+            const emailSent = await sendVerifyEmail(email, otp);
+            if (emailSent) {
+                req.session.userOtp = otp;
+                req.session.email = email;
+                res.render('profileOtpVerify', { userDatas: userData })
+                console.log("Otp:", otp)
+            } else {
+                res.json({ success: false, message: "Failed to send Otp.Plese try again" });
+            }
+        }
+        else {
+            res.redirect('/change-password')
+        }
+    } catch (error) {
+        res.redirect('/pageNotFound');
+    }
+}
+
+function generateOtp() {
+    const digits = '1234567890';
+    let otp = '';
+    for (let i = 0; i < 6; i++) {
+        otp += digits[Math.floor(Math.random() * 10)];
+    }
+    return otp
+}
+const sendVerifyEmail = async (email, otp) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: "You OTP for password reset",
+            text: `You OTP is${otp}`,
+            html: `<b><h4>Your OTP:${otp}</h4><br></b>`
+        }
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email Send:', info.messageId);
+        return true;
+
+    } catch (error) {
+        console.error('Error sending email', error)
+        return false;
+    }
+}
+const verifyProfileOtp = async (req, res) => {
+    try {
+        const enteredOtp = req.body.otp;
+        if (enteredOtp === req.session.userOtp) {
+            res.json({ success: true, redirectUrl: "/profileNewPassword" });
+        } else {
+            res.json({ success: false, message: "Otp is not matching" })
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: "An error occured.Please try again" })
+    }
+}
+const profileNewPassword = async (req, res) => {
+    try {
+        let userData = null
+        if (req.session.user) {
+            userData = await User.findOne({ _id: req.session.user._id })
+        }
+        res.render('profileNewPassword', { userDatas: userData })
+    } catch (error) {
+        console.log("something error in new profile password");
+        res.redirect("/pageNotFound")
+    }
+}
+const resendProfileOtp = async (req, res) => {
+    try {
+        const otp = generateOtp();
+        req.session.userOtp = otp;
+        const email = req.session.email;
+        console.log("resending otp to email:", email)
+        const emailSent = await sendVerificationEmail(email, otp)
+        if (emailSent) {
+            console.log("resend otp is:", otp)
+            res.status(200).json({ success: true, message: "Resend OTP successful" })
+        }
+    } catch (error) {
+        console.error('Error in resend otp', error)
+        res.status(500).json({ success: false, message: "Internal server error" })
+    }
+}
+
+const profilePasswordSaving = async (req, res) => {
+    try {
+        const email = req.session.email;
+        const { password, confirmPassword } = req.body;
+        if (password === confirmPassword) {
+            const passwordHash = await securePassword(password);
+            await User.updateOne({ email: email }, { $set: { password: passwordHash } });
+            res.redirect('/profile-edit');
+        } else {
+            res.render("profileNewPassword", { message: 'Passwords do not match' });
+        }
+    } catch (error) {
+        console.error("Error in postNewPassword:", error);
+        res.redirect("/pageNotFound");
+    }
+}
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -710,5 +911,13 @@ module.exports = {
     ladiesBrandFilter,
     gentsBrandFilter,
     couplesBrandFilter,
-
+    profile,
+    profileEdit,
+    profileUpdate,
+    changePassword,
+    profileEmailOtp,
+    verifyProfileOtp,
+    profileNewPassword,
+    resendProfileOtp,
+    profilePasswordSaving
 };

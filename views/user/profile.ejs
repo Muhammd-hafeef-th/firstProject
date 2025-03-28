@@ -1,0 +1,83 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <body class="bg-[#1F1F1F] text-white">
+        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
+                <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
+                <ul>
+                    <li class="mb-2 text-[#88903F]"><a href="/profile">Personal Info</a></li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Addresses</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
+                    <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                        <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
+                        <% } %>
+                </ul>
+                <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+                    <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
+                    <% } %>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex justify-center p-4 md:p-10">
+                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">BASIC INFO</h2>
+                        <span class="text-gray-400 hover:text-white cursor-pointer"><a
+                                href="/profile-edit">✏️Edit</a></span>
+                    </div>
+
+                    <form class="mt-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 flex flex-col items-center">
+                                <label class="block mb-2">Image</label>
+                                <div id="imagePreview"
+                                    class="relative w-32 h-32 bg-gray-700 rounded-full overflow-hidden">
+                                    <% if (userDatas?.userImage||'') { %>
+                                        <img src="<%= userDatas?.userImage ||'' %>"
+                                            class="w-full h-full object-cover rounded">
+                                        <% } else { %>
+                                            <span></span>
+                                            <% } %>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block mb-2">Username</label>
+                                <input type="text"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400 text-white"
+                                    value="<%= userDatas?.firstname || '' %>" readonly>
+                            </div>
+                            <div>
+                                <label class="block mb-2">Phone</label>
+                                <input type="text"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400"
+                                    value="<%= userDatas?.phNumber || '' %>" readonly>
+                            </div>
+                            <div>
+                                <label class="block mb-2">Email</label>
+                                <input type="email"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400"
+                                    value="<%= userDatas?.email || '' %>" readonly>
+                            </div>
+                            <div>
+                                <label class="block mb-2">Gender</label>
+                                <input type="text"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400"
+                                    value="<%= userDatas?.gender || '' %>" readonly>
+                            </div>
+                        </div>
+                    </form>
+                    <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                        <p class="text-center text-sm mt-20">
+                            Have an account? <a href="/login" class="text-yellow-400 hover:underline">Sign In</a>
+                        </p>
+                        <% } %>
+                </div>
+            </div>
+        </div>
+    </body>
+
+    <%- include('../../views/partials/user/footer')%>

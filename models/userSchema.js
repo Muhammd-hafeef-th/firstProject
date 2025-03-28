@@ -12,6 +12,20 @@ const userSchema = new Schema(
             required: true,
             unique: true
         },
+        userImage:{
+            type:String,
+            required:false
+        },
+        phNumber:{
+            type:String,
+            required:false,
+            unique:true
+        },
+        gender:{
+            type:String,
+            required:false
+        },
+        
         googleId: {
             type: String,
             unique: true,

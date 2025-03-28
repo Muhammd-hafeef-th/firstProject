@@ -3,6 +3,19 @@ const router = express.Router();
 const userController = require("../controllers/user/userController");
 const passport = require("passport");
 const profileController=require('../controllers/user/profileController')
+const multer = require("multer");
+const path=require('path')
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, "public/uploads/profile-image/");
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({ storage: storage });
 
 router.get("/pageNotFound", userController.pageNotFound);
 router.get("/", userController.loadHomepage);
@@ -73,5 +86,19 @@ router.post("/couples-brandFilter",userController.couplesBrandFilter);
 
 router.get("/productDetails", userController.productDetails);
 router.post("/add-review", userController.addReview);
+
+
+
+//profile management
+
+router.get("/profile",userController.profile)
+router.get("/profile-edit",userController.profileEdit)
+router.patch("/profile-update",upload.single('imageUpload'),userController.profileUpdate);
+router.get("/change-password",userController.changePassword);
+router.post("/profile-emailOtp",userController.profileEmailOtp)
+router.post("/verifyProfileOtp",userController.verifyProfileOtp)
+router.get("/profileNewPassword",userController.profileNewPassword)
+router.post('/resendProfileOtp',userController.resendProfileOtp)
+router.post("/profilePasswordSaving",userController.profilePasswordSaving)
 
 module.exports = router;

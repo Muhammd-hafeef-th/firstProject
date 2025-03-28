@@ -1,0 +1,298 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+    <body class="bg-[#1F1F1F] text-white">
+        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
+                <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
+                <ul>
+                    <li class="mb-2 text-[#88903F]"><a href="/profile">Personal Info</a></li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Addresses</li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
+                    <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                        <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
+                        <% } %>
+                </ul>
+                <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+                    <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
+                    <% } %>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex justify-center p-4 md:p-10">
+                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+                    <h2 class="text-xl font-bold mb-4">EDIT PROFILE</h2>
+                    <form id="profileForm" class="mt-6" enctype="multipart/form-data">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="sm:col-span-2 flex flex-col items-center">
+                                <label class="block mb-2">Profile Image</label>
+                                <div class="relative w-32 h-32 bg-gray-700 rounded-full overflow-hidden">
+                                    <input type="file" id="imageUpload" name="imageUpload" class="hidden"
+                                        accept="image/*">
+                                    <label for="imageUpload"
+                                        class="cursor-pointer w-full h-full flex items-center justify-center">
+                                        <img id="profilePreview"
+                                            src="<%= userDatas?.userImage || '/default-profile.png' %>"
+                                            class="w-full h-full object-cover">
+                                        <span id="uploadText" class="absolute text-gray-400 hidden">Upload</span>
+                                    </label>
+                                </div>
+                                <div id="image-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+                            <div>
+                                <label class="block mb-2">Username</label>
+                                <input type="text" name="username" id="name"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400 text-white"
+                                    value="<%= userDatas?.firstname || '' %>">
+                                <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+
+
+                            <div>
+                                <label class="block mb-2">Phone no</label>
+                                <input type="text" name="phone" id="phone"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400"
+                                    value="<%= userDatas?.phNumber || '' %>">
+                                <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                            </div>
+
+                            <div>
+                                <label class="block mb-2">Email</label>
+                                <input type="email" name="email" id="email"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400"
+                                    value="<%= userDatas?.email || '' %>">
+                                <div id="email-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                            </div>
+
+
+                            <div>
+                                <label class="block mb-2">Gender</label>
+                                <select name="gender"
+                                    class="w-full p-2 bg-gray-700 border border-gray-600 rounded focus:ring-2 focus:ring-yellow-400">
+                                    <option value="male" <%=userDatas?.gender==='male' ? 'selected' : '' %>>Male
+                                    </option>
+                                    <option value="female" <%=userDatas?.gender==='female' ? 'selected' : '' %>>Female
+                                    </option>
+                                    <option value="other" <%=userDatas?.gender==='other' ? 'selected' : '' %>>Other
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="mt-14 bg-yellow-500 w-full py-2 rounded hover:bg-yellow-600 transition">SUBMIT</button>
+                    </form>
+                    <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+
+                        <p class="text-center text-sm mt-10"><a href="/change-password"
+                                class="text-yellow-400 hover:underline">Change Password</a></p>
+                        <% } %>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div id="cropperModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+            <div class="bg-gray-800 p-4 rounded-lg w-[90%] max-w-md">
+                <h2 class="text-xl font-bold mb-4">Crop Profile Image</h2>
+                <div class="flex justify-center">
+                    <img id="cropperImage" class="max-w-full max-h-[60vh]">
+                </div>
+                <div class="flex justify-end mt-4 space-x-2">
+                    <button onclick="cancelCrop()" class="px-4 py-2 bg-red-500 text-white rounded">Cancel</button>
+                    <button onclick="applyCrop()" class="px-4 py-2 bg-green-500 text-white rounded">Apply</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let cropper;
+            let originalFileName = '';
+
+
+            document.getElementById('imageUpload').addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                originalFileName = file.name;
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    document.getElementById('cropperImage').src = event.target.result;
+                    document.getElementById('cropperModal').classList.remove('hidden');
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(document.getElementById('cropperImage'), {
+                        aspectRatio: 0,
+                        viewMode: 1,
+                        autoCropArea: 0.8,
+                        responsive: true,
+                        guides: false
+                    });
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            function applyCrop() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300,
+                        minWidth: 256,
+                        minHeight: 256,
+                        maxWidth: 1024,
+                        maxHeight: 1024,
+                        fillColor: '#1F1F1F',
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+
+                    canvas.toBlob(function (blob) {
+
+                        const file = new File([blob], originalFileName, { type: 'image/jpeg' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        document.getElementById('imageUpload').files = dataTransfer.files;
+
+
+                        document.getElementById('profilePreview').src = URL.createObjectURL(blob);
+                        document.getElementById('cropperModal').classList.add('hidden');
+                        cropper.destroy();
+                    }, 'image/jpeg', 0.9);
+                }
+            }
+
+
+            function cancelCrop() {
+                document.getElementById('cropperModal').classList.add('hidden');
+                document.getElementById('imageUpload').value = '';
+                if (cropper) {
+                    cropper.destroy();
+                }
+            }
+
+
+            document.getElementById('profileForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                const form = e.target;
+                const formData = new FormData(form);
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+            <span class="inline-block animate-spin mr-2">↻</span>
+            Updating...
+        `;
+
+                try {
+                    const response = await fetch('/profile-update', {
+                        method: 'PATCH',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to update profile');
+                    }
+
+                    const result = await response.json();
+
+                    await Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: result.message || 'Profile updated successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    window.location.href = '/profile';
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Update Failed',
+                        text: error.message || 'Failed to update profile. Please try again.',
+                    });
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
+            });
+
+            function validateForm() {
+                clearErrorMessages();
+                let isValid = true;
+                const name = document.getElementById('name').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const image = document.getElementById('imageUpload').files[0];
+                if (name === "") {
+                    showError("name-error", "Username is required");
+                    isValid = false;
+                } else if (!/[a-zA-Z\s]*$/.test(name)) {
+                    showError("name-error", "Contain only letters");
+                    isValid = false;
+                }
+                if (phone === "") {
+                    showError("phone-error", "Phone number is required");
+                    isValid = false;
+                } else if (!/^\d{10}$/.test(phone)) {
+                    showError("phone-error", "Please enter a valid 10-digit phone number");
+                    isValid = false;
+                }
+                if (email === "") {
+                    showError("email-error", "Email is required");
+                    isValid = false;
+                } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showError("email-error", "Please enter a valid email address");
+                    isValid = false;
+                }
+
+                if (!image) {
+                    showError("image-error", "Profile image is required");
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function showError(elementId, message) {
+                const errorElement = document.getElementById(elementId);
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.classList.remove('hidden');
+                }
+            }
+
+            function clearErrorMessages() {
+                document.querySelectorAll('[id$="-error"]').forEach(el => {
+                    el.textContent = '';
+                    el.classList.add('hidden');
+                });
+            }
+
+        </script>
+    </body>
+
+    <%- include('../../views/partials/user/footer')%>
