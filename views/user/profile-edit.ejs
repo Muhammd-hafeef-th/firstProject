@@ -246,7 +246,6 @@
                 const name = document.getElementById('name').value.trim();
                 const phone = document.getElementById('phone').value.trim();
                 const email = document.getElementById('email').value.trim();
-                const image = document.getElementById('imageUpload').files[0];
                 if (name === "") {
                     showError("name-error", "Username is required");
                     isValid = false;
@@ -266,11 +265,6 @@
                     isValid = false;
                 } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                     showError("email-error", "Please enter a valid email address");
-                    isValid = false;
-                }
-
-                if (!image) {
-                    showError("image-error", "Profile image is required");
                     isValid = false;
                 }
 
