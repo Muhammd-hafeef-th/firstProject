@@ -3,6 +3,7 @@ const env = require('dotenv').config();
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 const Product = require('../../models/productSchema')
+const Cart = require('../../models/cartSchema')
 const Brand = require("../../models/brandSchema");
 const { trace } = require('../../routes/userRouter');
 const multer = require("multer");
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-const loadHomepage = async (req, res) => {
+const loadHomepage = async (req, res, next) => {
     try {
         let productsData = await Product.find({ quantity: { $gt: 0 } })
         let featuredData = await Product.find({ isFeatured: true, quantity: { $gt: 0 } })
@@ -59,28 +60,28 @@ const loadHomepage = async (req, res) => {
 
 
     } catch (error) {
-        console.error('Home page is not found', error);
-        res.status(500).send('Server error');
+        error.message = "Server error " + error.message;
+        next(error);
     }
 };
 
-const pageNotFound = async (req, res) => {
+const pageNotFound = async (req, res, next) => {
     try {
         res.render('page-404');
     } catch (error) {
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
-const loadSignup = async (req, res) => {
+const loadSignup = async (req, res, next) => {
     try {
         if (req.session.user) {
             return res.redirect('/');
         }
         res.render('register');
     } catch (error) {
-        console.error('Signup page is not loading', error);
-        res.status(500).send('Server error');
+        error.message = "Server error" + error.message;
+        next(error);
     }
 };
 
@@ -125,7 +126,7 @@ const sendVerificationEmail = async (email, otp) => {
 }
 
 
-const signup = async (req, res) => {
+const signup = async (req, res, next) => {
     try {
         const { firstname, email, password, confirmPassword } = req.body;
 
@@ -150,8 +151,7 @@ const signup = async (req, res) => {
 
         res.render('verify-otp');
     } catch (error) {
-        console.error("Signup error", error);
-        res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
@@ -163,7 +163,7 @@ const securePassword = async (password) => {
     }
 };
 
-const verifyOtp = async (req, res) => {
+const verifyOtp = async (req, res, next) => {
     try {
         const { otp } = req.body;
 
@@ -183,9 +183,10 @@ const verifyOtp = async (req, res) => {
             res.status(400).json({ success: false, message: "Invalid OTP, Please try again" });
         }
     } catch (error) {
-        console.error("Error verifying OTP", error);
-        res.status(500).json({ success: false, message: "An error occurred" });
+        error.message = 'An error occurred' + error.message;
+        next(error);
     }
+
 };
 
 const resendOtp = async (req, res) => {
@@ -211,14 +212,14 @@ const resendOtp = async (req, res) => {
     }
 };
 
-const loadLogin = async (req, res) => {
+const loadLogin = async (req, res, next) => {
     try {
         if (req.session.user) {
             return res.redirect('/profile');
         }
         res.render('login');
     } catch (error) {
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
@@ -248,7 +249,7 @@ const login = async (req, res) => {
             return res.render("login", { message: "Incorrect Password" });
         }
 
-        req.session.user = user.id;
+        req.session.user = user._id;
         res.redirect("/");
     } catch (error) {
         console.error("Login error", error);
@@ -267,7 +268,7 @@ const logout = (req, res) => {
 
 
 
-const featuredProducts = async (req, res) => {
+const featuredProducts = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -291,11 +292,10 @@ const featuredProducts = async (req, res) => {
             query: req.query
         });
     } catch (error) {
-        console.log("Featured products error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
-const products = async (req, res) => {
+const products = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -347,11 +347,10 @@ const products = async (req, res) => {
             filters: filters.replace(/^&|&$/g, '')
         });
     } catch (error) {
-        console.log("Products error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
-const newArrivals = async (req, res) => {
+const newArrivals = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 12;
@@ -378,12 +377,11 @@ const newArrivals = async (req, res) => {
             query: req.query
         })
     } catch (error) {
-        console.log("New Arrivals error")
-        res.redirect('/pageNotFound');
+        next(error);
     }
 }
 
-const mensWatch = async (req, res) => {
+const mensWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -409,11 +407,10 @@ const mensWatch = async (req, res) => {
             selectedBrand: ""
         })
     } catch (error) {
-        console.log("mens watch error")
-        res.redirect('/pageNotFound');
+        next(error);
     }
 }
-const ladiesWatch = async (req, res) => {
+const ladiesWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -439,11 +436,10 @@ const ladiesWatch = async (req, res) => {
             totalPages: totalPages,
         });
     } catch (error) {
-        console.error("Ladies watch error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
-const couplesWatch = async (req, res) => {
+const couplesWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -468,13 +464,11 @@ const couplesWatch = async (req, res) => {
             totalPages: totalPages,
         })
     } catch (error) {
-        console.log("couples watch error")
-        res.redirect('/pageNotFound');
-
+        next(error);
     }
 }
 
-const productDetails = async (req, res) => {
+const productDetails = async (req, res, next) => {
     try {
         let productId = req.query.id;
         let productDe = await Product.findById(productId);
@@ -487,12 +481,11 @@ const productDetails = async (req, res) => {
 
         res.render("product-details", { productDet: productDe, avgRating });
     } catch (error) {
-        console.log("Something went wrong in product details:", error);
-        res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
-const addReview = async (req, res) => {
+const addReview = async (req, res, next) => {
     try {
         const { productId, username, rating, comment } = req.body;
 
@@ -512,12 +505,11 @@ const addReview = async (req, res) => {
 
         res.redirect(`/productDetails?id=${productId}`);
     } catch (error) {
-        console.log("Error adding review:", error);
-        res.redirect("/pageNotFound");
+        next(error);
     }
 };
 
-const filterProduct = async (req, res) => {
+const filterProduct = async (req, res, next) => {
     try {
         const brandsdetails = await Brand.find({});
         const { category, brands, sortByPrice, priceTo, priceFrom } = req.body;
@@ -547,11 +539,13 @@ const filterProduct = async (req, res) => {
         const products = await Product.find(filter).sort(sortOption);
         return res.render("products", { products: products, brands: brandsdetails });
     } catch (error) {
-        console.error("Error in filterProduct:", error);
-        return res.status(500).send("Internal Server Error");
+        error.message = "Error in filterProduct: " + error.message;
+        next(error);
     }
+
+
 };
-const ladiesBrandFilter = async (req, res) => {
+const ladiesBrandFilter = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -579,11 +573,10 @@ const ladiesBrandFilter = async (req, res) => {
             totalPages: totalPages
         });
     } catch (error) {
-        console.error("Filter error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
-const gentsBrandFilter = async (req, res) => {
+const gentsBrandFilter = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -611,11 +604,10 @@ const gentsBrandFilter = async (req, res) => {
             totalPages: totalPages
         });
     } catch (error) {
-        console.error("Filter error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
-const couplesBrandFilter = async (req, res) => {
+const couplesBrandFilter = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 9;
@@ -643,14 +635,13 @@ const couplesBrandFilter = async (req, res) => {
             totalPages: totalPages
         });
     } catch (error) {
-        console.error("Filter error:", error);
-        res.redirect('/pageNotFound');
+        next(error);
     }
 };
 
 
 
-const brandButton = async (req, res) => {
+const brandButton = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 3;
@@ -693,25 +684,27 @@ const brandButton = async (req, res) => {
         });
 
     } catch (error) {
-        console.log("Error in brand Button:", error);
-        res.redirect("/pageNotFound");
+        next(error);
     }
 }
 
-const profile = async (req, res) => {
+const profile = async (req, res, next) => {
     try {
         let userData = null
         if (req.session.user) {
-            userData = await User.findOne({ _id: req.session.user._id })
+            userData = await User.findOne({
+                $or: [
+                    { _id: req.session.user._id },
+                    { _id: req.session.user }
+                ]
+            });
         }
-
         res.render("profile", { userDatas: userData })
     } catch (error) {
-        console.log("Something error in profile", error)
-        res.redirect("/pageNotFound");
+        next(error);
     }
 }
-const profileEdit = async (req, res) => {
+const profileEdit = async (req, res, next) => {
     try {
         let userData = null
         if (req.session.user) {
@@ -719,10 +712,10 @@ const profileEdit = async (req, res) => {
         }
         res.render('profile-edit', { userDatas: userData })
     } catch (error) {
-
+        next(error);
     }
 }
-const profileUpdate = async (req, res) => {
+const profileUpdate = async (req, res, next) => {
     try {
         console.log('Request body:', req.body);
         console.log('Uploaded file:', req.file);
@@ -732,6 +725,7 @@ const profileUpdate = async (req, res) => {
             email: req.body.email,
             gender: req.body.gender
         };
+        console.log(req.session.email);
 
         if (req.file) {
             updates.userImage = `/uploads/profile-image/${req.file.filename}`;
@@ -745,15 +739,12 @@ const profileUpdate = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Update error:', error);
-        res.status(500).json({
-            success: false,
-            message: error.message || 'Profile update failed'
-        });
+        error.message = 'Profile update failed ' + error.message;
+        next(error);
     }
 }
 
-const changePassword = async (req, res) => {
+const changePassword = async (req, res, next) => {
     try {
         let userData = null
         if (req.session.user) {
@@ -761,11 +752,10 @@ const changePassword = async (req, res) => {
         }
         res.render("userChange-password", { userDatas: userData })
     } catch (error) {
-        console.log("Something error in user change password", error)
-        res.redirect("/pageNotFound")
+        next(error);
     }
 }
-const profileEmailOtp = async (req, res) => {
+const profileEmailOtp = async (req, res, next) => {
     try {
         const { email } = req.body;
         const findUser = await User.findOne({ email: email });
@@ -789,7 +779,7 @@ const profileEmailOtp = async (req, res) => {
             res.redirect('/change-password')
         }
     } catch (error) {
-        res.redirect('/pageNotFound');
+        next(error);
     }
 }
 
@@ -830,7 +820,7 @@ const sendVerifyEmail = async (email, otp) => {
         return false;
     }
 }
-const verifyProfileOtp = async (req, res) => {
+const verifyProfileOtp = async (req, res, next) => {
     try {
         const enteredOtp = req.body.otp;
         if (enteredOtp === req.session.userOtp) {
@@ -839,10 +829,11 @@ const verifyProfileOtp = async (req, res) => {
             res.json({ success: false, message: "Otp is not matching" })
         }
     } catch (error) {
-        res.status(500).json({ success: false, message: "An error occured.Please try again" })
+        error.message = 'An error occured.Please try again ' + error.message;
+        next(error);
     }
 }
-const profileNewPassword = async (req, res) => {
+const profileNewPassword = async (req, res, next) => {
     try {
         let userData = null
         if (req.session.user) {
@@ -850,11 +841,10 @@ const profileNewPassword = async (req, res) => {
         }
         res.render('profileNewPassword', { userDatas: userData })
     } catch (error) {
-        console.log("something error in new profile password");
-        res.redirect("/pageNotFound")
+        next(error);
     }
 }
-const resendProfileOtp = async (req, res) => {
+const resendProfileOtp = async (req, res, next) => {
     try {
         const otp = generateOtp();
         req.session.userOtp = otp;
@@ -866,12 +856,12 @@ const resendProfileOtp = async (req, res) => {
             res.status(200).json({ success: true, message: "Resend OTP successful" })
         }
     } catch (error) {
-        console.error('Error in resend otp', error)
-        res.status(500).json({ success: false, message: "Internal server error" })
+        error.message = 'Error in resend otp: ' + error.message;
+        next(error);
     }
 }
 
-const profilePasswordSaving = async (req, res) => {
+const profilePasswordSaving = async (req, res, next) => {
     try {
         const email = req.session.email;
         const { password, confirmPassword } = req.body;
@@ -883,10 +873,128 @@ const profilePasswordSaving = async (req, res) => {
             res.render("profileNewPassword", { message: 'Passwords do not match' });
         }
     } catch (error) {
-        console.error("Error in postNewPassword:", error);
-        res.redirect("/pageNotFound");
+        next(error);
     }
 }
+
+const addtoCart = async (req, res, next) => {
+    try {
+        const productId = req.query.id;
+        const requestedQuantity = parseInt(req.query.quantity) || 1;
+        const userId = req.session.user?._id;
+
+        if (!userId) {
+            return res.redirect('/login');
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).send("Product not found");
+        }
+
+        let cart = await Cart.findOne({ userId }) || new Cart({ userId, items: [] });
+
+        const existingItemIndex = cart.items.findIndex(
+            item => item.productId.toString() === productId
+        );
+
+        if (existingItemIndex >= 0) {
+            const newTotalQuantity = cart.items[existingItemIndex].quantity + requestedQuantity;
+
+            if (newTotalQuantity > product.quantity) {
+                req.flash("error", "Not enough stock available");
+                return res.redirect('/cart');
+            }
+
+            cart.items[existingItemIndex].quantity = newTotalQuantity;
+            cart.items[existingItemIndex].totalPrice = newTotalQuantity * product.salePrice;
+        } else {
+            if (requestedQuantity > product.quantity) {
+                req.flash("error", "Not enough stock available");
+                return res.redirect('/cart');
+            }
+
+            cart.items.push({
+                productId: product._id,
+                price: product.salePrice,
+                quantity: requestedQuantity,
+                totalPrice: requestedQuantity * product.salePrice,
+                status: "active",
+                cancelationReason: "none"
+            });
+        }
+
+        await cart.save();
+        req.flash("success", "Item added to cart");
+        res.redirect('/cart');
+
+    } catch (error) {
+        error.message = "Error in addtoCart: " + error.message;
+        next(error);
+    }
+};
+
+
+const cart = async (req, res, next) => {
+    try {
+        const userId = req.session.user?._id;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+        const userCart = await Cart.findOne({ userId }).populate('items.productId') || { items: [] };
+        const cartItems = {
+            items: userCart.items || []
+        };
+        res.render('addToCart', { cartItems });
+    } catch (error) {
+        error.message = "Error in cart controller: " + error.message;
+        next(error);
+    }
+
+}
+
+const deleteCartProduct = async (req, res, next) => {
+    try {
+        const productId = req.query.id;
+        const userId = req.session.user._id;
+        await Cart.updateOne(
+            { userId: userId },
+            { $pull: { items: { _id: productId } } }
+        )
+        res.redirect('/cart')
+    } catch (error) {
+        next(error);
+    }
+}
+
+const updateCartQuantity = async (req, res, next) => {
+    try {
+        const userId = req.session.user?._id;
+        if (!userId) {
+            return res.redirect('/login');
+        }
+        const { itemId, quantity } = req.body;
+        const newQuantity = Math.max(parseInt(quantity, 10), 1);
+        const cart = await Cart.findOne({ userId });
+        const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
+        const product = await Product.findById(cart.items[itemIndex].productId);
+        if (newQuantity > product.quantity) {
+            req.flash("error", "The selected quantity exceeds available stock");
+            return res.redirect("/cart");
+        }
+        cart.items[itemIndex].quantity = newQuantity;
+        cart.items[itemIndex].totalPrice = newQuantity * product.salePrice;
+        await cart.save();
+        req.flash("success", "Cart updated successfully");
+        res.redirect('/cart');
+    } catch (error) {
+        next(error);
+    }
+
+};
+
+
+
 
 module.exports = {
     loadHomepage,
@@ -919,5 +1027,11 @@ module.exports = {
     verifyProfileOtp,
     profileNewPassword,
     resendProfileOtp,
-    profilePasswordSaving
+    profilePasswordSaving,
+    addtoCart,
+    cart,
+    deleteCartProduct,
+    updateCartQuantity
 };
+
+

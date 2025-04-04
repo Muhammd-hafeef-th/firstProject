@@ -3,6 +3,7 @@ const router = express.Router();
 const userController = require("../controllers/user/userController");
 const passport = require("passport");
 const profileController=require('../controllers/user/profileController')
+const addressController=require('../controllers/user/addressController')
 const multer = require("multer");
 const path=require('path')
 
@@ -100,5 +101,23 @@ router.post("/verifyProfileOtp",userController.verifyProfileOtp)
 router.get("/profileNewPassword",userController.profileNewPassword)
 router.post('/resendProfileOtp',userController.resendProfileOtp)
 router.post("/profilePasswordSaving",userController.profilePasswordSaving)
+
+//add to cart
+
+router.get("/addtoCart",userController.addtoCart);
+router.get('/cart',userController.cart)
+router.post("/deleteCartProduct",userController.deleteCartProduct);
+router.post('/updateCartQuantity', userController.updateCartQuantity);
+
+
+//address management
+
+router.get('/address',addressController.addressPageGet)
+router.get('/addAddress',addressController.addAddress);
+router.post('/add-address',addressController.addressAdded);
+router.get('/editAddress',addressController.editAddress)
+router.post('/edit-address', addressController.addressEdit); 
+router.patch('/edit-address',addressController.addressEdit)
+
 
 module.exports = router;

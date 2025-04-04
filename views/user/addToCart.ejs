@@ -1,0 +1,142 @@
+<%- include('../../views/partials/user/header') %>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+    <body class="bg-[#1F1F1F] text-white">
+        <div class="container mx-auto px-4 py-8 max-w-6xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
+                <h2 class="text-2xl font-medium">Cart</h2>
+            </div>
+
+            <div class="mb-8 overflow-x-auto">
+                <div class="bg-[#E8B888] text-black font-semibold grid grid-cols-4 p-3 rounded-t-md">
+                    <div class="pl-4">Product</div>
+                    <div class="text-center">Price</div>
+                    <div class="text-center">Quantity</div>
+                    <div class="text-right pr-4">Total</div>
+                </div>
+
+                <div class="bg-[#1F1F1F] divide-y divide-[#333]">
+                    <% cartItems.items.forEach(item=> { %>
+                        <div class="grid grid-cols-4 p-4 items-center">
+
+                            <a href="/productDetails?id=<%=item.productId._id%>">
+                                <div class="flex items-center gap-4">
+                                    <form action="/deleteCartProduct?id=<%=item._id%>" method="post"><button
+                                            class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 transition">
+                                            &times;
+                                        </button></form>
+                                    <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
+                                        class="w-16 h-16 object-cover rounded">
+                                    <div>
+                                        <h3 class="font-medium">
+                                            <%= item.productId.productName %>
+                                        </h3>
+                                        <p class="text-sm text-gray-400">
+                                            <%= item.productId.description %>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+
+                            <div class="text-center">
+                                $<%= item.price %>
+                            </div>
+
+                            <div class="flex justify-center items-center gap-4">
+                                <form action="/updateCartQuantity" method="POST"
+                                    onsubmit="return validateQuantity(this)">
+                                    <input type="hidden" name="itemId" value="<%= item._id %>">
+                                    <input type="number" name="quantity" value="<%= item.quantity %>"
+                                        class="w-12 bg-[#333] text-center p-1 rounded border border-[#444]">
+                                    <button type="submit"
+                                        class="text-white bg-[#E8B888] px-3 py-1 rounded-2xl">Edit</button>
+                                    <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                                </form>
+
+                            </div>
+                            <div class="text-right pr-4 font-medium">
+                                $<%= item.totalPrice %>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row justify-between gap-6">
+                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
+                    <input type="text" placeholder="Coupon Code....."
+                        class="bg-[#333] p-2 rounded text-white flex-grow">
+                    <button class="bg-[#8F9DDB] hover:bg-[#666] text-white px-4 py-2 rounded transition">
+                        Apply Coupon
+                    </button>
+                </div>
+
+                <button
+                    class="bg-[#E8B888] hover:bg-[#D9A76A] text-black font-bold py-2 px-6 rounded transition w-full md:w-auto">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        function validateQuantity(form) {
+            let isValid = true
+            let quantityInput = form.querySelector('input[name="quantity"]');
+            if (!quantityInput.value || quantityInput.value <= 0) {
+                showError("name-error", "Please enter the quantity");
+                isValid = false;
+            }
+            return isValid;
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        function clearErrorMessages() {
+            document.querySelectorAll('[id$="-error"]').forEach(el => {
+                el.textContent = '';
+                el.classList.add('hidden');
+            });
+        }
+
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let errorMessage = '<%= messages.error ? String(messages.error).replace(/"/g, "&quot;") : "" %>';
+            let successMessage = '<%= messages.success ? String(messages.success).replace(/"/g, "&quot;") : "" %>';
+
+
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: errorMessage,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            }
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: successMessage,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            }
+        });
+    </script>
+
+
+
+    <%- include('../../views/partials/user/footer') %>

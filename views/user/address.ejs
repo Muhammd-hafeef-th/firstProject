@@ -1,0 +1,64 @@
+<%- include('../../views/partials/user/header')%>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <body class="bg-[#1F1F1F] text-white">
+        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+            <!-- Sidebar -->
+            <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
+                <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
+                <ul>
+                    <li class="mb-2 text-gray-400"><a href="/profile">Personal Info</a></li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
+                    <li class="mb-2  text-[#88903F] hover:text-white"><a href="/address">Address</a></li>
+                    <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
+                    <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                        <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
+                        <% } %>
+                </ul>
+                <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+                    <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
+                    <% } %>
+            </div>
+            <div class="flex-1 flex justify-center p-4 md:p-10">
+                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold">ADDRESS</h2>
+                    </div>
+                    <% if (addresses && addresses.address && addresses.address.length> 0) { %>
+                        <% addresses.address.forEach(address=> { %>
+                            <div
+                                class="flex justify-between items-center bg-[#1F1F1F] p-4 rounded-md mb-3 border border-gray-700">
+                                <div>
+                                    <p class="font-semibold">• <%= address.name %>
+                                    </p>
+                                    <p class="text-gray-400">
+                                        <%= address.landMark %>
+                                            <%=address.city%>
+                                                <%=address.state%>
+                                                    <%=address.pincode%>
+                                                        <%=address.country%>
+                                    </p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <a href="/editAddress?id=<%= address._id %>">
+                                        <button class="bg-yellow-500 text-black px-4 py-1 rounded-md">Edit</button>
+                                    </a>
+                                    <button class="bg-red-600 text-white px-4 py-1 rounded-md">Delete</button>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <p class="text-gray-400">No addresses found.</p>
+                                    <% } %>
+
+
+                                        <!-- Add Address Button -->
+                                        <div class="mt-6">
+                                            <a href="/addAddress"> <button
+                                                    class="bg-yellow-500 text-black px-6 py-2 rounded-md">Add
+                                                    Address</button></a>
+                                        </div>
+                </div>
+            </div>
+        </div>
+    </body>
