@@ -3,27 +3,12 @@
 
 <body class="bg-[#1F1F1F] text-white">
     <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-        <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
-            <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
-            <ul>
-                <li class="mb-2 text-gray-400"><a href="/profile">Personal Info</a></li>
-                <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
-                <li class="mb-2  text-[#88903F] hover:text-white"><a href="/address">Address</a></li>
-                <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
-                <% if (!userDatas || Object.keys(userDatas).length===0) { %>
-                    <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
-                    <% } %>
-            </ul>
-            <% if (userDatas && Object.keys(userDatas).length> 0) { %>
-                <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
-                <% } %>
-        </div>
         <div class="flex-1 flex justify-center p-4 md:p-10">
             <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">ADD ADDRESS</h2>
                 </div>
-                <form action="/add-address" method="POST" onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form action="/add-address-checkout" method="POST" onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-gray-300 mb-1">Name</label>
                         <input type="text" name="name" id="name"

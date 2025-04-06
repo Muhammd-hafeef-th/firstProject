@@ -20,20 +20,24 @@ const userAuth=(req,res,next)=>{
     }
 }
 
-const adminAuth=(req,res,next)=>{
-    User.findOne({isAdmin:true})
-        .then(data=>{
-            if(data){
-                next()
-            }else{
-                res.redirect("/admin/login")    
-            }
+const adminAuth = (req, res, next) => {
+    if (req.session.admin) {
+      User.findById(req.session.admin)
+        .then((data) => {
+          if (data && data.isAdmin) {
+            next();
+          } else {
+            res.redirect("/admin/login");
+          }
         })
-        .catch(error=>{
-             console.log("Error in admin auth");
-             res.status(500).send("Internal server error")
-        })
-}
+        .catch((error) => {
+          console.log("Error in adminAuth middleware", error);
+          res.status(500).send("Internal Server Error");
+        });
+    } else {
+      res.redirect("/admin/login");
+    }
+  };
 
 module.exports={
     userAuth,

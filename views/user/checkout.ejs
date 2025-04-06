@@ -1,0 +1,328 @@
+<%- include('../../views/partials/user/header') %>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Checkout</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
+            body {
+                font-family: 'Inter', sans-serif;
+            }
+
+            .address-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
+
+            .selected-address {
+                border-color: #f59e0b;
+                background-color: rgba(245, 158, 11, 0.05);
+            }
+
+            .product-card:hover {
+                background-color: rgba(31, 41, 55, 0.5);
+            }
+        </style>
+    </head>
+
+    <body class="bg-[#1F1F1F] text-gray-100 min-h-screen">
+        <div class="container mx-auto px-4 py-8 max-w-7xl">
+            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-3"></div>
+            <div class="relative flex justify-center items-center mb-6">
+                <h2 class="text-white text-2xl font-sans">CHECKOUT</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-8">
+                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-semibold text-yellow-400">SELECT ADDRESS</h3>
+                            <a href="/addAddressCheckout"
+                                class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                                + Add New Address
+                            </a>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <% if (addresses && addresses.length> 0) { %>
+                                <% addresses.forEach((address, index)=> { %>
+                                    <div
+                                        class="address-card <%= index === 0 ? 'selected-address border-2 border-yellow-400' : 'border-2 border-gray-700' %> bg-gray-750 p-4 rounded-lg transition-all duration-300 cursor-pointer">
+
+                                        <% if (index===0) { %>
+                                            <div class="flex items-start mb-2">
+                                                <span
+                                                    class="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full mr-2">Default</span>
+                                                <p class="font-medium text-white">
+                                                    <%= address.name %>
+                                                </p>
+                                            </div>
+                                            <% } else { %>
+                                                <p class="font-medium text-white mb-2">
+                                                    <%= address.name %>
+                                                </p>
+                                                <% } %>
+
+                                                    <p class="text-sm text-gray-300 mb-1">
+                                                        <%= address.landMark %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-300">
+                                                        <%= address.city %>, <%= address.state %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-300 mb-3">
+                                                        <%= address.country %> - <%= address.pincode %>
+                                                    </p>
+                                                    <p class="text-sm text-gray-300">Phone: <%= address.phone %>
+                                                    </p>
+
+                                                    <div class="flex gap-2 mt-4">
+                                                        <% if (index !==0) { %>
+                                                            <form method="POST"
+                                                                action="/checkout/setDefaultAddress/<%= address._id %>"
+                                                                class="set-default-form">
+                                                                <button type="submit"
+                                                                    class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                                                    Set Default
+                                                                </button>
+                                                            </form>
+                                                            <% } %>
+                                                                <a href="/editAddress-checkout?id=<%=address._id%>"
+                                                                    class="bg-yellow-400 hover:bg-yellow-500 text-black text-xs px-3 py-1.5 rounded-lg font-medium transition">Edit</a>
+                                                                <button onclick="openDeleteModal('<%= address._id %>')"
+                                                                    class="bg-gray-700 hover:bg-gray-600 text-xs px-3 py-1.5 rounded-lg font-medium transition">Delete</button>
+                                                    </div>
+                                    </div>
+                                    <% }); %>
+                                        <% } else { %>
+                                            <div class="col-span-3 text-center py-4">
+                                                <p class="text-gray-400">No addresses found. Please add an address to
+                                                    continue.</p>
+                                                <a href="/addAddressCheckout"
+                                                    class="mt-2 inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium">
+                                                    Add Address
+                                                </a>
+                                            </div>
+                                            <% } %>
+
+                        </div>
+                    </div>
+
+                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                        <h4 class="text-lg font-semibold text-yellow-400 mb-3">DELIVERY INFORMATION</h4>
+                        <div class="flex items-center gap-4">
+                            <div class="bg-gray-750 p-3 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-400">Estimated Delivery</p>
+                                <p class="font-medium">
+                                     18/3/2222
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                        <h4 class="text-lg font-semibold text-yellow-400 mb-6">YOUR ORDER</h4>
+
+                        <div class="space-y-4">
+                            <% cartItems.forEach(item=> { %>
+                                <div
+                                    class="product-card flex items-center gap-4 p-4 rounded-lg transition-all duration-200">
+                                    <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
+                                        class="w-16 h-16 object-cover rounded-lg" />
+                                    <div class="flex-1">
+                                        <h5 class="font-medium">
+                                            <%= item.productId.productName %>
+                                        </h5>
+                                        <p class="text-sm text-gray-400">
+                                            <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% } %>
+                                                        Qty: <%= item.quantity %>
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-white font-medium">$<%= (item.productId.salePrice *
+                                                item.quantity).toFixed(2) %>
+                                        </p>
+                                        <% if (item.productId.regularPrice) { %>
+                                            <p class="text-xs text-gray-500 line-through">$<%=
+                                                    (item.productId.regularPrice * item.quantity).toFixed(2) %>
+                                            </p>
+                                            <% } %>
+                                    </div>
+                                </div>
+                                <% }); %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg h-fit sticky top-6">
+                    <h4 class="text-xl font-semibold text-center text-yellow-400 mb-6">ORDER SUMMARY</h4>
+
+                    <div class="space-y-3 text-sm mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item)=> total +
+                                    item.quantity, 0) %> items)</span>
+                            <span>$<%= subtotal.toFixed(2) %></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Shipping</span>
+                            <span class="text-green-400">
+                              
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Discount</span>
+                            <span class="text-green-400">-$%></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Tax</span>
+                            <span>$%></span>
+                        </div>
+                    </div>
+
+                    <hr class="border-gray-700 my-4" />
+
+                    <div class="flex justify-between text-lg font-bold mb-6">
+                        <span>Total</span>
+                        <span>$<%= subtotal .toFixed(2) %></span>
+                    </div>
+
+                    <form action="/checkout/place-order" method="POST">
+                        <button type="submit"
+                            class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            PROCEED TO PAYMENT
+                        </button>
+                    </form>
+
+                    <div class="mt-4 text-xs text-gray-500 text-center">
+                        <p>By placing your order, you agree to our <a href="#"
+                                class="text-yellow-400 hover:underline">Terms of Service</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="deleteModal"
+            class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center hidden z-50">
+            <div
+                class="bg-[#2d2d2d] border border-gray-700 text-white p-6 rounded-2xl shadow-2xl w-96 max-w-full relative">
+                <div class="flex justify-center mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-center mb-2">Delete Address?</h3>
+                <p class="text-sm text-gray-300 text-center mb-6">This action cannot be undone. Are you sure you want to
+                    delete this address?</p>
+                <div class="flex justify-center gap-4">
+                    <form id="deleteForm" method="POST" action="">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit"
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-[140px] flex items-center justify-center">
+                            Yes, Delete
+                        </button>
+                    </form>
+                    <button onclick="closeDeleteModal()" type="button"
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg w-[140px] flex items-center justify-center">
+                        Cancel
+                    </button>
+                </div>
+                <button onclick="closeDeleteModal()" class="absolute top-3 right-3 text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <script>
+            function openDeleteModal(addressId) {
+                const modal = document.getElementById("deleteModal");
+                const form = document.getElementById("deleteForm");
+                form.action = `/address-checkout/${addressId}?_method=DELETE`;
+                modal.classList.remove("hidden");
+            }
+
+            function closeDeleteModal() {
+                const modal = document.getElementById("deleteModal");
+                modal.classList.add("hidden");
+            }
+
+            document.querySelectorAll('.set-default-form').forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const result = await Swal.fire({
+                        title: 'Set as Default Address?',
+                        text: "This will be your primary shipping address",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10B981',
+                        cancelButtonColor: '#6B7280',
+                        confirmButtonText: 'Yes, set as default',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true
+                    });
+
+                    if (result.isConfirmed) {
+                        const response = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams(new FormData(form))
+                        });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Failed',
+                                text: 'Could not set default address'
+                            });
+                        }
+                    }
+                });
+            });
+
+    <% if (messages.error) { %>
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '<%= messages.error %>'
+                });
+    <% } %>
+    <% if (messages.success) { %>
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '<%= messages.success %>'
+                });
+    <% } %>
+        </script>
+    </body>
+
+    </html>
+    <%- include('../../views/partials/user/footer') %>

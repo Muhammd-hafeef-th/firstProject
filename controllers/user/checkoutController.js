@@ -1,34 +1,44 @@
+const Cart = require('../../models/cartSchema');
+const Address = require('../../models/adressSchema');
+const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
-const Address = require('../../models/adressSchema')
 
 
-const addressPageGet = async (req, res, next) => {
+const checkout = async (req, res, next) => {
     try {
-        let address = null;
-        let userData = null
-        if (req.session.user) {
-            userData = await User.findOne({
-                $or: [
-                    { _id: req.session.user._id },
-                    { _id: req.session.user }
-                ]
-            });
-            address = await Address.findOne({
-                $or: [
-                    { userId: req.session.user._id },
-                    { userId: req.session.user }
-                ]
-            })
+        const id = req.session.user?._id || req.session.user;
 
+        const userCart = await Cart.findOne({ userId: id })
+            .populate({
+                path: 'items.productId',
+                model: 'Product'
+            }) || { items: [] };
 
+        const cartItems = userCart.items || [];
+
+        const addressDocs = await Address.find({ userId: id });
+        const addresses = addressDocs.flatMap(doc => doc.address.map(addr => ({
+            ...addr.toObject(),
+            _id: addr._id,
+        })));
+
+        let subtotal = 0;
+        if (cartItems.length > 0) {
+            subtotal = cartItems.reduce((total, item) => {
+                return total + (item.productId.salePrice * item.quantity);
+            }, 0);
         }
-        res.render('address', { userDatas: userData, addresses: address || { address: [] } })
+
+        res.render('checkout', {
+            cartItems,
+            addresses,
+            subtotal,
+            messages: req.flash()
+        });
     } catch (error) {
         next(error);
     }
-
 }
-
 const addAddress = async (req, res, next) => {
     try {
         let userData = null
@@ -40,14 +50,13 @@ const addAddress = async (req, res, next) => {
                 ]
             });
         }
-        res.render('addAddress', { userDatas: userData });
+        res.render('addAddressCheckout', { userDatas: userData });
     } catch (error) {
         next(error);
     }
 
 }
-
-const addressAdded = async (req, res,next) => {
+const addAddressCheckout = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.session.user;
         const { name, state, country, city, landMark, pincode, phone, altPhone } = req.body;
@@ -80,26 +89,15 @@ const addressAdded = async (req, res,next) => {
         }
 
         await addressDoc.save();
-        res.redirect('/address');
+        res.redirect('/checkout');
 
     } catch (error) {
         console.error("Error while adding address:", error);
         res.status(500).redirect('/address');
     }
-};
-
-const editAddress = async (req, res, next) => {
+}
+const editAddress = async (req, res,next) => {
     try {
-        let userData = null
-        if (req.session.user) {
-            userData = await User.findOne({
-                $or: [
-                    { _id: req.session.user._id },
-                    { _id: req.session.user }
-                ]
-            });
-        }
-
         const userId = req.session.user?._id || req.session.user;
         let addressId = req.query.id;
         let addressDoc = await Address.findOne({
@@ -110,13 +108,14 @@ const editAddress = async (req, res, next) => {
                 address: { $elemMatch: { _id: addressId } }
             });
 
-        res.render('editAddress', { userDatas: userData, addressDocs: addressDoc })
-    } catch (error) {
-        next(error);
-    }
-}
+            res.render('editAddress-checkout',{addressDocs:addressDoc})
 
-const addressEdit = async (req, res, next) => {
+    } catch (error) {
+        next(error)
+    }
+
+}
+const addressEdit=async (req,res)=>{
     try {
         const addressId = req.params.id;
         const userId = req.session.user?._id || req.session.user;
@@ -137,13 +136,13 @@ const addressEdit = async (req, res, next) => {
             { $set: updatedAddress }
         );
 
-        res.redirect('/address');
+        res.redirect('/checkout');
     } catch (error) {
         next(error);
     }
 }
 
-const deleteAddress =async (req,res,next)=>{
+const deleteAddress=async (req,res)=>{
     try {
         const userId = req.session.user?._id || req.session.user;
         const addressId = req.params.id;
@@ -152,17 +151,18 @@ const deleteAddress =async (req,res,next)=>{
             { userId: userId },
             { $pull: { address: { _id: addressId } } }
         );
-        res.redirect('/address');
+        res.redirect('/checkout');
     
     } catch (error) {
         next(error)
     }
 }
 
+
 module.exports = {
-    addressPageGet,
+    checkout,
     addAddress,
-    addressAdded,
+    addAddressCheckout,
     editAddress,
     addressEdit,
     deleteAddress

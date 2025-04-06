@@ -4,6 +4,7 @@ const userController = require("../controllers/user/userController");
 const passport = require("passport");
 const profileController=require('../controllers/user/profileController')
 const addressController=require('../controllers/user/addressController')
+const checkoutController=require('../controllers/user/checkoutController')
 const multer = require("multer");
 const path=require('path')
 
@@ -116,8 +117,18 @@ router.get('/address',addressController.addressPageGet)
 router.get('/addAddress',addressController.addAddress);
 router.post('/add-address',addressController.addressAdded);
 router.get('/editAddress',addressController.editAddress)
-router.post('/edit-address', addressController.addressEdit); 
-router.patch('/edit-address',addressController.addressEdit)
+router.post('/edit-address/:id', addressController.addressEdit); 
+router.patch('/edit-address/:id',addressController.addressEdit)
+router.delete('/address/:id',addressController.deleteAddress)
 
+//checkout management
+
+router.get('/checkout',checkoutController.checkout);
+router.get('/addAddressCheckout',checkoutController.addAddress)
+router.post('/add-address-checkout',checkoutController.addAddressCheckout)
+router.get('/editAddress-checkout',checkoutController.editAddress);
+router.post('/edit-address-checkout/:id',checkoutController.addressEdit); 
+router.patch('/edit-address-checkout/:id',checkoutController.addressEdit)
+router.delete('/address-checkout/:id',checkoutController.deleteAddress)
 
 module.exports = router;
