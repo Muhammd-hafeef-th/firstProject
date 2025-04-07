@@ -42,7 +42,7 @@
                             </a>
 
                             <div class="text-center">
-                                $<%= item.price %>
+                                $<%= item.productId.regularPrice %>
                             </div>
 
                             <div class="flex justify-center items-center gap-4">
@@ -73,11 +73,12 @@
                         Apply Coupon
                     </button>
                 </div>
-
+                <%if(cartItems.items.length>0){%>
                 <button
                     class="bg-[#E8B888] hover:bg-[#D9A76A] text-black font-bold py-2 px-6 rounded transition w-full md:w-auto">
                    <a href="/checkout"> Proceed to Checkout</a>
                 </button>
+                <%}%>
             </div>
         </div>
     </body>

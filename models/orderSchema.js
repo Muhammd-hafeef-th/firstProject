@@ -1,14 +1,14 @@
 const mongoose=require('mongoose')
 const {Schema}=mongoose;
-const {v4:uuidv4}=require('uuid')
+const { v4: uuidv4 } = require('uuid');
 
 const orderSchema=new Schema({
-    orederId:{
+    orderId:{
         type:String,
-        default:()=>uuidv4(),
+        default:uuidv4,
         unique:true
     },
-    orederItems:[{
+    orderItems:[{
         product:{
             type:Schema.Types.ObjectId,
             ref:'Product',
@@ -23,7 +23,7 @@ const orderSchema=new Schema({
             default:0,
         }
     }],
-    totolPrice:{
+    totalPrice:{
         type:Number,
         required:true,
     },
@@ -35,9 +35,9 @@ const orderSchema=new Schema({
         type:Number,
         required:true
     },
-    adrress:{
+    address:{
         type:Schema.Types.ObjectId,
-        ref:"User",
+        ref:"Address",
         required:true
     },
     invoiceDate:{

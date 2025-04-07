@@ -95,11 +95,25 @@
                                 </div>
                             </div>
 
-                            <!-- Amount & Stock -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block mb-1">Amount:</label>
                                     <input type="number" name="amount" value="<%= product.regularPrice %>"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Sales Amount:</label>
+                                    <input type="number" name="saleAmount" value="<%= product.salePrice %>"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Discount:</label>
+                                    <input type="number" name="discount" value="<%= product.discount %>"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                </div>
+                                <div>
+                                    <label class="block mb-1">Shiping Charge:</label>
+                                    <input type="number" name="shiping" value="<%= product.shipingCharge %>"
                                         class="w-full p-2 rounded bg-gray-700 border border-gray-600">
                                 </div>
                                 <div>
@@ -109,7 +123,6 @@
                                 </div>
                             </div>
 
-                            <!-- Featured & New Product -->
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="block mb-1">Featured:</label>

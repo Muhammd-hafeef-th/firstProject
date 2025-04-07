@@ -12,6 +12,16 @@ const productSchema = new Schema({
         required: true,
         trim: true,
     },
+    discount:{
+        type:Number,
+        required:false,
+        min:0
+    },
+    shipingCharge:{
+        type:Number,
+        required:true,
+        min:0
+    },
     brand: {
         type: String,
         required: true,

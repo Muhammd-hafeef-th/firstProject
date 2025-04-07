@@ -7,6 +7,7 @@ const addressController=require('../controllers/user/addressController')
 const checkoutController=require('../controllers/user/checkoutController')
 const multer = require("multer");
 const path=require('path')
+const orderController=require('../controllers/user/orderController')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -130,5 +131,13 @@ router.get('/editAddress-checkout',checkoutController.editAddress);
 router.post('/edit-address-checkout/:id',checkoutController.addressEdit); 
 router.patch('/edit-address-checkout/:id',checkoutController.addressEdit)
 router.delete('/address-checkout/:id',checkoutController.deleteAddress)
+router.post('/setDefaultAddress/:id',checkoutController.setDefaultAddress);
+router.get('/proceed-payment',checkoutController.proceedPayment)
+router.post('/choose-payment',checkoutController.choosePayment)
+
+//order management
+
+router.get('/orders',orderController.GetOrder)
+
 
 module.exports = router;

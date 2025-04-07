@@ -1,0 +1,147 @@
+<%- include('../../views/partials/user/header') %>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <body class="bg-[#1F1F1F] text-white min-h-screen">
+        <div class="container mx-auto px-4 py-12 max-w-6xl">
+            <!-- Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider mb-2">SECURE PAYMENT</h1>
+                <div class="w-20 h-1 bg-yellow-400 mx-auto"></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-[#2A2A2A] rounded-xl p-8 shadow-lg">
+                    <h2 class="text-lg font-bold tracking-wider mb-6 flex items-center">
+                        <span class="w-4 h-4 bg-yellow-400 rounded-full mr-3"></span>
+                        CHOOSE PAYMENT METHOD
+                    </h2>
+
+                    <div class="space-y-6 max-w-lg mx-auto p-6 bg-[#1F1F1F] shadow rounded-xl">
+                        <form action="/choose-payment" method="post">
+                            <div class="border rounded p-4">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="cod" class="accent-black" checked
+                                        onchange="togglePaymentDetails()" />
+                                    <span class="font-medium">Cash on Delivery</span>
+                                    <span class="ml-auto">💵</span>
+                                </label>
+                                <p class="text-sm text-red-500 mt-2" id="codNote" style="display: none;">
+                                    Additional cash collection charge of ₹50 applies.
+                                </p>
+                            </div>
+                            <div class="border rounded p-4">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="online" class="accent-black" 
+                                        onchange="togglePaymentDetails()" />
+                                    <span class="font-medium">Online Payment</span>
+                                    <div class="flex space-x-2 ml-auto">
+                                        <img src="https://img.icons8.com/color/48/000000/paypal.png" class="w-6 h-6" />
+                                        <img src="https://img.icons8.com/color/48/000000/google-pay.png"
+                                            class="w-6 h-6" />
+                                        <img src="https://img.icons8.com/color/48/000000/apple-pay.png"
+                                            class="w-6 h-6" />
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="border rounded p-4">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="wallet" class="accent-black"
+                                        onchange="togglePaymentDetails()" />
+                                    <span class="font-medium">Wallet</span>
+                                </label>
+                                <p class="text-sm text-gray-500 mt-2">Pay using your digital wallet balance</p>
+                            </div>
+
+                            
+
+                            <div class="pt-6 text-center">
+                                <button type="submit" id="payBtn"
+                                    class="w-full bg-yellow-500 text-white py-3 rounded font-semibold">
+                                    Place order
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="bg-[#2A2A2A] rounded-xl p-8 shadow-lg h-fit sticky top-8">
+                    <div  class="flex items-center justify-center bg-gray-100">
+                        <div class="flex justify-between items-center border-l-4 border-[#a58b5f] bg-black p-4 max-w-sm w-full shadow-sm">
+                            <div>
+                              <div class="text-white text-sm">Delivering order to</div>
+                              <div class="font-medium text-white"><%=addresses[0].name%></div>
+                            </div>
+                            <div>
+                              <span class="bg-[#a58b5f] text-white text-xs px-3 py-1 rounded">STANDARD</span>
+                            </div>
+                          </div>
+                    </div>
+
+                    <h2 class="text-lg font-bold tracking-wider mt-5 mb-6 flex items-center">
+                        <span class="w-4 h-4 bg-yellow-400 rounded-full mr-3"></span>
+                        ORDER SUMMARY
+                    </h2>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item)=> total +
+                                    item.quantity, 0) %> items)</span>
+                            <span>$<%= subtotal.toFixed(2) %></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Delivery</span>
+                            <span class="text-white">$<%=shipingCharge%>.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Tax</span>
+                            <span class="font-medium">$0.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Discount</span>
+                            <span class="text-green-400">-$<%=discount%></span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-700 pt-4 mb-6">
+                        <div class="flex justify-between text-lg font-bold">
+                            <span>TOTAL</span>
+                            <span>$<%= (subtotal - discount + shipingCharge + 0).toFixed(2) %></span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .payment-option {
+                @apply border border-gray-700 rounded-lg p-4 transition-all duration-200;
+            }
+
+            .payment-option.active {
+                @apply border-yellow-400 bg-gray-800;
+            }
+
+            .payment-option:hover {
+                @apply border-gray-600;
+            }
+
+            .payment-radio {
+                @apply appearance-none w-4 h-4 border-2 border-gray-600 rounded-full checked:bg-yellow-400 checked:border-yellow-400 mr-3 relative top-0.5;
+            }
+
+            .payment-label {
+                @apply flex items-start cursor-pointer text-sm;
+            }
+
+            .payment-input {
+                @apply w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-sm placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-yellow-400 focus:border-yellow-400;
+            }
+
+            .payment-details {
+                @apply pl-7;
+            }
+        </style>
+    </body>
+
+    <%- include('../../views/partials/user/footer') %>

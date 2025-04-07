@@ -50,7 +50,7 @@ const addProduct = async (req, res) => {
 }
 const addProductItem = async (req, res) => {
     try {
-        const { name, description, brand, category, amount,salesAmount, stock, featured, new: isNew, colors } = req.body;
+        const { name, description, brand, category, amount,discount,salesAmount,shiping, stock, featured, new: isNew, colors } = req.body;
         const productImages = req.files ? req.files.map(file => `/uploads/${file.filename}`) : [];
         if (!productImages) {
             return res.status(400).json({ error: "Please upload three images" });
@@ -69,7 +69,9 @@ const addProductItem = async (req, res) => {
             brand: brand,
             category: category,
             regularPrice: amount,
+            discount:discount,
             salePrice:salesAmount,
+            shipingCharge:shiping,
             quantity: stock,
             color: colors,
             isFeatured: featured,
@@ -127,7 +129,7 @@ const editProductItem = async (req, res) => {
         if (!product) {
             return res.redirect(`/admin/edit-product?id=${productId}&error=Product not found`);
         }
-        const { name, description, brand, category, amount, stock, featured, new: isNew, colors } = req.body;
+        const { name, description, brand, category, amount,saleAmount,discount,shiping, stock, featured, new: isNew, colors } = req.body;
         const colorArray = Array.isArray(colors) ? colors.filter(c => c.trim() !== "") : (colors ? [colors] : []);
         const isFeatured = featured === "yes";
         const newProduct = isNew === "yes";
@@ -153,6 +155,9 @@ const editProductItem = async (req, res) => {
             brand,
             category,
             regularPrice: isNaN(parseFloat(amount)) ? 0 : parseFloat(amount),
+            saleAmount:isNaN(parseFloat(amount)) ? 0 : parseFloat(amount),
+            discount:discount,
+            shipingCharge:shiping,
             quantity: isNaN(parseInt(stock)) ? 0 : parseInt(stock),
             isFeatured,
             isNew: newProduct,

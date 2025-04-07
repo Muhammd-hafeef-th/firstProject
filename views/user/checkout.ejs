@@ -82,21 +82,27 @@
                                                     </p>
 
                                                     <div class="flex gap-2 mt-4">
-                                                        <% if (index !==0) { %>
-                                                            <form method="POST"
-                                                                action="/checkout/setDefaultAddress/<%= address._id %>"
-                                                                class="set-default-form">
+                                                        <% if (index !== 0) { %>
+                                                            <form method="POST" action="/setDefaultAddress/<%= address._id %>" class="set-default-form">
                                                                 <button type="submit"
-                                                                    class="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1.5 rounded-lg font-medium transition">
+                                                                    class="w-20 h-9 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg font-medium transition">
                                                                     Set Default
                                                                 </button>
                                                             </form>
-                                                            <% } %>
-                                                                <a href="/editAddress-checkout?id=<%=address._id%>"
-                                                                    class="bg-yellow-400 hover:bg-yellow-500 text-black text-xs px-3 py-1.5 rounded-lg font-medium transition">Edit</a>
-                                                                <button onclick="openDeleteModal('<%= address._id %>')"
-                                                                    class="bg-gray-700 hover:bg-gray-600 text-xs px-3 py-1.5 rounded-lg font-medium transition">Delete</button>
+                                                        <% } %>
+                                                    
+                                                        <a href="/editAddress-checkout?id=<%= address._id %>"
+                                                            class="w-28 h-9 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded-lg font-medium transition flex items-center justify-center">
+                                                            Edit
+                                                        </a>
+                                                    
+                                                        <button onclick="openDeleteModal('<%= address._id %>')"
+                                                            class="w-28 h-9 bg-gray-700 hover:bg-gray-800 text-white text-xs rounded-lg font-medium transition flex items-center justify-center">
+                                                            Delete
+                                                        </button>
                                                     </div>
+                                                    
+
                                     </div>
                                     <% }); %>
                                         <% } else { %>
@@ -126,7 +132,7 @@
                             <div>
                                 <p class="text-sm text-gray-400">Estimated Delivery</p>
                                 <p class="font-medium">
-                                     18/3/2222
+                                    18/3/2222
                                 </p>
                             </div>
                         </div>
@@ -146,7 +152,8 @@
                                             <%= item.productId.productName %>
                                         </h5>
                                         <p class="text-sm text-gray-400">
-                                            <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% } %>
+                                            <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% }
+                                                        %>
                                                         Qty: <%= item.quantity %>
                                         </p>
                                     </div>
@@ -175,19 +182,20 @@
                                     item.quantity, 0) %> items)</span>
                             <span>$<%= subtotal.toFixed(2) %></span>
                         </div>
+                    
                         <div class="flex justify-between">
                             <span class="text-gray-400">Shipping</span>
-                            <span class="text-green-400">
-                              
+                            <span class="text-white">$<%=shipingCharge%>
+
                             </span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-400">Discount</span>
-                            <span class="text-green-400">-$%></span>
+                            <span class="text-gray-400">Tax</span>
+                            <span class="text-white">$0</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-400">Tax</span>
-                            <span>$%></span>
+                            <span class="text-gray-400">Discount</span>
+                            <span class="text-green-400">-$<%=discount%></span>
                         </div>
                     </div>
 
@@ -195,10 +203,10 @@
 
                     <div class="flex justify-between text-lg font-bold mb-6">
                         <span>Total</span>
-                        <span>$<%= subtotal .toFixed(2) %></span>
+                        <span>$<%= (subtotal - discount + shipingCharge + 0).toFixed(2) %></span>
                     </div>
 
-                    <form action="/checkout/place-order" method="POST">
+                    <form action="/proceed-payment" method="get">
                         <button type="submit"
                             class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
@@ -237,12 +245,12 @@
                     <form id="deleteForm" method="POST" action="">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit"
-                            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-lg w-[140px] flex items-center justify-center">
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2.5 rounded-lg w-[140px] h-[42px] flex items-center justify-center">
                             Yes, Delete
                         </button>
                     </form>
                     <button onclick="closeDeleteModal()" type="button"
-                        class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg w-[140px] flex items-center justify-center">
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-semibold px-6 py-2.5 rounded-lg w-[140px] h-[42px] flex items-center justify-center">
                         Cancel
                     </button>
                 </div>
@@ -273,54 +281,63 @@
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    const result = await Swal.fire({
-                        title: 'Set as Default Address?',
-                        text: "This will be your primary shipping address",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#10B981',
-                        cancelButtonColor: '#6B7280',
-                        confirmButtonText: 'Yes, set as default',
-                        cancelButtonText: 'Cancel',
-                        reverseButtons: true
-                    });
+                    try {
+                        const result = await Swal.fire({
+                            title: 'Set as Default Address?',
+                            text: "This will be your primary shipping address",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#10B981',
+                            cancelButtonColor: '#6B7280',
+                            confirmButtonText: 'Yes, set as default',
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true,
+                            allowOutsideClick: false,
+                            showLoaderOnConfirm: true,
+                            preConfirm: async () => {
+                                try {
+                                    const response = await fetch(form.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                        },
+                                        body: new URLSearchParams(new FormData(form))
+                                    });
 
-                    if (result.isConfirmed) {
-                        const response = await fetch(form.action, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                            },
-                            body: new URLSearchParams(new FormData(form))
+                                    if (!response.ok) {
+                                        throw new Error('Failed to set default address');
+                                    }
+                                    return response;
+                                } catch (error) {
+                                    Swal.showValidationMessage(
+                                        `Request failed: ${error.message}`
+                                    );
+                                    return false;
+                                }
+                            }
                         });
 
-                        if (response.ok) {
-                            window.location.reload();
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Failed',
-                                text: 'Could not set default address'
+                        if (result.isConfirmed) {
+                            await Swal.fire({
+                                title: 'Success!',
+                                text: 'Default address updated',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
                             });
+                            window.location.reload();
                         }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred'
+                        });
                     }
                 });
             });
 
-    <% if (messages.error) { %>
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '<%= messages.error %>'
-                });
-    <% } %>
-    <% if (messages.success) { %>
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '<%= messages.success %>'
-                });
-    <% } %>
         </script>
     </body>
 

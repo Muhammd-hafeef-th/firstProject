@@ -8,6 +8,10 @@ const addressSchema = new Schema({
         required: true,
     },
     address: [{
+        position:{
+            type:Number,
+            default:0
+        },
         name: {
             type: String,
             required: true, 

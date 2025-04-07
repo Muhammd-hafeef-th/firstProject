@@ -907,7 +907,7 @@ const addtoCart = async (req, res, next) => {
             }
 
             cart.items[existingItemIndex].quantity = newTotalQuantity;
-            cart.items[existingItemIndex].totalPrice = newTotalQuantity * product.salePrice;
+            cart.items[existingItemIndex].totalPrice = newTotalQuantity * product.regularPrice;
         } else {
             if (requestedQuantity > product.quantity) {
                 req.flash("error", "Not enough stock available");
@@ -916,9 +916,9 @@ const addtoCart = async (req, res, next) => {
 
             cart.items.push({
                 productId: product._id,
-                price: product.salePrice,
+                price: product.regularPrice,
                 quantity: requestedQuantity,
-                totalPrice: requestedQuantity * product.salePrice,
+                totalPrice: requestedQuantity * product.regularPrice,
                 status: "active",
                 cancelationReason: "none"
             });
@@ -983,7 +983,7 @@ const updateCartQuantity = async (req, res, next) => {
             return res.redirect("/cart");
         }
         cart.items[itemIndex].quantity = newQuantity;
-        cart.items[itemIndex].totalPrice = newQuantity * product.salePrice;
+        cart.items[itemIndex].totalPrice = newQuantity * product.regularPrice;
         await cart.save();
         req.flash("success", "Cart updated successfully");
         res.redirect('/cart');
