@@ -1,13 +1,19 @@
 const mongoose=require('mongoose')
 const {Schema}=mongoose;
-const { v4: uuidv4 } = require('uuid');
+const { customAlphabet } = require('nanoid');
+const nanoid = customAlphabet('ABCDEFXYZ1234567890', 5);
 
 const orderSchema=new Schema({
-    orderId:{
-        type:String,
-        default:uuidv4,
-        unique:true
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
+    orderId: {
+        type: String,
+        default: () => `ORD-${nanoid()}`,
+        unique: true
+      },
     orderItems:[{
         product:{
             type:Schema.Types.ObjectId,
@@ -46,7 +52,8 @@ const orderSchema=new Schema({
     status:{
         type:String,
         required:true,
-        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
+        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned'],
+        default:'Pending'
     },
     createdOn:{
         type:Date,

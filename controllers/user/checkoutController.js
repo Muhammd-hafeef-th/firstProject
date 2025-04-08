@@ -332,6 +332,7 @@ const choosePayment = async (req, res, next) => {
             }));
 
             const newOrder = new Order({
+                user:id,
                 orderItems: orderItems,
                 totalPrice: subtotal,
                 discount: discount,
@@ -343,6 +344,11 @@ const choosePayment = async (req, res, next) => {
             });
 
             await newOrder.save();
+            for (const item of orderItems) {
+                await Product.findByIdAndUpdate(item.product, {
+                    $inc: { quantity: -item.quantity }
+                });
+            }
 
             await Cart.deleteOne({ userId: id });
 

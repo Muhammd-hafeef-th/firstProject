@@ -644,7 +644,7 @@ const couplesBrandFilter = async (req, res, next) => {
 const brandButton = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 3;
+        const limit = 12;
         const skip = (page - 1) * limit;
         const selectedCategory = req.query.category || "";
 

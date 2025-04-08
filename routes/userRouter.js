@@ -138,6 +138,7 @@ router.post('/choose-payment',checkoutController.choosePayment)
 //order management
 
 router.get('/orders',orderController.GetOrder)
+router.get('/order-details',orderController.orderDetails)
 
 
 module.exports = router;

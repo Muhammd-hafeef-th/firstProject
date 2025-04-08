@@ -1,115 +1,327 @@
 <%- include('../../views/partials/user/header')%>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
-    <div class="bg-[#1F1F1F] text-white flex flex-col items-center p-6 md:p-10">
-        <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-        <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">
-            <%= brands.brandName %>
-        </h2>
-        <div class="flex flex-col md:flex-row w-full max-w-6xl gap-6">
-            <!-- Brand Selection -->
-            <div
-                class="w-full md:w-1/4 bg-black p-4 md:p-6 rounded-lg border border-gray-700 shadow-lg h-auto md:h-[380px]">
-                <h2 class="text-lg font-semibold border-b pb-2 mb-4 text-center md:text-left">Choose By Brands</h2>
-                <ul class="space-y-3">
-                    <% brandItems.forEach(brand=> { %>
-                        <li class="flex items-center space-x-2">
-                            <input type="checkbox" class="form-checkbox text-yellow-500" disabled checked>
-                            <a href="/brandButton?id=<%= brand._id %>"
-                                class="<%= String(brands._id) === String(brand._id) ? 'text-yellow-500 font-bold' : 'text-white hover:text-yellow-500' %>">
-                                <%= brand.brandName %>
-                            </a>
-                        </li>
-                        <% }) %>
-                </ul>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes grow {
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-\[fadeIn_0\.5s_ease-out\] {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-\[fadeIn_1s_ease-in-out\] {
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .animate-\[fadeIn_1\.2s_ease-in-out\] {
+            animation: fadeIn 1.2s ease-in-out;
+        }
+
+        .animate-\[grow_0\.6s_ease-in-out\] {
+            animation: grow 0.6s ease-in-out;
+            transform-origin: center;
+        }
+
+        .animate-\[slideDown_0\.3s_ease-out\] {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .product-card {
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(232, 184, 136, 0.2);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1A1A1A;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #E8B888;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c99d66;
+        }
+    </style>
+
+    <div class="bg-gradient-to-b from-[#1A1A1A] to-[#1F1F1F] min-h-screen overflow-hidden py-10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 animate-[fadeIn_0.5s_ease-out]">
+                <div
+                    class="w-16 h-1 bg-gradient-to-r from-[#E8B888] to-amber-600 mx-auto mb-4 animate-[grow_0.6s_ease-in-out]">
+                </div>
+                <h2
+                    class="text-3xl sm:text-4xl font-bold text-white mb-4 font-serif tracking-wide relative inline-block">
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#E8B888] to-amber-200">
+                        <%= brands.brandName %>
+                    </span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto animate-[fadeIn_1s_ease-in-out]">
+                    Premium timepieces crafted with precision and elegance
+                </p>
             </div>
 
-            <div
-                class="w-full md:w-3/4 flex flex-col items-center bg-[#161517]  rounded-lg shadow-lg h-auto md:h-[380px]">
+            <div class="flex flex-col lg:flex-row gap-8 mb-16 animate-[fadeIn_1s_ease-in-out]">
                 <div
-                    class="w-full sm:w-2/4 bg-[#161517]  rounded-lg h-auto md:h-[380px] flex items-center justify-center">
-                    <img src="<%= brands.brandImage %>" alt="<%= brands.brandName %>"
-                        class="w-full sm:wd-2/4 max-h-[380px]  rounded-lg">
+                    class="w-full md:w-1/4 bg-black p-4 md:p-6 rounded-lg border border-gray-700 shadow-lg h-auto md:h-[380px]">
+                    <h2 class="text-xl font-semibold border-b border-[#3A3A3A] pb-3 mb-4 text-[#E8B888]">Our Brands</h2>
+                    <ul class="space-y-3">
+                        <% brandItems.forEach(brand=> { %>
+                            <li class="flex items-center space-x-2">
+                                <input type="checkbox" class="form-checkbox text-yellow-500" disabled checked>
+                                <a href="/brandButton?id=<%= brand._id %>"
+                                    class="<%= String(brands._id) === String(brand._id) ? 'text-yellow-500 font-bold' : 'text-white hover:text-yellow-500' %>">
+                                    <%= brand.brandName %>
+                                </a>
+                            </li>
+                            <% }) %>
+                    </ul>
+                </div>
+
+                <div
+                    class="w-full md:w-3/4 flex flex-col items-center bg-[#161517]  rounded-lg shadow-lg h-auto md:h-[380px]">
+                    <div
+                        class="w-full sm:w-2/4 bg-[#161517]  rounded-lg h-auto md:h-[380px] flex items-center justify-center">
+                        <img src="<%= brands.brandImage %>" alt="<%= brands.brandName %>"
+                            class="w-full sm:wd-2/4 max-h-[380px]  rounded-lg">
+                    </div>
                 </div>
             </div>
 
-        </div>
-    </div>
-    <button id="toggleFilters" class="absolute right-0 bg-[#E8B888] text-black px-4 py-2 mr-20 rounded-md shadow-md">
-        Sort by category: <%= selectedCategory ? selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)
-            : 'All' %> ▼
-    </button>
-    <form action="/brandButton" method="get" id="filterMenu"
-        class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-64 absolute top-90 right-10 shadow-lg">
-        <input type="hidden" name="id" value="<%= brands._id %>">
-        <select name="category" class="p-2 w-full rounded bg-[#3A3A3A] text-white border border-gray-600">
-            <option value="">All</option>
-            <option value="ladies" <%=selectedCategory==='ladies' ? 'selected' : '' %>>Ladies</option>
-            <option value="gents" <%=selectedCategory==='gents' ? 'selected' : '' %>>Mens</option>
-            <option value="couples" <%=selectedCategory==='couples' ? 'selected' : '' %>>Couples</option>
-        </select>
-        <button type="submit" id="applyFilters" class="mt-4 bg-[#E8B888] text-black p-2 w-full rounded-md">
-            Apply Filters
-        </button>
-    </form>
-    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6 bg-[#1F1F1F] p-16">
-        <% products.forEach(watch=> { %>
-            <div class="bg-[#2A2A2A] p-6 rounded-lg text-center">
-                <a href="/productDetails?id=<%= watch._id %>">
-                    <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
-                        class="mx-auto w-48 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
-                </a>
-                <h3 class="text-white text-lg font-semibold mt-4">
-                    <%= watch.productName %>
-                </h3>
-                <p class="text-[#E8B888] text-xl font-semibold">$
-                    <%= watch.regularPrice %>
-                </p>
-                <a href="/addtoCart?id=<%= watch._id %>">
-                    <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                </a>
+            <div class="flex justify-end mb-8">
+                <button id="toggleFilters"
+                    class="bg-[#E8B888] text-black px-6 py-3 rounded-md shadow-lg hover:bg-amber-600 hover:shadow-xl transition-all duration-300 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <span>Filters</span>
+                </button>
             </div>
-            <% }) %>
-                <% if (totalPages> 1) { %>
-                    <div class="flex justify-center w-full mt-8 pb-10 col-span-full"> <!-- Changed this line -->
-                        <div class="flex items-center gap-2">
-                            <% if (currentPage> 1) { %>
-                                <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage - 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                    class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                                    ←
-                                </a>
-                                <% } %>
 
-                                    <% for (let i=1; i <=totalPages; i++) { %>
-                                        <a href="/brandButton?id=<%= brands._id %>&page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                            class="px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition">
-                                            <%= i %>
-                                        </a>
+            <form action="/brandButton" method="get" id="filterForm">
+                <input type="hidden" name="id" value="<%= brands._id %>">
+                <div id="filterMenu"
+                    class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-full md:w-80 absolute right-4 md:right-8 z-40 shadow-2xl border border-[#3A3A3A] animate-[slideDown_0.3s_ease-out]">
+                    <h3 class="text-lg font-semibold mb-3 text-[#E8B888]">CATEGORIES</h3>
+                    <select name="category"
+                        class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300">
+                        <option value="">All Categories</option>
+                        <option value="gents" <%=selectedCategory==='gents' ? 'selected' : '' %>>Men's Watches</option>
+                        <option value="ladies" <%=selectedCategory==='ladies' ? 'selected' : '' %>>Ladies' Watches
+                        </option>
+                        <option value="couples" <%=selectedCategory==='couples' ? 'selected' : '' %>>Couples Watches
+                        </option>
+                    </select>
+
+                    <div class="flex gap-3 mt-8">
+                        <button type="submit"
+                            class="flex-1 bg-[#E8B888] text-black p-3 rounded-md font-medium hover:bg-amber-600 transition-colors duration-300">
+                            Apply Filters
+                        </button>
+                        <a href="/brandButton?id=<%= brands._id %>"
+                            class="flex-1 bg-[#3A3A3A] text-white p-3 rounded-md text-center font-medium hover:bg-[#4A4A4A] transition-colors duration-300">
+                            Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <% products.forEach((watch, index)=> { %>
+                    <div class="group relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden animate-[fadeIn_0.5s_ease-out]"
+                        style="animation-delay: <%= index * 0.1 %>s">
+                        <div class="relative h-64 overflow-hidden rounded-lg mb-4">
+                            <a href="/productDetails?id=<%= watch._id %>" class="block h-full">
+                                <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                                    class="w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-90 absolute inset-0">
+                                <% if (watch.productImage[1]) { %>
+                                    <img src="<%= watch.productImage[1] %>"
+                                        alt="<%= watch.productName %> - Alternate View"
+                                        class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
+                                    <% } else { %>
+                                        <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                                            class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
                                         <% } %>
+                            </a>
 
-                                            <% if (currentPage < totalPages) { %>
-                                                <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage + 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
-                                                    class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                                                    →
-                                                </a>
-                                                <% } %>
+                            <div
+                                class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <a href="/productDetails?id=<%= watch._id %>"
+                                    class="block text-center text-white text-sm font-medium py-2 hover:text-[#E8B888] transition-colors">
+                                    QUICK VIEW
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="relative z-10">
+                            <h3
+                                class="text-white text-lg font-medium mb-2 group-hover:text-[#E8B888] transition-colors">
+                                <%= watch.productName %>
+                            </h3>
+
+                            <div class="flex items-center justify-between">
+                                <p class="text-[#E8B888] text-xl font-bold">
+                                    $<%= watch.regularPrice %>
+                                </p>
+
+                                <% if (watch.discountPrice) { %>
+                                    <p class="text-gray-400 text-sm line-through">
+                                        $<%= watch.discountPrice %>
+                                    </p>
+                                    <% } %>
+                            </div>
+
+                            <div class="mt-6">
+                                <a href="/addtoCart?id=<%= watch._id %>" class="block w-full bg-[#3A3A3A] text-white py-3 rounded-lg text-center font-medium 
+                        transition-all duration-300 hover:bg-[#E8B888] hover:text-black hover:shadow-lg
+                        transform hover:-translate-y-0.5">
+                                    ADD TO CART
+                                </a>
+                            </div>
+                        </div>
+
+                        <div
+                            class="absolute -bottom-10 -right-10 w-20 h-20 rounded-full bg-[#E8B888]/10 group-hover:bg-[#E8B888]/20 transition-all duration-700">
+                        </div>
+                        <div
+                            class="absolute -top-5 -left-5 w-16 h-16 rounded-full bg-[#E8B888]/5 group-hover:bg-[#E8B888]/10 transition-all duration-1000">
                         </div>
                     </div>
-                    <% } %>
+                    <% }) %>
+            </div>
 
+            <% if (totalPages> 1) { %>
+                <div class="flex justify-center mt-16 pb-10 animate-[fadeIn_1.2s_ease-in-out]">
+                    <div class="flex items-center gap-1 sm:gap-2">
+                        <% if (currentPage> 1) { %>
+                            <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage - 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition-all duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
+                            </a>
+                            <% } %>
+
+                                <a href="/brandButton?id=<%= brands._id %>&page=1<%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                    class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === 1 ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                                    1
+                                </a>
+
+                                <% if (currentPage> 3 && totalPages > 5) { %>
+                                    <span class="px-2 text-gray-400">...</span>
+                                    <% } %>
+
+                                        <% for (let i=Math.max(2, currentPage - 1); i <=Math.min(totalPages - 1,
+                                            currentPage + 1); i++) { %>
+                                            <a href="/brandButton?id=<%= brands._id %>&page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                                class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                                                <%= i %>
+                                            </a>
+                                            <% } %>
+
+                                                <% if (currentPage < totalPages - 2 && totalPages> 5) { %>
+                                                    <span class="px-2 text-gray-400">...</span>
+                                                    <% } %>
+
+                                                        <% if (totalPages> 1) { %>
+                                                            <a href="/brandButton?id=<%= brands._id %>&page=<%= totalPages %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                                                class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === totalPages ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                                                                <%= totalPages %>
+                                                            </a>
+                                                            <% } %>
+
+                                                                <% if (currentPage < totalPages) { %>
+                                                                    <a href="/brandButton?id=<%= brands._id %>&page=<%= currentPage + 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"
+                                                                        class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition-all duration-300 flex items-center">
+                                                                        Next
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            class="h-4 w-4 ml-1" fill="none"
+                                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round" stroke-width="2"
+                                                                                d="M9 5l7 7-7 7" />
+                                                                        </svg>
+                                                                    </a>
+                                                                    <% } %>
+                    </div>
+                </div>
+                <% } %>
+        </div>
     </div>
+
     <script>
-        document.getElementById('toggleFilters').addEventListener('click', function () {
+        document.getElementById('toggleFilters').addEventListener('click', function (e) {
+            e.stopPropagation();
             document.getElementById('filterMenu').classList.toggle('hidden');
         });
 
         document.addEventListener('click', function (event) {
             const filterMenu = document.getElementById('filterMenu');
-            const sortButton = document.getElementById('toggleFilters');
+            const toggleButton = document.getElementById('toggleFilters');
 
-            if (!filterMenu.contains(event.target) && event.target !== sortButton) {
+            if (!filterMenu.contains(event.target) && event.target !== toggleButton) {
                 filterMenu.classList.add('hidden');
             }
+        });
+
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-[fadeIn_0.5s_ease-out]');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.product-card').forEach(card => {
+            observer.observe(card);
         });
     </script>
 

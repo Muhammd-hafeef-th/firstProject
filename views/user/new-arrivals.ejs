@@ -1,60 +1,221 @@
 <%- include('../../views/partials/user/header')%>
     <script src="https://cdn.tailwindcss.com"></script>
-    <section class="bg-[#1F1F1F] py-12">
-        <div class="container mx-auto text-center">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-2"></div>
-            <h2 class="text-white text-2xl font-sans mb-10 relative inline-block">NEW ARRIVALS</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:m-10">
-                <% newArrivals.forEach(watch=> { %>
-                    <div class="bg-[#E8B888] p-6 rounded-lg relative">
-                        <a href="/productDetails?id=<%= watch._id %>">
-                            <span
-                                class="absolute top-2 right-2 bg-black text-white text-xs px-2 py-1 rounded">NEW</span>
-                            <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
-                                class="mx-auto w-48 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
-                        </a>
-                        <h3 class="text-black text-lg font-semibold mt-4">
-                            <%= watch.productName %>
-                        </h3>
-                        <p class="text-black text-xl font-semibold">$
-                            <%= watch.regularPrice %>
-                        </p>
-                        <a href="/addtoCart?id=<%= watch._id %>">
-                            <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                        </a>
-                    </div>
-                    <% }) %>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <section class="bg-gradient-to-b bg-[#1A1A1A] py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 relative">
+                <div class="w-24 h-1 bg-gradient-to-r from-[#E8B888] to-amber-600 mx-auto mb-4 animate-[grow_0.6s_ease-in-out]"></div>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2 font-serif tracking-wide">
+                    <span class="relative inline-block">
+                        <span class="relative bg-clip-text text-transparent bg-gradient-to-r from-[#E8B888] to-amber-200">
+                            NEW ARRIVALS
+                        </span>
+                    </span>
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto animate-[fadeIn_1s_ease-in-out]">
+                    Discover our latest collection of premium timepieces, just arrived this season
+                </p>
             </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                <% newArrivals.forEach(watch=> { %>
+                    <div class="group relative bg-gradient-to-b from-[#E8B888] to-amber-700 p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+                        <span class="absolute top-3 right-3 bg-black text-[#E8B888] text-xs px-3 py-1 rounded-full font-bold z-10 animate-[bounce_2s_infinite]">
+                            NEW
+                        </span>
+                        
+                        <div class="relative h-64 overflow-hidden rounded-lg mb-4">
+                            <a href="/productDetails?id=<%= watch._id %>" class="block h-full">
+                                <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                                    class="w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-90 absolute inset-0">
+                                
+                                <% if (watch.productImage[1]) { %>
+                                    <img src="<%= watch.productImage[1] %>" alt="<%= watch.productName %> - Alternate View"
+                                        class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
+                                <% } else { %>
+                                    <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                                        class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
+                                <% } %>
+                            </a>
+                            
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <a href="/productDetails?id=<%= watch._id %>" 
+                                   class="block text-center text-white text-sm font-medium py-2 hover:text-[#E8B888] transition-colors">
+                                    QUICK VIEW
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="relative z-10">
+                            <h3 class="text-black text-lg font-medium mb-1 group-hover:text-white transition-colors">
+                                <%= watch.productName %>
+                            </h3>
+                            
+                            <div class="flex items-center justify-center">
+                                <p class="text-black text-xl font-bold">
+                                    $<%= watch.regularPrice %>
+                                </p>
+                                
+                                <% if (watch.discountPrice) { %>
+                                    <p class="text-gray-700 text-sm line-through ml-2">
+                                        $<%= watch.discountPrice %>
+                                    </p>
+                                <% } %>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <a href="/addtoCart?id=<%= watch._id %>" 
+                                   class="block w-full bg-black text-[#E8B888] py-3 rounded-lg text-center font-medium 
+                                          transition-all duration-300 hover:bg-gray-900 hover:text-white hover:shadow-lg
+                                          transform hover:-translate-y-0.5">
+                                    ADD TO CART
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="absolute -bottom-10 -right-10 w-20 h-20 rounded-full bg-black/10 group-hover:bg-black/20 transition-all duration-700"></div>
+                        <div class="absolute -top-5 -left-5 w-16 h-16 rounded-full bg-black/5 group-hover:bg-black/10 transition-all duration-1000"></div>
+                    </div>
+                <% }) %>
+            </div>
+
             <% if (totalPages> 1) { %>
-                <div class="flex justify-center mt-8 pb-10">
-                    <div class="flex items-center gap-2">
+                <div class="flex justify-center mt-16 pb-10 animate-[fadeIn_1.2s_ease-in-out]">
+                    <div class="flex items-center gap-1 sm:gap-2">
                         <% if (currentPage> 1) { %>
                             <a href="/newArrivals?page=<%= currentPage - 1 %>"
-                                class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                                ←
+                                class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition-all duration-300 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Prev
                             </a>
-                            <% } %>
+                        <% } %>
 
-                                <% for (let i=1; i <=totalPages; i++) { %>
-                                    <a href="/newArrivals?page=<%= i %>"
-                                        class="px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition">
-                                        <%= i %>
-                                    </a>
-                                    <% } %>
+                        <a href="/newArrivals?page=1"
+                            class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === 1 ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                            1
+                        </a>
 
-                                        <% if (currentPage < totalPages) { %>
-                                            <a href="/newArrivals?page=<%= currentPage + 1 %>"
-                                                class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                                                →
-                                            </a>
-                                            <% } %>
+                        <% if (currentPage > 3 && totalPages > 5) { %>
+                            <span class="px-2 text-gray-400">...</span>
+                        <% } %>
+
+                        <% for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) { %>
+                            <a href="/newArrivals?page=<%= i %>"
+                                class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                                <%= i %>
+                            </a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages - 2 && totalPages > 5) { %>
+                            <span class="px-2 text-gray-400">...</span>
+                        <% } %>
+
+                        <% if (totalPages > 1) { %>
+                            <a href="/newArrivals?page=<%= totalPages %>"
+                                class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === totalPages ? 'bg-[#E8B888] text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888]/80 hover:text-black transition-all duration-300">
+                                <%= totalPages %>
+                            </a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="/newArrivals?page=<%= currentPage + 1 %>"
+                                class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-[#E8B888] hover:text-black transition-all duration-300 flex items-center">
+                                Next
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        <% } %>
                     </div>
                 </div>
-                <% } %>
-
+            <% } %>
+        </div>
     </section>
 
+    <div id="loading-animation" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+        <div class="text-center">
+            <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_usmfx6bp.json" background="transparent" speed="1" style="width: 200px; height: 200px;" loop autoplay></lottie-player>
+            <p class="text-white mt-4 font-medium">Loading New Arrivals...</p>
+        </div>
+    </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('a[href^="/newArrivals"]');
+            
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    if (link.getAttribute('href') !== '#') {
+                        document.getElementById('loading-animation').classList.remove('hidden');
+                    }
+                });
+            });
+            
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    document.getElementById('loading-animation').classList.add('hidden');
+                }, 500);
+            });
+        });
+    </script>
 
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes grow {
+            from { transform: scaleX(0); }
+            to { transform: scaleX(1); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .animate-\[fadeIn_0\.8s_ease-in-out\] {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        
+        .animate-\[fadeIn_1s_ease-in-out\] {
+            animation: fadeIn 1s ease-in-out;
+        }
+        
+        .animate-\[fadeIn_1\.2s_ease-in-out\] {
+            animation: fadeIn 1.2s ease-in-out;
+        }
+        
+        .animate-\[grow_0\.6s_ease-in-out\] {
+            animation: grow 0.6s ease-in-out;
+            transform-origin: center;
+        }
+        
+        .animate-\[bounce_2s_infinite\] {
+            animation: bounce 2s infinite;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1A1A1A;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #E8B888;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c99d66;
+        }
+    </style>
 
     <%- include('../../views/partials/user/footer')%>

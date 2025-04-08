@@ -1,105 +1,253 @@
 <%- include('../../views/partials/user/header')%>
-    <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
-    <section class="bg-[#1F1F1F] flex justify-center">
-        <div class="relative flex flex-wrap justify-center items-center  w-full max-w-6xl px-4">
-            <img src="/images/image copy 2.png" alt="Men's Watch" class="w-[45%] min-w-[150px] h-[200px] object-cover">
-            <img src="/images/image copy 2.png" alt="Men's Watch" class="w-[45%] min-w-[150px] h-[200px] object-cover">
-            <p
-                class="absolute text-white text-2xl md:text-3xl lg:text-4xl font-bold w-full text-center top-1/2 -translate-y-1/2">
-                Couples Watch
-            </p>
+<section class="bg-[#1A1A1A] flex justify-center">
+    <div class="relative flex flex-wrap justify-center items-center  w-full max-w-6xl px-4">
+        <img src="/images/image copy 2.png" alt="Men's Watch" class="w-[45%] min-w-[150px] h-[200px] object-cover">
+        <img src="/images/image copy 2.png" alt="Men's Watch" class="w-[45%] min-w-[150px] h-[200px] object-cover">
+        <p
+            class="absolute text-white text-2xl md:text-3xl lg:text-4xl font-bold w-full text-center top-1/2 -translate-y-1/2">
+            Couples Watch
+        </p>
+    </div>
+</section>
+
+<section class="bg-gradient-to-b from-[#1A1A1A] to-[#1F1F1F] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 font-serif tracking-wide animate-[fadeIn_1s_ease-in-out]">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#E8B888] to-amber-200">
+          PERFECTLY PAIRED
+        </span>
+      </h2>
+      <p class="text-gray-400 max-w-2xl mx-auto animate-[fadeIn_1.2s_ease-in-out]">
+        Discover our collection of matching watches designed for couples who value timeless connection
+      </p>
+    </div>
+
+    <div class="flex justify-end mb-8 relative">
+      <button id="toggleFilters" 
+              class="bg-gradient-to-r from-[#E8B888] to-amber-200 text-black px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd" />
+        </svg>
+        <span>Filter by Brands</span>
+      </button>
+
+      <form action="/couples-brandFilter" method="post" id="filterMenu"
+            class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-full md:w-80 absolute top-14 right-0 z-40 shadow-2xl border border-[#3A3A3A] animate-[slideDown_0.3s_ease-out]">
+        <h3 class="text-lg font-semibold mb-3 text-[#E8B888]">SELECT BRAND</h3>
+        <select name="brands" class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300">
+          <option value="">All Brands</option>
+          <% brands.forEach(watch=> { %>
+            <option value="<%= watch.brandName %>" <%=selectedBrand===watch.brandName ? 'selected' : '' %>>
+              <%= watch.brandName %>
+            </option>
+          <% }) %>
+        </select>
+        <button type="submit" class="mt-4 bg-gradient-to-r from-[#E8B888] to-amber-200 text-black p-3 w-full rounded-md font-medium hover:opacity-90 transition-all duration-300">
+          Apply Filters
+        </button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8">
+      <% couples.forEach(watch=> { %>
+        <div class="group relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
+          <div class="relative h-64 overflow-hidden rounded-lg mb-4">
+            <a href="/productDetails?id=<%= watch._id %>" class="block h-full">
+              <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                   class="w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 group-hover:scale-90 absolute inset-0">
+              
+              <% if (watch.productImage[1]) { %>
+                <img src="<%= watch.productImage[1] %>" alt="<%= watch.productName %> - Alternate View"
+                     class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
+              <% } else { %>
+                <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                     class="w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-105 absolute inset-0">
+              <% } %>
+            </a>
+            
+           
+            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <a href="/productDetails?id=<%= watch._id %>" 
+                 class="block text-center text-white text-sm font-medium py-2 hover:text-[#E8B888] transition-colors">
+                QUICK VIEW
+              </a>
+            </div>
+          </div>
+          
+         
+          <div class="relative z-10">
+            <h3 class="text-white text-lg font-medium mb-2 group-hover:text-[#E8B888] transition-colors">
+              <%= watch.productName %>
+            </h3>
+            
+        
+            <div class="flex items-center justify-between">
+              <p class="text-[#E8B888] text-xl font-bold">
+                $<%= watch.regularPrice %>
+              </p>
+              
+              <% if (watch.discountPrice) { %>
+                <p class="text-gray-400 text-sm line-through">
+                  $<%= watch.discountPrice %>
+                </p>
+              <% } %>
+            </div>
+            
+     
+            <div class="mt-6">
+              <a href="/addtoCart?id=<%= watch._id %>" 
+                 class="block w-full bg-[#3A3A3A] text-white py-3 rounded-lg text-center font-medium 
+                        transition-all duration-300 hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black hover:shadow-lg
+                        transform hover:-translate-y-0.5">
+                ADD TO CART
+              </a>
+            </div>
+          </div>
+          
+          
+          <div class="absolute -bottom-10 -right-10 w-20 h-20 rounded-full  bg-[#E8B888]/10 group-hover:bg-[#E8B888]/20transition-all duration-700"></div>
+          <div class="absolute -top-5 -left-5 w-16 h-16 rounded-full  bg-[#E8B888]/5 group-hover:bg-[#E8B888]/10 transition-all duration-1000"></div>
         </div>
-    </section>
+      <% }) %>
+    </div>
 
-    <section class="bg-[#1F1F1F] p-20">
-        <div class="container mx-auto text-center">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto  mb-5"></div>
-            <div class="relative flex justify-center items-center mb-6 ">
-                <h2 class="text-white text-2xl font-sans">Couples Watch</h2>
-                <button id="toggleFilters"
-                    class="absolute right-0 bg-[#E8B888] text-black px-4 py-2 mr-20 rounded-md shadow-md">
-                    Sort by brands ▼
-                </button>
-            </div>
-            <form action="/couples-brandFilter" method="post" id="filterMenu"
-                class="hidden bg-[#2A2A2A] text-white p-6 rounded-lg w-64 absolute top-90 right-10 shadow-lg">
-                <select name="brands" class="p-2 w-full rounded bg-[#3A3A3A] text-white border border-gray-600">
-                    <option value="">All</option>
-                    <% brands.forEach(watch=> { %>
-                        <option value="<%= watch.brandName %>" <%=selectedBrand===watch.brandName ? 'selected' : '' %>>
-                            <%= watch.brandName %>
-                        </option>
-                        <% }) %>
-                </select>
-                <button type="submit" id="applyFilters" class="mt-4 bg-[#E8B888] text-black p-2 w-full rounded-md">
-                    Apply Filters
-                </button>
-            </form>
+    <% if (totalPages> 1) { %>
+      <div class="flex justify-center mt-16 pb-10 animate-[fadeIn_1.2s_ease-in-out]">
+        <div class="flex items-center gap-1 sm:gap-2">
+          <% if (currentPage> 1) { %>
+            <a href="/couplesWatch?page=<%= currentPage - 1 %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
+               class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black transition-all duration-300 flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Prev
+            </a>
+          <% } %>
 
+          <a href="/couplesWatch?page=1<%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
+             class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === 1 ? 'bg-gradient-to-r from-[#E8B888] to-amber-200 text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black transition-all duration-300">
+            1
+          </a>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-6  md:m-10">
-                <% couples.forEach(watch=> { %>
-                    <div class="bg-[#2A2A2A] p-6 rounded-lg">
-                        <a href="/productDetails?id=<%= watch._id %>">
-                            <img src="<%= watch.productImage[0] %>" alt="<%=watch.productName%>"
-                                class="mx-auto w-48 h-64 object-contain transition-transform duration-300 ease-in-out hover:scale-110">
-                        </a>
-                        <h3 class="text-white text-lg font-semibold mt-4">
-                            <%= watch.productName %>
-                        </h3>
-                        <p class="text-[#E8B888] text-xl font-semibold">$
-                            <%= watch.regularPrice %>
-                        </p>
-                        <a href="/addtoCart?id=<%= watch._id %>">
-                            <button class="bg-[#3A3A3A] text-white px-4 py-2 mt-4 w-full">ADD TO CART</button>
-                        </a>
-                    </div>
-                    <% }) %>
-            </div>
+          <% if (currentPage > 3 && totalPages > 5) { %>
+            <span class="px-2 text-gray-400">...</span>
+          <% } %>
+
+          <% for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) { %>
+            <a href="/couplesWatch?page=<%= i %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
+               class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === i ? 'bg-gradient-to-r  from-[#E8B888] to-amber-600 text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black transition-all duration-300">
+              <%= i %>
+            </a>
+          <% } %>
+
+          <% if (currentPage < totalPages - 2 && totalPages > 5) { %>
+            <span class="px-2 text-gray-400">...</span>
+          <% } %>
+
+          <% if (totalPages > 1) { %>
+            <a href="/couplesWatch?page=<%= totalPages %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
+               class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === totalPages ? 'bg-gradient-to-r  from-[#E8B888] to-amber-600 text-black font-bold' : 'bg-[#3A3A3A] text-white' %> hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black transition-all duration-300">
+              <%= totalPages %>
+            </a>
+          <% } %>
+
+          <% if (currentPage < totalPages) { %>
+            <a href="/couplesWatch?page=<%= currentPage + 1 %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
+               class="px-3 sm:px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-gradient-to-r hover:from-[#E8B888] hover:to-amber-200 hover:text-black transition-all duration-300 flex items-center">
+              Next
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          <% } %>
         </div>
-         <!-- Pagination -->
-         <% if (totalPages> 1) { %>
-            <div class="flex justify-center mt-8 pb-10">
-                <div class="flex items-center gap-2">
-                    <% if (currentPage> 1) { %>
-                        <a href="/couplesWatch?page=<%= currentPage - 1 %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
-                            class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                            ←
-                        </a>
-                        <% } %>
+      </div>
+    <% } %>
+  </div>
+</section>
 
-                            <% for (let i=1; i <=totalPages; i++) { %>
-                                <a href="/couplesWatch?page=<%= i %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
-                                    class="px-4 py-2 rounded-md <%= currentPage === i ? 'bg-[#E8B888] text-black' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition">
-                                    <%= i %>
-                                </a>
-                                <% } %>
+<script>
+  document.getElementById('toggleFilters').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('filterMenu').classList.toggle('hidden');
+  });
 
-                                    <% if (currentPage < totalPages) { %>
-                                        <a href="/couplesWatch?page=<%= currentPage + 1 %><%= selectedBrand ? '&brand=' + selectedBrand : '' %>"
-                                            class="px-4 py-2 bg-[#3A3A3A] text-white rounded-md hover:bg-white hover:text-black transition">
-                                            →
-                                        </a>
-                                        <% } %>
-                </div>
-            </div>
-            <% } %>
-    </section>
-    <script>
-        document.getElementById('toggleFilters').addEventListener('click', function () {
-            document.getElementById('filterMenu').classList.toggle('hidden');
-        });
+  document.addEventListener('click', function(event) {
+    const filterMenu = document.getElementById('filterMenu');
+    const toggleButton = document.getElementById('toggleFilters');
+    
+    if (!filterMenu.contains(event.target) && event.target !== toggleButton) {
+      filterMenu.classList.add('hidden');
+    }
+  });
+</script>
 
-        document.addEventListener('click', function (event) {
-            const filterMenu = document.getElementById('filterMenu');
-            const sortButton = document.getElementById('toggleFilters');
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes grow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  
+  .animate-\[fadeIn_0\.5s_ease-out\] {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-\[fadeIn_1s_ease-in-out\] {
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  .animate-\[fadeIn_1\.2s_ease-in-out\] {
+    animation: fadeIn 1.2s ease-in-out;
+  }
+  
+  .animate-\[grow_0\.6s_ease-in-out\] {
+    animation: grow 0.6s ease-in-out;
+    transform-origin: center;
+  }
+  
+  .animate-\[slideDown_0\.3s_ease-out\] {
+    animation: slideDown 0.3s ease-out;
+  }
+  
+  .pulse-effect {
+    animation: pulse 3s ease-in-out infinite;
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #1A1A1A;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #E8B888;
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c99d66;
+  }
+</style>
 
-            if (!filterMenu.contains(event.target) && event.target !== sortButton) {
-                filterMenu.classList.add('hidden');
-            }
-        });
-    </script>
-
-
-    <%- include('../../views/partials/user/footer')%>
+<%- include('../../views/partials/user/footer')%>
