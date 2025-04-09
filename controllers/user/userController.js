@@ -298,7 +298,7 @@ const featuredProducts = async (req, res, next) => {
 const products = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 16;
         const skip = (page - 1) * limit;
         const { search, category, brand, sort, priceFrom, priceTo } = req.query;
         const query = {
@@ -384,7 +384,7 @@ const newArrivals = async (req, res, next) => {
 const mensWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 12;
         const skip = (page - 1) * limit;
 
         let brands = await Brand.find({})
@@ -413,7 +413,7 @@ const mensWatch = async (req, res, next) => {
 const ladiesWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 12;
         const skip = (page - 1) * limit;
 
         const brands = await Brand.find({});
@@ -442,7 +442,7 @@ const ladiesWatch = async (req, res, next) => {
 const couplesWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
-        const limit = 9;
+        const limit = 12;
         const skip = (page - 1) * limit;
 
         let brands = await Brand.find({})

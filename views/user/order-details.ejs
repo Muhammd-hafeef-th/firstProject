@@ -1,193 +1,709 @@
 <%- include('../../views/partials/user/header') %>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: {
-                    'playfair': ['"Playfair Display"', 'serif'],
-                    'poppins': ['Poppins', 'sans-serif'],
-                },
-                colors: {
-                    'rose-gold': '#EFBE8A', 
-                    'rose-gold-dark': '#D4A373',
-                    'dark-gray': '#1A1A1A', 
-                    'light-gray': '#F5F5F5',
-                    'gray-100': '#E8B888',
-                    'gray-500': '#B0B0B0',
-                    'gray-600': '#7D7D7D',
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'playfair': ['"Playfair Display"', 'serif'],
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        'rose-gold': '#EFBE8A',
+                        'rose-gold-dark': '#D4A373',
+                        'dark-gray': '#1A1A1A',
+                        'light-gray': '#F5F5F5',
+                        'gray-100': '#E8B888',
+                        'gray-500': '#B0B0B0',
+                        'gray-600': '#7D7D7D',
+                    }
                 }
             }
         }
-    }
-</script>
+    </script>
 
-<div class="bg-dark-gray font-poppins min-h-screen">
-    <div class="max-w-4xl mx-auto p-4 md:p-8">
-        
-        <div class="mb-8 text-center md:text-left">
-            <h1 class="text-3xl md:text-4xl font-bold font-playfair text-rose-gold mb-4">Order Details</h1>
-            <div class="flex flex-wrap justify-center md:justify-start gap-4 bg-[#1F1F1F] p-4 rounded-lg shadow-sm border border-gray-600">
-                <div class="flex items-center">
-                    <span class="text-white mr-2">Order Id:</span>
-                    <span class="font-medium text-rose-gold">#<%= order.orderId %></span>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-white mr-2">Date:</span>
-                    <span class="font-medium text-rose-gold"><%= new Date(order.invoiceDate).toLocaleDateString() %></span>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-white mr-2">Total:</span>
-                    <span class="font-medium text-rose-gold-dark">$<%= order.finalAmount.toFixed(2) %></span>
+    <div class="bg-dark-gray font-poppins min-h-screen">
+        <div class="max-w-4xl mx-auto p-4 md:p-8">
+
+            <div class="mb-8 text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-bold font-playfair text-rose-gold mb-4">Order Details</h1>
+                <div
+                    class="flex flex-wrap justify-center md:justify-start gap-4 bg-[#1F1F1F] p-4 rounded-lg shadow-sm border border-gray-600">
+                    <div class="flex items-center">
+                        <span class="text-white mr-2">Order Id:</span>
+                        <span class="font-medium text-rose-gold">#<%= order.orderId %></span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-white mr-2">Date:</span>
+                        <span class="font-medium text-rose-gold">
+                            <%= new Date(order.invoiceDate).toLocaleDateString() %>
+                        </span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-white mr-2">Total:</span>
+                        <span class="font-medium text-rose-gold-dark">$<%= order.finalAmount.toFixed(2) %></span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-       
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Status</h2>
-            
-            <div class="relative">
-                <div class="absolute h-1 bg-gray-500 top-1/2 left-0 right-0 -translate-y-1/2"></div>
-                <div class="absolute h-1 bg-rose-gold top-1/2 left-0 w-<%= order.progress %> -translate-y-1/2 transition-all duration-500"></div>                
-                <div class="flex justify-between relative z-10">
-                    <% const steps = [
-                        { name: 'Placed', icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z' },
-                        { name: 'Processed', icon: 'M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z' },
-                        { name: 'Shipped', icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a1 1 0 00-.293-.707l-3-3A1 1 0 0016 7h-1V5a1 1 0 00-1-1H3z' },
-                        { name: 'Delivery', icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M16 7H5a1 1 0 01-1-1V4a1 1 0 011-1h11a1 1 0 011 1v2a1 1 0 01-1 1zM4 9h12a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3a1 1 0 011-1z' },
-                        { name: 'Delivered', icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' }
-                    ]; %>
-                    
-                    <% steps.forEach((step, index) => { 
-                        const stepPercent = index * 25;
-                        const isCompleted = order.progress >= stepPercent;
-                    %>
-                    <div class="flex flex-col items-center" style="width: 20%;">
-                        <div class="w-8 h-8 rounded-full <%= isCompleted ? 'bg-rose-gold' : 'bg-gray-500' %> flex items-center justify-center mb-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 <%= isCompleted ? 'text-white' : 'text-gray-400' %>" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="<%= step.icon %>" clip-rule="evenodd" />
-                            </svg>
+
+            <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
+                <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Status</h2>
+
+                <div class="relative">
+                    <div class="absolute h-1 bg-gray-500 top-1/2 left-0 right-0 -translate-y-1/2"></div>
+                    <div
+                        class="absolute h-1 bg-rose-gold top-1/2 left-0 w-<%= order.progress %> -translate-y-1/2 transition-all duration-500">
+                    </div>
+                    <div class="flex justify-between relative z-10">
+                        <% const steps=[ { name: 'Placed' ,
+                            icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z'
+                            }, { name: 'Processed' ,
+                            icon: 'M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z'
+                            }, { name: 'Shipped' ,
+                            icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a1 1 0 00-.293-.707l-3-3A1 1 0 0016 7h-1V5a1 1 0 00-1-1H3z'
+                            }, { name: 'Delivery' ,
+                            icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M16 7H5a1 1 0 01-1-1V4a1 1 0 011-1h11a1 1 0 011 1v2a1 1 0 01-1 1zM4 9h12a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3a1 1 0 011-1z'
+                            }, { name: 'Delivered' ,
+                            icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            } ]; %>
+
+                            <% steps.forEach((step, index)=> {
+                                const stepPercent = index * 25;
+                                const isCompleted = order.progress >= stepPercent;
+                                %>
+                                <div class="flex flex-col items-center" style="width: 20%;">
+                                    <div
+                                        class="w-8 h-8 rounded-full <%= isCompleted ? 'bg-rose-gold' : 'bg-gray-500' %> flex items-center justify-center mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5 <%= isCompleted ? 'text-white' : 'text-gray-400' %>"
+                                            viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="<%= step.icon %>" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-sm font-medium <%= isCompleted ? 'text-rose-gold-dark' : 'text-gray-500' %> text-center">
+                                        <%= step.name %>
+                                    </span>
+                                </div>
+                                <% }); %>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
+                <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Items</h2>
+
+                <div class="divide-y divide-gray-600">
+                    <% order.orderItems.forEach(item=> { %>
+                        <div class="py-6 flex flex-col md:flex-row gap-6">
+                            <div
+                                class="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-600">
+                                <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>"
+                                    class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="font-medium text-rose-gold text-lg">
+                                    <%= item.product.productName %>
+                                </h3>
+                                <p class="text-white text-sm mt-1">
+                                    <%= item.product.description.substring(0, 80) %>
+                                        <%= item.product.description.length> 80 ? '...' : '' %>
+                                </p>
+                                <div class="flex flex-wrap items-center gap-4 mt-3">
+                                    <span class="text-white">Qty: <%= item.quantity %></span>
+                                    <span class="font-medium text-rose-gold">$<%= item.price.toFixed(2) %></span>
+                                    <span class="
+                                    <%= order.status === 'Shipped' ? 'text-green-600' : 
+                                        order.status === 'Processing' ? 'text-blue-600' : 
+                                        order.status === 'Delivered' ? 'text-emerald-600' :
+                                        order.status === 'Cancelled' ? 'text-red-600' :
+                                        order.status === 'Return Rejected' ? 'text-red-600' :
+                                        order.status === 'Return Request' ? 'text-orange-600' :
+                                        order.status === 'Returned' ? 'text-purple-600' :
+                                        'text-yellow-600' %> 
+                                    flex items-center">
+
+                                        <% if (order.status==='Shipped' ) { %>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 
+                                            7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Shipped
+
+                                            <% } else if (order.status==='Processing' ) { %>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                    fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 
+                                            11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 
+                                            1.414 5 5 0 007.072 0z" clip-rule="evenodd" />
+                                                </svg>
+                                                Processing
+
+                                                <% } else if (order.status==='Delivered' ) { %>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                        fill="currentColor" viewBox="0 0 20 20">
+                                                        <path
+                                                            d="M2.003 5.884L10 2l7.997 3.884v8.232L10 18l-7.997-3.884V5.884z" />
+                                                    </svg>
+                                                    Delivered
+
+                                                    <% } else if (order.status==='Cancelled' ) { %>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                            fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-11a1 1 0 10-2 0v2H9a1 1 0 000 
+                                            2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                                        </svg>
+                                                        Cancelled
+
+                                                        <% } else if (order.status==='Return Request' ||
+                                                            order.status==='Return Requested' ) { %>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
+                                                                fill="currentColor" viewBox="0 0 20 20">
+                                                                <path
+                                                                    d="M4 4v5h.582l.701-1.403C6.563 6.64 8.34 6 10 6s3.437.64 4.717 1.597L17.418 9H18V4h-2v2.059A7.963 7.963 0 0010 4a7.963 7.963 0 00-6 2.059V4H4z" />
+                                                            </svg>
+                                                            Return Requested
+
+                                                            <% } else if (order.status==='Returned' ) { %>
+                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                    class="h-5 w-5 mr-1" fill="currentColor"
+                                                                    viewBox="0 0 20 20">
+                                                                    <path
+                                                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-11h2v5h-2V7zm0 6h2v2h-2v-2z" />
+                                                                </svg>
+                                                                Returned
+
+                                                                <% } else if (order.status==='Return Rejected' ) { %>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="h-5 w-5 mr-1" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path
+                                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-11h2v5h-2V7zm0 6h2v2h-2v-2z" />
+                                                                    </svg>
+                                                                    Return Rejected
+    
+                                                                    <% }
+                                                                else { %>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                        class="h-5 w-5 mr-1" fill="currentColor"
+                                                                        viewBox="0 0 20 20">
+                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 
+                                            00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                                            clip-rule="evenodd" />
+                                                                    </svg>
+                                                                    Pending
+                                                                    <% } %>
+                                    </span>
+
+                                </div>
+                            </div>
                         </div>
-                        <span class="text-sm font-medium <%= isCompleted ? 'text-rose-gold-dark' : 'text-gray-500' %> text-center"><%= step.name %></span>
+                        <% }); %>
+                </div>
+
+                <!-- Order Totals -->
+                <div class="border-t border-gray-600 pt-6 mt-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-white">Subtotal</span>
+                            <span class="font-medium text-white">$<%= order.totalPrice.toFixed(2) %></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-white">Shipping</span>
+                            <span class="font-medium text-white">Free</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-white">Tax</span>
+                            <span class="font-medium text-white">$0.00</span>
+                        </div>
+                        <% if (order.discount> 0) { %>
+                            <div class="flex justify-between">
+                                <span class="text-white">Discount</span>
+                                <span class="font-medium text-green-600">-$<%= order.discount.toFixed(2) %></span>
+                            </div>
+                            <% } %>
+                                <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
+                                    <span class="text-rose-gold font-semibold">Total</span>
+                                    <span class="font-bold text-rose-gold-dark text-lg">$<%=
+                                            order.finalAmount.toFixed(2) %></span>
+                                </div>
                     </div>
-                    <% }); %>
                 </div>
             </div>
-        </div>
 
-       
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Items</h2>
-            
-            <div class="divide-y divide-gray-600">
-                <% order.orderItems.forEach(item => { %>
-                <div class="py-6 flex flex-col md:flex-row gap-6">
-                    <div class="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-600">
-                        <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="w-full h-full object-cover">
-                    </div>
-                    <div class="flex-grow">
-                        <h3 class="font-medium text-rose-gold text-lg"><%= item.product.productName %></h3>
-                        <p class="text-white text-sm mt-1"><%= item.product.description.substring(0, 80) %><%= item.product.description.length > 80 ? '...' : '' %></p>
-                        <div class="flex flex-wrap items-center gap-4 mt-3">
-                            <span class="text-white">Qty: <%= item.quantity %></span>
-                            <span class="font-medium text-rose-gold">$<%= item.price.toFixed(2) %></span>
-                            <span class="<%= item.status === 'shipped' ? 'text-green-600' : item.status === 'processing' ? 'text-blue-600' : 'text-yellow-600' %> flex items-center">
-                                <% if (item.status === 'shipped') { %>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                    </svg>
-                                    Shipped
-                                <% } else if (item.status === 'processing') { %>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd" />
-                                    </svg>
-                                    Processing
-                                <% } else { %>
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
-                                    </svg>
-                                    Preparing
+            <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
+                <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-rose-gold" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Shipping Address
+                </h2>
+                <address class="not-italic text-white space-y-2">
+                    <p class="font-medium">
+                        <%= selectedAddress.name %>
+                    </p>
+                    <p>
+                        <%= selectedAddress.street %>
+                    </p>
+                    <% if (selectedAddress.landMark) { %>
+                        <p>
+                            <%= selectedAddress.landMark %>
+                        </p>
+                        <% } %>
+                            <p>
+                                <%= selectedAddress.city %>, <%= selectedAddress.state %>
+                                        <%= selectedAddress.pincode %>
+                            </p>
+                            <p>
+                                <%= selectedAddress.country %>
+                            </p>
+                            <p class=" text-white">Phone: <%= selectedAddress.phone %>
+                            </p>
+                </address>
+            </div>
+
+            <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 border border-gray-600">
+                <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Order Actions</h2>
+                <div class="flex flex-wrap gap-3">
+                    <% if (order.status !=='Cancelled' && order.status !=='Delivered' &&  order.status !=='Return Request' && order.status !=='Returned' && order.status !=='Return Rejected' ) { %>
+                        <button onclick="openCancelModal('<%=order.orderId%>')"
+                            class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                            Cancel Order
+                        </button>
+                        <% } %>
+                            <% if (order.status==='Delivered' ) { %>
+                                <button onclick="openReturnModal('<%=order.orderId%>')"
+                                    class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                    Return Items
+                                </button>
+
+                                <button onclick="downloadInvoice('<%=order.orderId%>')"
+                                    class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                    <i class="fas fa-download mr-2"></i> Download Invoice
+                                </button>
                                 <% } %>
-                            </span>
-                        </div>
-                    </div>
+                                    <button
+                                        class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                        <i class="fas fa-headset mr-2"></i>Contact Support
+                                    </button>
                 </div>
-                <% }); %>
+                <p class="text-white mt-4 text-sm">
+                    Need help? <a href="#" class="text-rose-gold hover:underline">Visit our Help Center</a>
+                </p>
             </div>
-            
-            <!-- Order Totals -->
-            <div class="border-t border-gray-600 pt-6 mt-4">
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-white">Subtotal</span>
-                        <span class="font-medium text-white">$<%= order.totalPrice.toFixed(2) %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-white">Shipping</span>
-                        <span class="font-medium text-white">Free</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-white">Tax</span>
-                        <span class="font-medium text-white">$0.00</span>
-                    </div>
-                    <% if (order.discount > 0) { %>
-                    <div class="flex justify-between">
-                        <span class="text-white">Discount</span>
-                        <span class="font-medium text-green-600">-$<%= order.discount.toFixed(2) %></span>
-                    </div>
-                    <% } %>
-                    <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
-                        <span class="text-rose-gold font-semibold">Total</span>
-                        <span class="font-bold text-rose-gold-dark text-lg">$<%= order.finalAmount.toFixed(2) %></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-rose-gold" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
-                </svg>
-                Shipping Address
-            </h2>
-            <address class="not-italic text-white space-y-2">
-                <p class="font-medium"><%= selectedAddress.name %></p>
-                <p><%= selectedAddress.street %></p>
-                <% if (selectedAddress.landMark) { %>
-                    <p><%= selectedAddress.landMark %></p>
-                <% } %>
-                <p><%= selectedAddress.city %>, <%= selectedAddress.state %> <%= selectedAddress.pincode %></p>
-                <p><%= selectedAddress.country %></p>
-                <p class=" text-white">Phone: <%= selectedAddress.phone %></p>
-            </address>
-        </div>
-
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Order Actions</h2>
-            <div class="flex flex-wrap gap-3">
-                <% if (order.status !== 'cancelled' && order.status !== 'delivered') { %>
-                <button class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
-                    Cancel Order
-                </button>
-                <% } %>
-                <% if (order.status === 'delivered') { %>
-                <button class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
-                    Return Items
-                </button>
-                <% } %>
-                <button class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
-                    Contact Support
-                </button>
-            </div>
-            <p class="text-white mt-4 text-sm">
-                Need help? <a href="#" class="text-rose-gold hover:underline">Visit our Help Center</a>
-            </p>
         </div>
     </div>
-</div>
 
-<%- include('../../views/partials/user/footer') %>
+    <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[#1F1F1F] rounded-lg p-6 border border-gray-600 w-full max-w-md">
+            <h3 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Cancel Order</h3>
+            <p class="text-white mb-4">Are you sure you want to cancel this order?</p>
+
+            <div class="mb-4">
+                <label for="cancelReason" class="block text-white mb-2">Reason for cancellation:</label>
+                <select id="cancelReason"
+                    class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold">
+                    <option value="" disabled selected>Select a reason</option>
+                    <option value="changed-mind">Changed my mind</option>
+                    <option value="found-better-price">Found a better price elsewhere</option>
+                    <option value="delivery-too-long">Delivery takes too long</option>
+                    <option value="ordered-by-mistake">Ordered by mistake</option>
+                    <option value="other">Other reason</option>
+                </select>
+            </div>
+
+            <div id="otherReasonContainer" class="mb-4 hidden">
+                <label for="otherReason" class="block text-white mb-2">Please specify:</label>
+                <textarea id="otherReason"
+                    class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
+                    rows="3"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeCancelModal()"
+                    class="px-5 py-2 border border-gray-400 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors duration-300">
+                    Go Back
+                </button>
+                <button onclick="submitCancellation()"
+                    class="px-5 py-2 bg-rose-gold text-white rounded-lg hover:bg-rose-700 transition-colors duration-300">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="returnModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[#1F1F1F] rounded-lg p-6 border border-gray-600 w-full max-w-md">
+            <h3 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Return order</h3>
+            <p class="text-white mb-4">Are you sure you want to return this order?</p>
+
+            <div class="mb-4">
+                <label for="returnReason" class="block text-white mb-2">Reason for return:</label>
+                <select id="returnReason"
+                    class="w-full bg-[#2A2A2A] border border-gray-700 rounded-lg px-4 py-3 text-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent transition-colors">
+                    <option value="" disabled selected>Select a reason</option>
+                    <option value="defective">Defective item</option>
+                    <option value="not-as-described">Not as described</option>
+                    <option value="changed-mind">Changed my mind</option>
+                    <option value="wrong-item">Wrong item received</option>
+                    <option value="other">Other reason</option>
+                </select>
+            </div>
+
+            <div id="otherReturnReasonContainer" class="mb-4 hidden">
+                <label for="otherReturnReason" class="block text-white mb-2">Please specify:</label>
+                <textarea id="otherReturnReason"
+                    class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
+                    rows="3"></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeReturnModal()"
+                    class="px-5 py-2 border border-gray-400 text-gray-400 rounded-lg hover:bg-gray-700 transition-colors duration-300">
+                    Go Back
+                </button>
+                <button onclick="submitReturn()"
+                    class="px-5 py-2 bg-rose-gold text-white rounded-lg hover:bg-rose-700 transition-colors duration-300">
+                    Confirm Cancellation
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openCancelModal(orderId) {
+            const modalContent = `
+            <div class="text-left">
+                <p class="text-white mb-4">Are you sure you want to cancel this order?</p>
+                
+                <div class="mb-4">
+                    <label for="swalCancelReason" class="block text-white mb-2">Reason for cancellation:</label>
+                    <select 
+                        id="swalCancelReason"
+                        class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold">
+                        <option value="" disabled selected>Select a reason</option>
+                        <option value="changed-mind">Changed my mind</option>
+                        <option value="found-better-price">Found a better price elsewhere</option>
+                        <option value="delivery-too-long">Delivery takes too long</option>
+                        <option value="ordered-by-mistake">Ordered by mistake</option>
+                        <option value="other">Other reason</option>
+                    </select>
+                </div>
+                
+                <div id="swalOtherReasonContainer" class="mb-4 hidden">
+                    <label for="swalOtherReason" class="block text-white mb-2">Please specify:</label>
+                    <textarea 
+                        id="swalOtherReason"
+                        class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
+                        rows="3"></textarea>
+                </div>
+            </div>
+        `;
+
+            Swal.fire({
+                title: 'Cancel Order',
+                html: modalContent,
+                background: '#1F1F1F',
+                color: '#FFFFFF',
+                showCancelButton: true,
+                confirmButtonColor: '#B76E79',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Confirm Cancellation',
+                cancelButtonText: 'Go Back',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const reason = document.getElementById('swalCancelReason').value;
+                    let otherReason = '';
+
+                    if (reason === 'other') {
+                        otherReason = document.getElementById('swalOtherReason').value.trim();
+                        if (!otherReason) {
+                            Swal.showValidationMessage('Please specify your reason for cancellation.');
+                            return false;
+                        }
+                    }
+
+                    if (!reason) {
+                        Swal.showValidationMessage('Please select a reason for cancellation.');
+                        return false;
+                    }
+
+                    return { reason, otherReason };
+                },
+                didOpen: () => {
+                    document.getElementById('swalCancelReason').addEventListener('change', function () {
+                        const otherReasonContainer = document.getElementById('swalOtherReasonContainer');
+                        if (this.value === 'other') {
+                            otherReasonContainer.classList.remove('hidden');
+                        } else {
+                            otherReasonContainer.classList.add('hidden');
+                        }
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { reason, otherReason } = result.value;
+
+                    const payload = {
+                        orderId: orderId,
+                        reason: reason,
+                        otherReason: otherReason
+                    };
+
+                    fetch('/cancel-order', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                title: 'Cancellation Submitted',
+                                text: 'Your order cancellation request has been received.',
+                                icon: 'success',
+                                background: '#1F1F1F',
+                                color: '#FFFFFF',
+                                confirmButtonColor: '#B76E79'
+                            });
+
+                            console.log('Server response:', data);
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'There was a problem submitting your cancellation. Please try again.',
+                                icon: 'error',
+                                background: '#1F1F1F',
+                                color: '#FFFFFF',
+                                confirmButtonColor: '#B76E79'
+                            });
+
+                            console.error('Fetch error:', error);
+                        });
+                }
+
+            });
+        }
+        function openReturnModal(orderId) {
+            const modalContent = `
+    <div class="text-left">
+        <p class="text-white mb-4">Are you sure you want to return this order?</p>
+        
+        <div class="mb-4">
+            <label for="swalReturnReason" class="block text-white mb-2">Reason for return:</label>
+            <select 
+                id="swalReturnReason"
+                class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold">
+                <option value="" disabled selected>Select a reason</option>
+                <option value="defective">Defective item</option>
+                <option value="not-as-described">Not as described</option>
+                <option value="changed-mind">Changed my mind</option>
+                <option value="wrong-item">Wrong item received</option>
+                <option value="other">Other reason</option>
+            </select>
+        </div>
+        
+        <div id="swalOtherReasonContainer" class="mb-4 hidden">
+            <label for="swalOtherReason" class="block text-white mb-2">Please specify:</label>
+            <textarea 
+                id="swalOtherReason"
+                class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
+                rows="3"></textarea>
+        </div>
+    </div>
+    `;
+
+            Swal.fire({
+                title: 'Return Order',
+                html: modalContent,
+                background: '#1F1F1F',
+                color: '#FFFFFF',
+                showCancelButton: true,
+                confirmButtonColor: '#B76E79',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Confirm Return', 
+                cancelButtonText: 'Go Back',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const reason = document.getElementById('swalReturnReason').value;
+                    let otherReason = '';
+
+                    if (reason === 'other') {
+                        otherReason = document.getElementById('swalOtherReason').value.trim();
+                        if (!otherReason) {
+                            Swal.showValidationMessage('Please specify your reason for return.');
+                            return false;
+                        }
+                    }
+
+                    if (!reason) {
+                        Swal.showValidationMessage('Please select a reason for return.');
+                        return false;
+                    }
+
+                    return { reason, otherReason };
+                },
+                didOpen: () => {
+                    document.getElementById('swalReturnReason').addEventListener('change', function () {
+                        const otherReasonContainer = document.getElementById('swalOtherReasonContainer');
+                        if (this.value === 'other') {
+                            otherReasonContainer.classList.remove('hidden');
+                        } else {
+                            otherReasonContainer.classList.add('hidden');
+                        }
+                    });
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const { reason, otherReason } = result.value;
+
+                    const payload = {
+                        orderId: orderId,
+                        reason: reason,
+                        otherReason: otherReason
+                    };
+
+                    fetch('/submit-return', {  
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            Swal.fire({
+                                title: 'Return Request Submitted',
+                                text: 'Your order return request has been received.',
+                                icon: 'success',
+                                background: '#1F1F1F',
+                                color: '#FFFFFF',
+                                confirmButtonColor: '#B76E79'
+                            });
+
+                            console.log('Server response:', data);
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'There was a problem submitting your return request. Please try again.',
+                                icon: 'error',
+                                background: '#1F1F1F',
+                                color: '#FFFFFF',
+                                confirmButtonColor: '#B76E79'
+                            });
+
+                            console.error('Fetch error:', error);
+                        });
+                }
+            });
+        }
+
+        function closeReturnModal() {
+            document.getElementById('returnModal').classList.add('hidden');
+        }
+
+        function submitReturn() {
+            const reason = document.getElementById('returnReason').value;
+            const otherReason = document.getElementById('otherReturnReason').value.trim();
+
+            if (!reason) {
+                alert('Please select a reason for return.');
+                return;
+            }
+
+            if (reason === 'other' && !otherReason) {
+                alert('Please specify your reason for return.');
+                return;
+            }
+
+            console.log('Return reason:', reason);
+            if (reason === 'other') {
+                console.log('Other reason:', otherReason);
+            }
+
+            closeReturnModal();
+        }
+
+        document.getElementById('returnReason').addEventListener('change', function () {
+            const otherContainer = document.getElementById('otherReturnReasonContainer');
+            if (this.value === 'other') {
+                otherContainer.classList.remove('hidden');
+            } else {
+                otherContainer.classList.add('hidden');
+            }
+        });
+
+        function downloadInvoice(orderId) {
+            Swal.fire({
+                title: 'Generating Invoice',
+                text: 'Please wait while we prepare your invoice...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch(`/download-invoice/${orderId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to generate invoice');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `invoice_${orderId}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    Swal.close();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Failed to download invoice. Please try again.',
+                        icon: 'error',
+                        background: '#1F1F1F',
+                        color: '#FFFFFF',
+                        confirmButtonColor: '#B76E79'
+                    });
+                });
+        }
+    </script>
+
+    <%- include('../../views/partials/user/footer') %>

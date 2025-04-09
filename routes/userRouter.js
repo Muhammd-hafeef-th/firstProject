@@ -139,6 +139,9 @@ router.post('/choose-payment',checkoutController.choosePayment)
 
 router.get('/orders',orderController.GetOrder)
 router.get('/order-details',orderController.orderDetails)
+router.post('/cancel-order',orderController.cancelOrder)
+router.get('/download-invoice/:orderId',orderController.downloadInvoice)
+router.post('/submit-return',orderController.returnOrder)
 
 
 module.exports = router;

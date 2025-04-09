@@ -5,6 +5,7 @@ const {userAuth,adminAuth}=require("../middlewares/auth");
 const customerController=require("../controllers/admin/customerController");
 const brandController=require('../controllers/admin/brandController');
 const productController=require("../controllers/admin/productContoller")
+const orderController=require('../controllers/admin/orderController')
 const upload = require('../middlewares/multerConfig');
 
 
@@ -37,6 +38,14 @@ router.post("/add-productItem", adminAuth, productController.upload.array('image
 router.get("/edit-product", adminAuth, productController.editProduct);
 router.post("/edit-productItem", adminAuth, upload, productController.editProductItem);
 router.post("/delete-product",adminAuth,productController.deleteProduct)
+
+
+//order management
+
+router.get('/orders',adminAuth,orderController.order);
+router.get('/order-admin-details',adminAuth,orderController.orderDetails)
+router.post('/change-status',adminAuth,orderController.changeStatus)
+router.post('/return-action',adminAuth,orderController.returnAction)
 
 
 module.exports=router;

@@ -85,8 +85,8 @@
                                 <div class="col-span-3 md:col-span-2">Order ID</div>
                                 <div class="col-span-3 md:col-span-2">Amount</div>
                                 <div class="hidden md:block md:col-span-2">Date</div>
-                                <div class="col-span-3 md:col-span-2">Status</div>
-                                <div class="col-span-3 md:col-span-4">Items</div>
+                                <div class="col-span-3 md:col-span-3">Status</div>
+                                <div class="col-span-3 md:col-span-3">Items</div>
                             </div>
                         </div>
 
@@ -115,7 +115,7 @@
                                             <div class="hidden md:block md:col-span-2 text-gray-300">
                                                 <%= order.date %>
                                             </div>
-                                            <div class="col-span-3 md:col-span-2">
+                                            <div class="col-span-3 md:col-span-3">
                                                 <span class="
                                                  <% if (order.status === 'Delivered') { %>
                                                      bg-green-500/90 animate-pulse text-white
@@ -127,14 +127,18 @@
                                                      bg-yellow-500 text-black
                                                  <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
                                                      bg-red-500 text-white
-                                                 <% } else { %>
+                                                 <% }  else if (order.status === 'Return Rejected') { %>
+                                                    bg-red-500 text-white
+                                                <% } else if (order.status === 'Return Request') { %>
+                                                    bg-yellow-500 text-black
+                                                <% }else { %>
                                                      bg-gray-500 text-white
                                                  <% } %>
                                                  px-3 py-1 rounded-full text-xs md:text-sm font-bold">
                                                     <%= order.status %>
                                                 </span>
                                             </div>
-                                            <div class="col-span-3 md:col-span-4">
+                                            <div class="col-span-3 md:col-span-3">
                                                 <div class="flex items-center gap-2">
                                                     <% order.items.slice(0, 2).forEach(item=> { %>
                                                         <div class="relative group">
@@ -156,9 +160,10 @@
                                                                             <% } %>
                                                         </div>
                                                         <% }); %>
-                                                        <button
+                                                            <button
                                                                 class="arrow-button ml-auto p-2 rounded-full bg-[#3a3838] hover:bg-yellow-500 hover:text-black transition-all duration-300">
-                                                                <a href="/order-details?orderId=<%=order.id%>"><i class="fas fa-chevron-right text-sm"></i></a>
+                                                                <a href="/order-details?orderId=<%=order.id%>"><i
+                                                                        class="fas fa-chevron-right text-sm"></i></a>
                                                             </button>
                                                 </div>
 
