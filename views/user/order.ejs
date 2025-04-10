@@ -71,11 +71,25 @@
                         <h2
                             class="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-yellow-600 bg-clip-text text-transparent">
                             ORDER HISTORY</h2>
-                        <div class="relative">
-                            <input type="text" placeholder="Search orders..."
-                                class="bg-[#2b2929] border border-gray-700 rounded-full py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 w-48 md:w-64">
-                            <i class="fas fa-search absolute right-4 top-3 text-gray-400"></i>
-                        </div>
+                            <form action="/orders" method="get" class="relative flex items-center gap-2">
+    <div class="relative">
+        <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
+            class="bg-[#2b2929] border border-gray-700 rounded-full py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 w-48 md:w-64">
+        <button type="submit"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+
+    <% if (search) { %>
+        <a href="/orders"
+           class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-full text-sm transition duration-300">
+            Clear
+        </a>
+    <% } %>
+    
+</form>
+
                     </div>
 
                     <div class="p-4 md:p-6 bg-[#1F1F1F] text-white">

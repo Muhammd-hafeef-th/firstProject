@@ -24,15 +24,15 @@
 
                     </div>
                     <div class="mb-4 w-2/6 flex gap-4">
-                        <form action="/admin/brands" method="get" class="relative">
-                            <input type="text" id="search" name="search" placeholder="Search brands..."
+                        <form action="/admin/orders" method="get" class="relative">
+                            <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
                                 class="w-full p-2 pr-10 rounded-md text-black outline-none">
                             <button type="submit"
                                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                                 <i class="fas fa-search"></i>
                             </button>
-                        </form>
-                        <form action="/admin/brands">
+                        </form>                        
+                        <form action="/admin/orders">
                             <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
                                 Clear
                             </button>
@@ -114,7 +114,18 @@
                             </table>
                         </div>
                     </div>
-
+                    <div class="mt-4">
+                        <p class="mb-2">Page <%= currentPage %> of <%= totalPages %></p>
+                        <div class="flex flex-wrap justify-center gap-2">
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
+                                   class="px-3 py-1 rounded-md <%= currentPage === i ? 'bg-purple-500 text-white' : 'bg-gray-700 text-white hover:bg-gray-600' %>">
+                                    <%= i %>
+                                </a>
+                            <% } %>
+                        </div>
+                    </div>                    
+                    
                 </div>
         </div>
 </body>

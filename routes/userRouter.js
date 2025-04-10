@@ -97,6 +97,8 @@ router.post("/add-review", userController.addReview);
 router.get("/profile",userController.profile)
 router.get("/profile-edit",userController.profileEdit)
 router.patch("/profile-update",upload.single('imageUpload'),userController.profileUpdate);
+router.post('/verify-profile-otp',userController.verifyProfileUpdateOtp);
+router.post('/resend-profile-otp', userController.resendProfileUpdateOtp);
 router.get("/change-password",userController.changePassword);
 router.post("/profile-emailOtp",userController.profileEmailOtp)
 router.post("/verifyProfileOtp",userController.verifyProfileOtp)

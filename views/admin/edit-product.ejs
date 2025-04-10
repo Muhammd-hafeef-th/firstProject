@@ -152,12 +152,10 @@
                             <!-- Colors -->
                             <div class="md:col-span-2">
                                 <label class="block mb-1">Colors:</label>
-                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
-                                    <% for (let i=0; i < 6; i++) { %>
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">   
                                         <input type="text" name="colors[]"
-                                            value="<%= product.color && product.color[i] ? product.color[i] : '' %>"
+                                            value="<%= product.color && product.color[0] ? product.color[0] : '' %>"
                                             class="p-2 rounded bg-gray-700 border border-gray-600">
-                                        <% } %>
                                 </div>
                             </div>
 

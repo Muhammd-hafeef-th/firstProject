@@ -42,7 +42,7 @@ router.post("/delete-product",adminAuth,productController.deleteProduct)
 
 //order management
 
-router.get('/orders',adminAuth,orderController.order);
+router.get('/orders',adminAuth,orderController.orders);
 router.get('/order-admin-details',adminAuth,orderController.orderDetails)
 router.post('/change-status',adminAuth,orderController.changeStatus)
 router.post('/return-action',adminAuth,orderController.returnAction)

@@ -12,42 +12,32 @@ const GetOrder = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 5;
         const skip = (page - 1) * limit;
-
+        const search = req.query.search ? req.query.search.trim() : "";
         let userData = null;
         let orders = [];
         let totalOrders = 0;
-
         if (req.session.user) {
-            userData = await User.findOne({
+            const userId = req.session.user._id || req.session.user;
+            userData = await User.findById(userId);
+            const searchFilter = {
+                user: userId,
                 $or: [
-                    { _id: req.session.user._id },
-                    { _id: req.session.user }
+                    { orderId: { $regex: search, $options: "i" } },
+                    { status: { $regex: search, $options: "i" } }
                 ]
-            });
-
-            totalOrders = await Order.countDocuments({
-                $or: [
-                    { user: req.session.user._id },
-                    { user: req.session.user }
-                ]
-            });
-
-            orders = await Order.find({
-                $or: [
-                    { user: req.session.user._id },
-                    { user: req.session.user }
-                ]
-            })
+            };
+            const finalFilter = search ? searchFilter : { user: userId };
+            totalOrders = await Order.countDocuments(finalFilter);
+            orders = await Order.find(finalFilter)
                 .sort({ createdOn: -1 })
                 .skip(skip)
                 .limit(limit)
                 .populate({
                     path: 'orderItems.product',
-                    select: 'productName productImage salePrice regularPrice'
+                    select: 'productName productImage salePrice regularPrice name'
                 })
                 .populate('address');
         }
-
         const formattedOrders = orders.map(order => ({
             id: order.orderId,
             price: order.finalAmount,
@@ -61,20 +51,19 @@ const GetOrder = async (req, res, next) => {
                 price: item.price
             }))
         }));
-
         const totalPages = Math.ceil(totalOrders / limit);
-
         res.render('order', {
             userDatas: userData,
             orders: formattedOrders,
             currentPage: page,
             totalPages: totalPages,
-            limit: limit
+            limit: limit,
+            search: search
         });
     } catch (error) {
         next(error);
     }
-}
+};
 
 const orderDetails = async (req, res, next) => {
     try {
@@ -93,8 +82,16 @@ const orderDetails = async (req, res, next) => {
         if (fullAddressDoc) {
             selectedAddress = fullAddressDoc.address.find(addr => addr._id.equals(order.address));
         }
+        let progress = 0;
+        switch (order.status) {
+            case 'Pending': progress = 12; break;
+            case 'Processing': progress = 36.33; break; 
+            case 'Shipped': progress = 66.66; break;    
+            case 'Delivered': progress = 100; break;   
+        }
 
-        res.render('order-details', { order: order, selectedAddress: selectedAddress });
+
+        res.render('order-details', { order: order, selectedAddress: selectedAddress, progress });
     } catch (error) {
         next(error)
     }
@@ -189,7 +186,7 @@ const downloadInvoice = async (req, res, next) => {
         y += 25;
         order.orderItems.forEach(item => {
             const grossAmt = item.price * item.quantity;
-            const discount = item.product.discount*item.quantity;
+            const discount = item.product.discount * item.quantity;
             const taxable = 0.00;
             const igst = 0.00;
             const total = grossAmt - discount + taxable + igst;
@@ -206,7 +203,7 @@ const downloadInvoice = async (req, res, next) => {
             y += 20;
         });
 
-      
+
         y += 10;
         doc.moveTo(50, y).lineTo(560, y).stroke();
         y += 10;
@@ -235,26 +232,26 @@ const downloadInvoice = async (req, res, next) => {
 const returnOrder = async (req, res, next) => {
     try {
         const { orderId, reason, otherReason } = req.body;
-                if (!orderId || !reason) {
-            return res.status(400).json({ 
-                message: 'Order ID and reason are required' 
+        if (!orderId || !reason) {
+            return res.status(400).json({
+                message: 'Order ID and reason are required'
             });
         }
         const finalReason = reason === 'other' ? otherReason : reason;
         const order = await Order.findOne({ orderId });
         if (!order) {
-            return res.status(404).json({ 
-                message: 'Order not found' 
+            return res.status(404).json({
+                message: 'Order not found'
             });
         }
         if (order.status === 'Return-Requested') {
-            return res.status(400).json({ 
-                message: 'Return request already submitted for this order' 
+            return res.status(400).json({
+                message: 'Return request already submitted for this order'
             });
         }
         if (!['Delivered', 'Shipped'].includes(order.status)) {
-            return res.status(400).json({ 
-                message: 'Order cannot be returned in its current status' 
+            return res.status(400).json({
+                message: 'Order cannot be returned in its current status'
             });
         }
         order.status = 'Return Request';
@@ -267,7 +264,7 @@ const returnOrder = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error processing return request:', error); 
+        console.error('Error processing return request:', error);
         res.status(500).json({
             success: false,
             message: 'An error occurred while processing your return request'

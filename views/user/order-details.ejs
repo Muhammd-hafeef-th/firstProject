@@ -56,47 +56,112 @@
 
             <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
                 <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Status</h2>
-
-                <div class="relative">
-                    <div class="absolute h-1 bg-gray-500 top-1/2 left-0 right-0 -translate-y-1/2"></div>
-                    <div
-                        class="absolute h-1 bg-rose-gold top-1/2 left-0 w-<%= order.progress %> -translate-y-1/2 transition-all duration-500">
+                
+                <% if (order.status === 'Returned') { %>
+                  <div class="flex items-center text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                    <p class="italic text-red-600">Order Returned</p>
+                  </div>
+                <% } else if (order.status === 'Cancelled') { %>
+                  <div class="flex items-center text-red-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                    </svg>
+                    <p class="italic text-red-600">Order Cancelled</p>
+                  </div>
+                <% }
+                else if (order.status === 'Return Rejected') { %>
+                    <div class="flex items-center text-red-700">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                      </svg>
+                      <p class="italic text-red-600">Return Rejected</p>
                     </div>
-                    <div class="flex justify-between relative z-10">
-                        <% const steps=[ { name: 'Placed' ,
-                            icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z'
-                            }, { name: 'Processed' ,
-                            icon: 'M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z'
-                            }, { name: 'Shipped' ,
-                            icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a1 1 0 00-.293-.707l-3-3A1 1 0 0016 7h-1V5a1 1 0 00-1-1H3z'
-                            }, { name: 'Delivery' ,
-                            icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M16 7H5a1 1 0 01-1-1V4a1 1 0 011-1h11a1 1 0 011 1v2a1 1 0 01-1 1zM4 9h12a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3a1 1 0 011-1z'
-                            }, { name: 'Delivered' ,
-                            icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                            } ]; %>
-
-                            <% steps.forEach((step, index)=> {
-                                const stepPercent = index * 25;
-                                const isCompleted = order.progress >= stepPercent;
-                                %>
-                                <div class="flex flex-col items-center" style="width: 20%;">
-                                    <div
-                                        class="w-8 h-8 rounded-full <%= isCompleted ? 'bg-rose-gold' : 'bg-gray-500' %> flex items-center justify-center mb-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="h-5 w-5 <%= isCompleted ? 'text-white' : 'text-gray-400' %>"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="<%= step.icon %>" clip-rule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <span
-                                        class="text-sm font-medium <%= isCompleted ? 'text-rose-gold-dark' : 'text-gray-500' %> text-center">
-                                        <%= step.name %>
-                                    </span>
-                                </div>
-                                <% }); %>
+                  <% } else { %>
+                  <div class="space-y-4">
+                    <div class="relative">
+                      <div class="absolute h-1.5 bg-gray-700 top-1/2 left-0 right-0 -translate-y-1/2 rounded-full"></div>
+                      <div 
+                        class="absolute h-1.5 bg-rose-gold top-1/2 left-0 -translate-y-1/2 rounded-full transition-all duration-500"
+                        style="width: <%= progress %>%;"
+                        aria-hidden="true"
+                      ></div>
+                                            <div class="flex justify-between relative z-10">
+                        <% 
+                          const steps = [ 
+                            { 
+                              name: 'Pending',
+                              icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z',
+                              description: 'Order received and awaiting processing'
+                            }, 
+                            { 
+                              name: 'Processed',
+                              icon: 'M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z',
+                              description: 'Order is being prepared for shipment'
+                            }, 
+                            { 
+                              name: 'Shipped',
+                              icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a1 1 0 00-.293-.707l-3-3A1 1 0 0016 7h-1V5a1 1 0 00-1-1H3z',
+                              description: 'Order has been shipped and is in transit'
+                            },
+                            { 
+                              name: 'Delivered',
+                              icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z',
+                              description: 'Order has been delivered successfully'
+                            } 
+                          ]; 
+                        %>
+              
+                        <% steps.forEach((step, index) => { 
+                          const stepPercent = index * 25;
+                          const isCompleted = progress >= stepPercent;
+                          const isCurrent = progress >= stepPercent && progress < (stepPercent + 25);
+                        %>
+                          <div class="flex flex-col items-center group" style="width: 20%;">
+                            <div
+                              class="w-10 h-10 rounded-full <%= isCompleted ? 'bg-rose-gold' : 'bg-gray-600' %> flex items-center justify-center mb-2 transition-colors duration-300"
+                              aria-current="<%= isCurrent ? 'step' : 'false' %>"
+                            >
+                              <svg 
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-6 w-6 <%= isCompleted ? 'text-white' : 'text-gray-400' %> transition-colors duration-300"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                              >
+                                <path fill-rule="evenodd" d="<%= step.icon %>" clip-rule="evenodd" />
+                              </svg>
+                            </div>
+                            <span class="text-sm font-medium <%= isCompleted ? 'text-rose-gold' : 'text-gray-400' %> text-center transition-colors duration-300">
+                              <%= step.name %>
+                            </span>
+                            <div class="absolute top-12 mt-6 hidden group-hover:block bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded whitespace-nowrap">
+                              <%= step.description %>
+                            </div>
+                          </div>
+                        <% }); %>
+                      </div>
                     </div>
-                </div>
-            </div>
+                                  <div class="text-center pt-4">
+                      <p class="text-gray-300">
+                        <% if (progress < 25) { %>
+                          Your order has been received and is awaiting processing.
+                        <% } else if (progress < 50) { %>
+                          Your order is being prepared for shipment.
+                        <% } else if (progress < 75) { %>
+                          Your order has been shipped and is on its way.
+                        <% } else if (progress < 100) { %>
+                          Your order is out for delivery.
+                        <% } else { %>
+                          Your order has been delivered successfully.
+                        <% } %>
+                      </p>
+                    </div>
+                  </div>
+                <% } %>
+              </div>
 
 
             <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
@@ -192,18 +257,17 @@
                                                                             d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-11h2v5h-2V7zm0 6h2v2h-2v-2z" />
                                                                     </svg>
                                                                     Return Rejected
-    
-                                                                    <% }
-                                                                else { %>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                        class="h-5 w-5 mr-1" fill="currentColor"
-                                                                        viewBox="0 0 20 20">
-                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 
+
+                                                                    <% } else { %>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            class="h-5 w-5 mr-1" fill="currentColor"
+                                                                            viewBox="0 0 20 20">
+                                                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 
                                             00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                                                            clip-rule="evenodd" />
-                                                                    </svg>
-                                                                    Pending
-                                                                    <% } %>
+                                                                                clip-rule="evenodd" />
+                                                                        </svg>
+                                                                        Pending
+                                                                        <% } %>
                                     </span>
 
                                 </div>
@@ -279,7 +343,8 @@
             <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 border border-gray-600">
                 <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Order Actions</h2>
                 <div class="flex flex-wrap gap-3">
-                    <% if (order.status !=='Cancelled' && order.status !=='Delivered' &&  order.status !=='Return Request' && order.status !=='Returned' && order.status !=='Return Rejected' ) { %>
+                    <% if (order.status !=='Cancelled' && order.status !=='Delivered' && order.status
+                        !=='Return Request' && order.status !=='Returned' && order.status !=='Return Rejected' ) { %>
                         <button onclick="openCancelModal('<%=order.orderId%>')"
                             class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
                             Cancel Order
@@ -541,7 +606,7 @@
                 showCancelButton: true,
                 confirmButtonColor: '#B76E79',
                 cancelButtonColor: '#6B7280',
-                confirmButtonText: 'Confirm Return', 
+                confirmButtonText: 'Confirm Return',
                 cancelButtonText: 'Go Back',
                 focusConfirm: false,
                 preConfirm: () => {
@@ -583,7 +648,7 @@
                         otherReason: otherReason
                     };
 
-                    fetch('/submit-return', {  
+                    fetch('/submit-return', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

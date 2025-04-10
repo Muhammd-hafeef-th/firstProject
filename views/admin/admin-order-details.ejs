@@ -108,7 +108,7 @@
                                 </div>
                             </div>
                             <%}%>
-                            <%if(order.status ==='Returned'){%>
+                            <%if(order.status ==="Returned" || order.status ==="Returned Request" || order.status ==='Return Rejected'){%>
                             <div>
                                 <p class="text-gray-400 text-sm mt-3">Return Reason:</p>
                                 <p class="font-medium text-gray-100"><%=order.returnReason%></p>

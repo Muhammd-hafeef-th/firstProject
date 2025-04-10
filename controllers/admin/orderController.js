@@ -2,16 +2,35 @@ const Order=require('../../models/orderSchema');
 const User=require('../../models/userSchema')
 const Address=require('../../models/adressSchema')
 
-const order=async(req,res,next)=>{
-    try {
-        const orders=await Order.find({})
-        .populate('user')
-        
-        res.render('admin-order',{orders})
-    } catch (error) {
-       console.log('something error')
+
+const orders = async (req, res) => {
+  try {
+    const search = req.query.search?.toLowerCase() || '';
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    let orders = await Order.find().populate('user').sort({ createdAt: -1 });
+    if (search) {
+      orders = orders.filter(order =>
+        order.orderId.toLowerCase().includes(search) ||
+        order.status.toLowerCase().includes(search) ||
+        order.user.firstname.toLowerCase().includes(search)
+      );
     }
-}
+    const totalOrders = orders.length;
+    const totalPages = Math.ceil(totalOrders / limit);
+    const paginatedOrders = orders.slice((page - 1) * limit, page * limit);
+    res.render('admin-order', {
+      orders: paginatedOrders,
+      currentPage: page,
+      totalPages,
+      search: req.query.search || ''
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+};
 
 const orderDetails=async(req,res)=>{
     try {
@@ -83,7 +102,7 @@ const returnAction=async(req,res)=>{
 }
 
 module.exports={
-    order,
+    orders,
     orderDetails,
     changeStatus,
     returnAction

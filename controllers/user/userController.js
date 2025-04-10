@@ -442,7 +442,7 @@ const ladiesWatch = async (req, res, next) => {
 const couplesWatch = async (req, res, next) => {
     try {
         let page = parseInt(req.query.page) || 1;
-        const limit = 12;
+        const limit = 6;
         const skip = (page - 1) * limit;
 
         let brands = await Brand.find({})
@@ -715,35 +715,200 @@ const profileEdit = async (req, res, next) => {
         next(error);
     }
 }
+const sendVerifyEmail = async (email, otp) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            port: 587,
+            secure: false,
+            requireTLS: true,
+            auth: {
+                user: process.env.NODEMAILER_EMAIL,
+                pass: process.env.NODEMAILER_PASSWORD
+            }
+        })
+        const mailOptions = {
+            from: process.env.NODEMAILER_EMAIL,
+            to: email,
+            subject: "You OTP for password reset",
+            text: `You OTP is${otp}`,
+            html: `<b><h4>Your OTP:${otp}</h4><br></b>`
+        }
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email Send:', info.messageId);
+        return true;
+
+    } catch (error) {
+        console.error('Error sending email', error)
+        return false;
+    }
+}
 const profileUpdate = async (req, res, next) => {
     try {
-        console.log('Request body:', req.body);
-        console.log('Uploaded file:', req.file);
+        const user = await User.findById(req.user._id);
+        const oldEmail = user.email;
+        const newEmail = req.body.email;
+
         const updates = {
             firstname: req.body.username,
             phNumber: req.body.phone,
-            email: req.body.email,
             gender: req.body.gender
         };
-        console.log(req.session.email);
 
         if (req.file) {
             updates.userImage = `/uploads/profile-image/${req.file.filename}`;
         }
 
-        await User.findByIdAndUpdate(req.user._id, updates);
+        if (oldEmail !== newEmail) {
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Please enter a valid email address' 
+                });
+            }
 
-        res.json({
-            success: true,
-            message: 'Profile updated successfully'
+            const emailExists = await User.findOne({ email: newEmail });
+            if (emailExists) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Email already in use by another account' 
+                });
+            }
+
+            const otp = generateOtp();
+            const emailSent = await sendVerifyEmail(newEmail, otp);
+
+            if (emailSent) {
+                req.session.profileUpdate = {
+                    otp: otp,
+                    newEmail: newEmail,
+                    updates: updates,
+                    oldEmail: oldEmail,
+                    expiresAt: Date.now() + 1 * 60 * 1000 
+                };
+
+                console.log(`OTP sent to ${newEmail}: ${otp}`);
+                return res.json({ 
+                    success: true, 
+                    requiresOtp: true,
+                    message: 'OTP sent to your new email address for verification',
+                    expiresIn: 1 * 60 
+                });
+            } else {
+                return res.status(500).json({ 
+                    success: false, 
+                    message: 'Failed to send verification email. Please try again.' 
+                });
+            }
+        }
+
+        await User.findByIdAndUpdate(req.user._id, updates);
+        return res.json({ 
+            success: true, 
+            message: 'Profile updated successfully' 
         });
 
     } catch (error) {
-        error.message = 'Profile update failed ' + error.message;
-        next(error);
+        console.error('Profile update error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while updating your profile' 
+        });
     }
-}
+};
 
+const verifyProfileUpdateOtp = async (req, res, next) => {
+    try {
+        const { otp } = req.body;
+        
+        if (!req.session.profileUpdate) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'OTP session expired. Please try updating your email again.' 
+            });
+        }
+
+        if (Date.now() > req.session.profileUpdate.expiresAt) {
+            delete req.session.profileUpdate;
+            return res.status(400).json({ 
+                success: false, 
+                message: 'OTP has expired. Please request a new one.' 
+            });
+        }
+
+        if (otp !== req.session.profileUpdate.otp) {
+           
+            
+            return res.status(400).json({ 
+                success: false, 
+                message: `Incorrect OTP. ` 
+            });
+        }
+
+        const { updates, newEmail } = req.session.profileUpdate;
+        updates.email = newEmail;
+
+        updates.emailVerified = false; 
+        await User.findByIdAndUpdate(req.user._id, updates);
+
+        // await sendEmailVerification(newEmail, req.user._id);
+
+        delete req.session.profileUpdate;
+
+        return res.json({ 
+            success: true, 
+            message: 'Email changed and profile updated successfully. Please verify your new email address.' 
+        });
+
+    } catch (error) {
+        console.error('OTP verification error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred during OTP verification' 
+        });
+    }
+};
+
+const resendProfileUpdateOtp = async (req, res, next) => {
+    try {
+        if (!req.session.profileUpdate) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Session expired. Please try updating your email again.' 
+            });
+        }
+
+        const { newEmail } = req.session.profileUpdate;
+        
+        const newOtp = generateOtp();
+        const emailSent = await sendVerifyEmail(newEmail, newOtp);
+
+        if (emailSent) {
+            req.session.profileUpdate.otp = newOtp;
+            req.session.profileUpdate.expiresAt = Date.now() + 1 * 60 * 1000; 
+
+            console.log(`New OTP sent to ${newEmail}: ${newOtp}`);
+            return res.json({ 
+                success: true, 
+                message: 'New OTP sent to your email address',
+                expiresIn: 1 * 60 
+            });
+        } else {
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Failed to resend OTP. Please try again.' 
+            });
+        }
+
+    } catch (error) {
+        console.error('Resend OTP error:', error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while resending OTP' 
+        });
+    }
+};
 const changePassword = async (req, res, next) => {
     try {
         let userData = null
@@ -791,35 +956,7 @@ function generateOtp() {
     }
     return otp
 }
-const sendVerifyEmail = async (email, otp) => {
-    try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            port: 587,
-            secure: false,
-            requireTLS: true,
-            auth: {
-                user: process.env.NODEMAILER_EMAIL,
-                pass: process.env.NODEMAILER_PASSWORD
-            }
-        })
-        const mailOptions = {
-            from: process.env.NODEMAILER_EMAIL,
-            to: email,
-            subject: "You OTP for password reset",
-            text: `You OTP is${otp}`,
-            html: `<b><h4>Your OTP:${otp}</h4><br></b>`
-        }
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email Send:', info.messageId);
-        return true;
-
-    } catch (error) {
-        console.error('Error sending email', error)
-        return false;
-    }
-}
 const verifyProfileOtp = async (req, res, next) => {
     try {
         const enteredOtp = req.body.otp;
@@ -1031,7 +1168,9 @@ module.exports = {
     addtoCart,
     cart,
     deleteCartProduct,
-    updateCartQuantity
+    updateCartQuantity,
+    verifyProfileUpdateOtp,
+    resendProfileUpdateOtp
 };
 
 
