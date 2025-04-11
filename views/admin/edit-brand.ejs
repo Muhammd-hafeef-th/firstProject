@@ -130,10 +130,23 @@
                 clearErrorMessages();
                 const name = document.getElementById('name').value.trim();
                 const description = document.getElementById('description').value.trim();
+                const image = document.getElementById('fileInput').files[0];
+
                 let isValid = true;
 
-                console.log("Validation Check: ", { name, description });
+                if (!image) {
+                    showError("image-error", "Please upload an image");
+                    isValid = false;
+                } else {
 
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                    if (!allowedTypes.includes(image.type)) {
+                        showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
+
+                        document.getElementById('fileInput').value = '';
+                        isValid = false;
+                    }
+                }
                 if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
                     displayErrorMessage("name-error", "Brand name should start with a capital letter and contain only alphabets");
                     isValid = false;
@@ -179,6 +192,13 @@
             let cropper;
             function loadImage(event) {
                 const file = event.target.files[0];
+                if (!file) return;
+
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                    displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                    event.target.value = '';
+                    return;
+                }
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function (e) {

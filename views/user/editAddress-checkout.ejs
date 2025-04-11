@@ -1,177 +1,197 @@
-<%- include('../../views/partials/user/header')%>
-    <script src="https://cdn.tailwindcss.com"></script>
+<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+    <%- include('../../views/partials/user/header')%>
+</header>
+<script src="https://cdn.tailwindcss.com"></script>
 
-    <body class="bg-[#1F1F1F] text-white">
-        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-            <div class="flex-1 flex justify-center p-4 md:p-10">
-                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">EDIT ADDRESS</h2>
-                    </div>
-                    <form action="/edit-address-checkout/<%= addressDocs.address[0]._id %>" method="POST"  onsubmit="return handleFormSubmit(event)"
-                        class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="hidden" name="_method" value="PATCH">
-
-                        <div>
-                            <label class="block text-gray-300 mb-1">Name</label>
-                            <input type="text" name="name" value="<%= addressDocs.address[0].name %>"  id="name"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your name">
-                                <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 mb-1">State</label>
-                            <input type="text" name="state" value="<%= addressDocs.address[0].state %>" id="state"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your state">
-                                <div id="state-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 mb-1">Country</label>
-                            <input type="text" name="country" value="<%= addressDocs.address[0].country%>" id="country"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your country">
-                                <div id="country-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 mb-1">Town / City</label>
-                            <input type="text" name="city" value="<%= addressDocs.address[0].city %>" id="city"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your town/city">
-                                <div id="city-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-gray-300 mb-1">Street Address</label>
-                            <input type="text" name="landMark" placeholder="House number and street name"
-                                value="<%= addressDocs.address[0].landMark %>" id="landMark"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white">
-                                <div id="landMark-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-300 mb-1">Postcode / ZIP *</label>
-                            <input type="text" name="pincode" value="<%= addressDocs.address[0].pincode %>" id="pincode"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your postcode/ZIP">
-                                <div id="pincode-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 mb-1">Phone</label>
-                            <input type="text" name="phone" value="<%= addressDocs.address[0].phone %>" id="phone"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your phone number">
-                                <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
-                        </div>
-                        <div>
-                            <label class="block text-gray-300 mb-1">Alternative Phone</label>
-                            <input type="text" name="altPhone" value="<%= addressDocs.address[0].altPhone %>" id="altPhone"
-                                class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
-                                placeholder="Enter your alternative phone number">
-                                <div id="altPhone-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                        </div>
-                        <div class="md:col-span-2 flex justify-center mt-4">
-                            <button type="submit" class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
-                                Edit Address
-                            </button>
-                        </div>
-                    </form>
+<body class="bg-[#1F1F1F] text-white">
+    <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+        <div class="flex-1 flex justify-center p-4 md:p-10">
+            <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">EDIT ADDRESS</h2>
                 </div>
+                <form action="/edit-address-checkout/<%= addressDocs.address[0]._id %>" method="POST"
+                    onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" name="_method" value="PATCH">
 
+                    <div>
+                        <label class="block text-gray-300 mb-1">Name</label>
+                        <input type="text" name="name" value="<%= addressDocs.address[0].name %>" id="name"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your name">
+                        <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">State</label>
+                        <input type="text" name="state" value="<%= addressDocs.address[0].state %>" id="state"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your state">
+                        <div id="state-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">Country</label>
+                        <input type="text" name="country" value="<%= addressDocs.address[0].country%>" id="country"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your country">
+                        <div id="country-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">Town / City</label>
+                        <input type="text" name="city" value="<%= addressDocs.address[0].city %>" id="city"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your town/city">
+                        <div id="city-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-300 mb-1">Street Address</label>
+                        <input type="text" name="landMark" placeholder="House number and street name"
+                            value="<%= addressDocs.address[0].landMark %>" id="landMark"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white">
+                        <div id="landMark-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-300 mb-1">Postcode / ZIP *</label>
+                        <input type="text" name="pincode" value="<%= addressDocs.address[0].pincode %>" id="pincode"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your postcode/ZIP">
+                        <div id="pincode-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">Phone</label>
+                        <input type="text" name="phone" value="<%= addressDocs.address[0].phone %>" id="phone"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your phone number">
+                        <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                    </div>
+                    <div>
+                        <label class="block text-gray-300 mb-1">Alternative Phone</label>
+                        <input type="text" name="altPhone" value="<%= addressDocs.address[0].altPhone %>" id="altPhone"
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your alternative phone number">
+                        <div id="altPhone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                    </div>
+                    <div class="md:col-span-2 flex justify-center mt-4">
+                        <button type="submit" class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
+                            Edit Address
+                        </button>
+                    </div>
+                </form>
             </div>
 
         </div>
-        <script>
-            let isSubmitting = false;
-        
-            function handleFormSubmit(event) {
-                event.preventDefault();
-        
-                if (isSubmitting) return;
-                isSubmitting = true;
-        
-                if (!validateForm()) {
-                    isSubmitting = false;
-                    return false;
-                }
-        
-                event.target.submit();
+
+    </div>
+    <script>
+        let isSubmitting = false;
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+
+            if (isSubmitting) return;
+            isSubmitting = true;
+
+            if (!validateForm()) {
+                isSubmitting = false;
+                return false;
             }
-        
-            function validateForm() {
-                clearErrorMessages();
-                let isValid = true;
-        
-                const name = document.getElementById('name').value.trim();
-                if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
-                    displayErrorMessage("name-error", "Name should start with a capital letter and contain only alphabets");
-                    isValid = false;
-                }
-        
-                const state = document.getElementById('state').value.trim();
-                if (state.length < 2) {
-                    displayErrorMessage("state-error", "Please enter a valid state");
-                    isValid = false;
-                }
-        
-                const country = document.getElementById('country').value.trim();
-                if (country.length < 2) {
-                    displayErrorMessage("country-error", "Please enter a valid country");
-                    isValid = false;
-                }
-        
-                const city = document.getElementById('city').value.trim();
-                if (city.length < 2) {
-                    displayErrorMessage("city-error", "Please enter a valid city");
-                    isValid = false;
-                }
-        
-                const landMark = document.getElementById('landMark').value.trim();
-                if (landMark.length < 5) {
-                    displayErrorMessage("landMark-error", "Please enter a complete street address");
-                    isValid = false;
-                }
-        
-                const pincode = document.getElementById('pincode').value.trim();
-                if (!/^\d{6}$/.test(pincode)) {
-                    displayErrorMessage("pincode-error", "Please enter a valid 6-digit pincode");
-                    isValid = false;
-                }
-        
-                const phone = document.getElementById('phone').value.trim();
-                if (!/^\d{10}$/.test(phone)) {
-                    displayErrorMessage("phone-error", "Please enter a valid 10-digit phone number");
-                    isValid = false;
-                }
-        
-                const altPhone = document.getElementById('altPhone').value.trim();
-                if (altPhone && !/^\d{10}$/.test(altPhone)) {
-                    displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
-                    isValid = false;
-                }
-        
-                return isValid;
+
+            event.target.submit();
+        }
+
+        function validateForm() {
+            clearErrorMessages();
+            let isValid = true;
+
+            const name = document.getElementById('name').value.trim();
+            if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+                displayErrorMessage("name-error", "Name should start with a capital letter and contain only alphabets");
+                isValid = false;
             }
-        
-            function displayErrorMessage(elementId, message) {
-                const errorElement = document.getElementById(elementId);
-                errorElement.textContent = message;
-                errorElement.classList.remove("hidden");
+
+            const state = document.getElementById('state').value.trim();
+            if (state.length < 2) {
+                displayErrorMessage("state-error", "Please enter a valid state");
+                isValid = false;
             }
-        
-            function clearErrorMessages() {
-                const errorElements = document.querySelectorAll('[id$="-error"]');
-                errorElements.forEach(el => {
-                    el.textContent = "";
-                    el.classList.add("hidden");
-                });
+
+            const country = document.getElementById('country').value.trim();
+            if (country.length < 2) {
+                displayErrorMessage("country-error", "Please enter a valid country");
+                isValid = false;
             }
-        </script>
-        
-    </body>
+
+            const city = document.getElementById('city').value.trim();
+            if (city.length < 2) {
+                displayErrorMessage("city-error", "Please enter a valid city");
+                isValid = false;
+            }
+
+            const landMark = document.getElementById('landMark').value.trim();
+            if (landMark.length < 5) {
+                displayErrorMessage("landMark-error", "Please enter a complete street address");
+                isValid = false;
+            }
+
+            const pincode = document.getElementById('pincode').value.trim();
+            if (pincode === "") {
+                displayErrorMessage("pincode-error", "Pincode is required");
+                isValid = false;
+            } else if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+                displayErrorMessage("pincode-error", "Please enter a valid 6-digit Indian pincode");
+                isValid = false;
+            }
+
+            const phone = document.getElementById('phone').value.trim();
+            if (phone === "") {
+                displayErrorMessage("phone-error", "Phone number is required");
+                isValid = false;
+            } else if (!/^\d{10}$/.test(phone)) {
+                displayErrorMessage("phone-error", "Please enter a valid 10-digit phone number");
+                isValid = false;
+            } else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("phone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("phone-error", "All digits cannot be the same");
+                isValid = false;
+            }
+
+            const altPhone = document.getElementById('altPhone').value.trim();
+            if (altPhone && !/^\d{10}$/.test(altPhone)) {
+                displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
+                isValid = false;
+            } else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("altPhone-error", "All digits cannot be the same");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function displayErrorMessage(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.remove("hidden");
+        }
+
+        function clearErrorMessages() {
+            const errorElements = document.querySelectorAll('[id$="-error"]');
+            errorElements.forEach(el => {
+                el.textContent = "";
+                el.classList.add("hidden");
+            });
+        }
+    </script>
+
+</body>

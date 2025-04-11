@@ -41,36 +41,36 @@ const customerInfo = async (req, res) => {
     }
 };
 
-const customerBlocked = async (req, res) => {
+const customerBlocked = async (req, res,next) => {
     try {
         let id=req.query.id;
         await User.updateOne({_id:id},{$set:{isBlocked:true}});
         res.redirect("/admin/users")
     } catch (error) {
-        res.redirect('/pageError')
+        next(error)
     }
 }
-const customerUnblocked = async (req, res) => {
+const customerUnblocked = async (req, res,next) => {
     try {
         let id=req.query.id;
         await User.updateOne({_id:id},{$set:{isBlocked:false}})
         res.redirect('/admin/users')
     } catch (error) {
-        res.redirect('/pageError')
+        next(error)
     }
 }
-const addUser=async (req,res)=>{
+const addUser=async (req,res,next)=>{
     try {
         res.render('add-user')
     } catch (error) {
-        res.redirect('/pageError')
+        next(error)
     }
 }
-const editUser=async (req,res)=>{
+const editUser=async (req,res,next)=>{
     try {
         res.render('edit-user')
     } catch (error) {
-        res.redirect('/pageError')
+        next(error)
     }
 }
 

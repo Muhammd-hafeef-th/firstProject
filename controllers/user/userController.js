@@ -852,8 +852,6 @@ const verifyProfileUpdateOtp = async (req, res, next) => {
         updates.emailVerified = false; 
         await User.findByIdAndUpdate(req.user._id, updates);
 
-        // await sendEmailVerification(newEmail, req.user._id);
-
         delete req.session.profileUpdate;
 
         return res.json({ 

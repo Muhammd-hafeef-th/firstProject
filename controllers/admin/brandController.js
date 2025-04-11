@@ -1,6 +1,7 @@
 const Brand=require('../../models/brandSchema')
 const multer = require("multer");
 const path = require("path");
+const { nextTick } = require('process');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -14,7 +15,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-const brandInfo = async (req, res) => {
+const brandInfo = async (req, res,next) => {
     try {
         let Search = "";
         if (req.query.search) {
@@ -45,12 +46,12 @@ const brandInfo = async (req, res) => {
         });
     } catch (error) {
        
-        res.redirect("/pageError");
+       next(error)
     }
 };
 
 
-const addBrand = async (req, res) => {
+const addBrand = async (req, res,next) => {
     try {
         console.log("Request received");
 
@@ -119,8 +120,10 @@ const editBrandDetails = async (req, res) => {
         }
 
         const existingBrand = await Brand.findOne({ brandName: { $regex: new RegExp(`^${name}$`, "i") } });
+        const oldName=await Brand.findById({_id:brandId});
 
-        if (existingBrand) {
+
+        if (existingBrand && name !==oldName.brandName) {
             req.flash("error", "Brand already exists!");
             return res.redirect(`/admin/edit-brand?id=${brandId}`); 
         }

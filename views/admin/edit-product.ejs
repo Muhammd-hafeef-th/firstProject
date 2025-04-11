@@ -152,10 +152,10 @@
                             <!-- Colors -->
                             <div class="md:col-span-2">
                                 <label class="block mb-1">Colors:</label>
-                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">   
-                                        <input type="text" name="colors[]"
-                                            value="<%= product.color && product.color[0] ? product.color[0] : '' %>"
-                                            class="p-2 rounded bg-gray-700 border border-gray-600">
+                                <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                                    <input type="text" name="colors[]"
+                                        value="<%= product.color && product.color[0] ? product.color[0] : '' %>"
+                                        class="p-2 rounded bg-gray-700 border border-gray-600">
                                 </div>
                             </div>
 
@@ -219,8 +219,26 @@
                         const colors = document.querySelectorAll('input[name="colors[]"]');
                         const validColors = Array.from(colors).filter(color => color.value.trim() !== "");
 
+                        const imageInputs = [
+                            document.getElementById('imageUpload1'),
+                            document.getElementById('imageUpload2'),
+                            document.getElementById('imageUpload3')
+                        ];
+
                         let isValid = true;
 
+                        imageInputs.forEach((input, index) => {
+                            if (input.files.length > 0) {
+                                const file = input.files[0];
+
+
+                                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                                    displayErrorMessage("image-error", `Image ${index + 1}: Only JPG, PNG, or WEBP files are allowed`);
+                                    isValid = false;
+                                }
+
+                            }
+                        });
                         if (name === "") {
                             displayErrorMessage("name-error", "Please enter a name");
                             isValid = false;
@@ -235,6 +253,7 @@
                             displayErrorMessage("brand-error", "Please select a brand");
                             isValid = false;
                         }
+
 
                         if (category === "") {
                             displayErrorMessage("category-error", "Please enter the category");
@@ -362,6 +381,13 @@
 
                     function openCropper(event, index) {
                         const file = event.target.files[0];
+                        if (!file) return;
+
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                            displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                            event.target.value = ''; 
+                            return;
+                        }
                         if (file) {
                             const reader = new FileReader();
                             reader.onload = function (e) {

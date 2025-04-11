@@ -1,5 +1,6 @@
-<%- include('../../views/partials/user/header')%>
-<script src="https://cdn.tailwindcss.com"></script>
+<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+    <%- include('../../views/partials/user/header')%>
+</header><script src="https://cdn.tailwindcss.com"></script>
 
 <body class="bg-[#1F1F1F] text-white">
     <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
@@ -122,20 +123,38 @@
             }
 
             const pincode = document.getElementById('pincode').value.trim();
-            if (!/^\d{6}$/.test(pincode)) {
-                displayErrorMessage("pincode-error", "Please enter a valid 6-digit pincode");
+            if (pincode === "") {
+                displayErrorMessage("pincode-error", "Pincode is required");
+                isValid = false;
+            } else if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+                displayErrorMessage("pincode-error", "Please enter a valid 6-digit Indian pincode");
                 isValid = false;
             }
 
             const phone = document.getElementById('phone').value.trim();
-            if (!/^\d{10}$/.test(phone)) {
+            if (phone === "") {
+                displayErrorMessage("phone-error", "Phone number is required");
+                isValid = false;
+            } else if (!/^\d{10}$/.test(phone)) {
                 displayErrorMessage("phone-error", "Please enter a valid 10-digit phone number");
+                isValid = false;
+            } else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("phone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("phone-error", "All digits cannot be the same");
                 isValid = false;
             }
 
             const altPhone = document.getElementById('altPhone').value.trim();
             if (altPhone && !/^\d{10}$/.test(altPhone)) {
-                displayErrorMessage("altPhone-error", "Please enter a valid 10-digit phone number or leave blank");
+                displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
+                isValid = false;
+            }else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("altPhone-error", "All digits cannot be the same");
                 isValid = false;
             }
 

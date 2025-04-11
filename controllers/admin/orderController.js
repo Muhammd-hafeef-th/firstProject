@@ -1,9 +1,10 @@
 const Order=require('../../models/orderSchema');
 const User=require('../../models/userSchema')
 const Address=require('../../models/adressSchema')
+const Wallet=require('../../models/walletSchema')
 
 
-const orders = async (req, res) => {
+const orders = async (req, res,next) => {
   try {
     const search = req.query.search?.toLowerCase() || '';
     const page = parseInt(req.query.page) || 1;
@@ -27,12 +28,11 @@ const orders = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Server error');
+    next(err)
   }
 };
 
-const orderDetails=async(req,res)=>{
+const orderDetails=async(req,res,next)=>{
     try {
         const orderId=req.query.orderId;
         const order = await Order.findOne({ orderId: orderId })
@@ -52,7 +52,7 @@ const orderDetails=async(req,res)=>{
 
         res.render('admin-order-details',{order:order,selectedAddress:selectedAddress});
     } catch (error) {
-        console.log(error)
+        next(error)
     }
 }
 
@@ -60,7 +60,6 @@ const changeStatus = async (req, res) => {
     try {
         const status = req.body.status; 
         const orderId = req.query.orderId;
-        console.log(status,orderId)
 
         await Order.findOneAndUpdate(
             { orderId: orderId },
@@ -73,16 +72,64 @@ const changeStatus = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 };
-const returnAction=async(req,res)=>{
+const returnAction = async (req, res) => {
     try {
-        const {action,orderId}=req.body;
-        const order = await Order.findOne({ orderId });
+        const { action, orderId } = req.body;
+        
+        const order = await Order.findOne({ orderId }).populate('user');
+        if (!order) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Order not found' 
+            });
+        }
+
         if (action === 'accept') {
             order.status = 'Returned';
+            const refundAmount = order.finalAmount;
+
+            const wallet = await Wallet.findOneAndUpdate(
+                { 'user.email': order.user.email },
+                {
+                    $inc: { balance: refundAmount },
+                    $setOnInsert: { 
+                        user: {
+                            username: order.user.firstname,
+                            email: order.user.email,
+                            password: order.user.password
+                        },
+                        currency: 'USD',
+                        status: 'active',
+                        transactions: []
+                    }
+                },
+                {
+                    upsert: true,
+                    new: true,
+                    setDefaultsOnInsert: true
+                }
+            );
+
+           
+            await Wallet.findByIdAndUpdate(wallet._id, {
+                $push: {
+                    transactions: {
+                        amount: refundAmount,
+                        type: 'refund',
+                        description: `Order Return #${orderId}`,
+                        status: 'completed',
+                        date: new Date(),
+                        counterparty: order.merchantName || 'System',
+                        referenceId: orderId
+                    }
+                }
+            });
+
         } else {
             order.status = 'Return Rejected';
         }
 
+    
         await order.save();
 
         res.status(200).json({
@@ -91,7 +138,6 @@ const returnAction=async(req,res)=>{
             order
         });
 
-
     } catch (error) {
         console.error('Error handling return action:', error);
         res.status(500).json({
@@ -99,7 +145,7 @@ const returnAction=async(req,res)=>{
             message: 'Internal server error'
         });
     }
-}
+};
 
 module.exports={
     orders,

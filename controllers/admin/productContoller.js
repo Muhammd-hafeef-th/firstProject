@@ -5,13 +5,12 @@ const path = require("path");
 const multer = require('multer')
 const Brand = require("../../models/brandSchema")
 
-const productInfo = async (req, res) => {
+const productInfo = async (req, res,next) => {
     try {
         let Search = "";
         if (req.query.search) {
             Search = req.query.search;
         }
-
         const page = parseInt(req.query.page) || 1
         const limit = 5;
         const skip = (page - 1) * limit;
@@ -34,18 +33,16 @@ const productInfo = async (req, res) => {
             totalProduct: totalProduct
         });
     } catch (error) {
-        console.log("Something error in brandinfo", error)
-        res.redirect("/pageError")
+        next(error)
     }
 }
 
-const addProduct = async (req, res) => {
+const addProduct = async (req, res,next) => {
     const brand= await Brand.find({})
     try {
         res.render('add-product',{brand:brand})
     } catch (error) {
-        console.log("something error in adding product")
-        res.status(500).json({ error: "Internal Server Error" });
+        next(error)
     }
 }
 const addProductItem = async (req, res) => {
@@ -101,7 +98,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-const editProduct = async (req, res) => {
+const editProduct = async (req, res,next) => {
     const brand=await Brand.find({})
     try {
         const productId = req.query.id;
@@ -114,8 +111,7 @@ const editProduct = async (req, res) => {
         }
         res.render("edit-product", { product,brand:brand });
     } catch (error) {
-        console.error("Error fetching product:", error);
-        res.status(500).send("Internal Server Error");
+        next(error)
     }
 };
 

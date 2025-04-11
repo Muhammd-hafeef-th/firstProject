@@ -61,12 +61,17 @@ app.use("/", userRouter);
 app.use('/admin', adminRouter);
 
 app.use((err, req, res, next) => {
-    console.error(" Error:", err.stack);
+    console.error("Error:", err.stack);
+    if (req.originalUrl.startsWith('/admin')) {
+        return res.redirect('/admin/pageError'); 
+    }
     if (req.xhr || req.headers.accept.includes('json')) {
         return res.status(500).json({ success: false, message: "Something went wrong." });
     }
+
     res.status(500).render("page-404", { message: "Something went wrong!" });
 });
+
 
 
 app.listen(process.env.PORT, () => {

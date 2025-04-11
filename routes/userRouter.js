@@ -8,6 +8,7 @@ const checkoutController=require('../controllers/user/checkoutController')
 const multer = require("multer");
 const path=require('path')
 const orderController=require('../controllers/user/orderController')
+const walletController=require('../controllers/user/walletController')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -144,6 +145,10 @@ router.get('/order-details',orderController.orderDetails)
 router.post('/cancel-order',orderController.cancelOrder)
 router.get('/download-invoice/:orderId',orderController.downloadInvoice)
 router.post('/submit-return',orderController.returnOrder)
+
+//wallet management
+
+router.get('/wallet',walletController.getWallet)
 
 
 module.exports = router;

@@ -99,7 +99,8 @@
                                 </div>
                                 <div>
                                     <label class="block mb-1">Brand:</label>
-                                    <select name="brand" id="brand" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                                    <select name="brand" id="brand"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
                                         <option value="">Select a brand</option>
                                         <% brand.forEach(watch=> { %>
                                             <option value="<%= watch.brandName %>">
@@ -109,7 +110,7 @@
                                     </select>
                                     <div id="brand-error" class="error-message"></div>
                                 </div>
-                                
+
                                 <div>
                                     <label class="block mb-1">Category:</label>
                                     <input type="text" name="category" placeholder="gents/ladies/couples" id="category"
@@ -222,6 +223,8 @@
                     formData.append("brand", document.getElementById("brand").value);
                     formData.append("category", document.getElementById("category").value);
                     formData.append("amount", document.getElementById("amount").value);
+                    formData.append("discount", document.getElementById("discount").value);
+                    formData.append("shiping-charge", document.getElementById("shiping-charge").value);
                     formData.append("salesAmount", document.getElementById('salesAmount').value);
                     formData.append("stock", document.getElementById("stock").value);
                     formData.append("images", document.getElementById("imageUpload1").files[0]);
@@ -301,16 +304,41 @@
                         displayErrorMessage("name-error", "Product name should start with a capital letter and contain only alphabets");
                         isValid = false;
                     }
+                    if (!categoryMatch.test(category)) {
+                        displayErrorMessage("category-error", "Category must be either 'gents', 'ladies', or 'couples'");
+                        isValid = false;
+                    }
 
                     if (description === "") {
                         displayErrorMessage("description-error", "Please enter a description");
                         isValid = false;
+                    } else if (description.length < 10) {
+                        displayErrorMessage("description-error", "Description should be at least 10 characters long");
+                        isValid = false;
+                    }
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+                    function isImageValid(file) {
+                        return file && allowedTypes.includes(file.type);
                     }
 
                     if (!(image1 && image2 && image3)) {
                         displayErrorMessage("image-error", "Please upload exactly three images.");
                         isValid = false;
+                    } else if (![image1, image2, image3].every(isImageValid)) {
+                        displayErrorMessage("image-error", "Only jpg, jpeg, png, and webp files are allowed.");
+                        isValid = false;
                     }
+
+                    if (amount === "" || isNaN(amount) || amount <= 0) {
+                        displayErrorMessage("amount-error", "Enter a valid amount greater than 0");
+                        isValid = false;
+                    }
+
+                    if (stock === "" || !Number.isInteger(Number(stock)) || stock < 0) {
+                        displayErrorMessage("stock-error", "Enter a valid stock quantity (0 or more)");
+                        isValid = false;
+                    }
+
 
                     return isValid;
                 }
@@ -357,7 +385,7 @@
                     handleFileInput("imageUpload2", "preview2");
                     handleFileInput("imageUpload3", "preview3");
                 });
-                
+
                 const imageInputs = [
                     document.getElementById("imageUpload1"),
                     document.getElementById("imageUpload2"),
@@ -381,6 +409,13 @@
                     input.addEventListener("change", function (event) {
                         const file = event.target.files[0];
                         if (!file) return;
+
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                            displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                            event.target.value = ''; 
+                            return;
+                        }
+
 
                         selectedFileIndex = index;
                         const reader = new FileReader();

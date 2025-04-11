@@ -20,7 +20,7 @@
 
 <body class="bg-gray-900 text-white">
     <%- include('../../views/partials/admin/navbar') %>
-        <div class="flex">  
+        <div class="flex">
             <%- include('../../views/partials/admin/sidebar') %>
                 <div class="container mx-auto p-4 md:p-6">
                     <div class="max-w-4xl mx-auto bg-gray-800 p-4 rounded-lg shadow-lg">
@@ -28,7 +28,7 @@
                         <form enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)"
                             class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
 
-                            
+
                             <div class="col-span-1 flex flex-col items-center">
                                 <label class="block text-sm font-medium mb-2">Add Image:</label>
                                 <div
@@ -43,7 +43,7 @@
                                 <div id="image-error" class="error-message"></div>
                             </div>
 
-                    
+
                             <div class="col-span-2 grid grid-cols-1 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium">Brand Name:</label>
@@ -60,7 +60,7 @@
                                 </div>
                             </div>
 
-              
+
                             <div class="col-span-3 flex justify-center">
                                 <button type="submit" id="submitButton"
                                     class="bg-green-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-green-500 transition">
@@ -136,7 +136,7 @@
                 clearErrorMessage();
                 const name = document.getElementById('name').value.trim();
                 const description = document.getElementById('description').value.trim();
-                const image = document.getElementById('fileInput').files[0];  
+                const image = document.getElementById('fileInput').files[0];
                 let isValid = true;
 
                 if (name === "" || !/^[A-Z][a-zA-Z\s]*$/.test(name)) {
@@ -147,9 +147,18 @@
                     showError("description-error", "Please enter a description");
                     isValid = false;
                 }
-                if (!image) { 
+                if (!image) {
                     showError("image-error", "Please upload an image");
                     isValid = false;
+                } else {
+                    
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                    if (!allowedTypes.includes(image.type)) {
+                        showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
+                       
+                        document.getElementById('fileInput').value = '';
+                        isValid = false;
+                    }
                 }
                 return isValid;
             }
@@ -169,6 +178,13 @@
 
             function loadImage(event) {
                 const file = event.target.files[0];
+                if (!file) return;
+
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                    displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                    event.target.value = '';
+                    return;
+                }
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function (e) {

@@ -1,51 +1,104 @@
-<%- include('../../views/partials/user/header')%>
+<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+    <%- include('../../views/partials/user/header')%>
+</header>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <body class="bg-[#1F1F1F] text-white">
     <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-        <div class="w-full md:w-1/4 bg-black p-6 m-4 rounded-xl flex flex-col md:h-screen">
-            <h2 class="text-lg font-bold mb-4">SETTINGS</h2>
-            <ul>
-                <li class="mb-2 text-gray-400"><a href="/profile">Personal Info</a></li>
-                <li class="mb-2 text-gray-400 hover:text-white">Orders</li>
-                <li class="mb-2  text-[#88903F] hover:text-white"><a href="/address">Address</a></li>
-                <li class="mb-2 text-gray-400 hover:text-white">Wallet</li>
-                <% if (!userDatas || Object.keys(userDatas).length===0) { %>
-                    <button class="mt-10 bg-orange-500 w-full py-2  rounded"><a href="/login">Login</a></button>
-                    <% } %>
+        <div class="w-full md:w-64 bg-[#1F1F1F] p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
+            <h2 class="text-xl font-bold mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
+            <ul class="space-y-3">
+                <li>
+                    <a href="/profile" class="flex items-center p-2 rounded-lg hover:bg-[#333] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Personal Info
+                    </a>
+                </li>
+                <li>
+                    <a href="/orders" class="flex items-center p-2 rounded-lg hover:bg-[#333] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Orders
+                    </a>
+                </li>
+                <li>
+                    <a href="/address" class="flex items-center p-2 rounded-lg bg-[#333] text-[#88903F]">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Address
+                    </a>
+                </li>
+                <li>
+                    <a href="/wallet" class="flex items-center p-2 rounded-lg hover:bg-[#333] transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Wallet
+                    </a>
+                </li>
             </ul>
-            <% if (userDatas && Object.keys(userDatas).length> 0) { %>
-                <button class="bg-orange-500 w-full py-2 mt-auto rounded"><a href="/logout">Logout</a></button>
-                <% } %>
+
+            <div class="mt-10 border-t border-[#333] pt-6">
+                <% if (!userDatas || Object.keys(userDatas).length===0) { %>
+                    <a href="/login"
+                        class="block w-full bg-[#88903F] hover:bg-[#a0a84f] text-white py-2 px-4 rounded-lg text-center transition-colors">
+                        Login
+                    </a>
+                    <% } else { %>
+                        <a href="/logout"
+                            class="block w-full bg-[#333] hover:bg-[#444] text-white py-2 px-4 rounded-lg text-center transition-colors">
+                            Logout
+                        </a>
+                        <% } %>
+            </div>
         </div>
         <div class="flex-1 flex justify-center p-4 md:p-10">
             <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">ADD ADDRESS</h2>
                 </div>
-                <form action="/add-address" method="POST" onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <form action="/add-address" method="POST" onsubmit="return handleFormSubmit(event)"
+                    class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-gray-300 mb-1">Name</label>
                         <input type="text" name="name" id="name"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your name">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your name">
                         <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div>
                         <label class="block text-gray-300 mb-1">State</label>
                         <input type="text" name="state" id="state"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your state">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your state">
                         <div id="state-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div>
                         <label class="block text-gray-300 mb-1">Country</label>
                         <input type="text" name="country" id="country"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your country">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your country">
                         <div id="country-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div>
                         <label class="block text-gray-300 mb-1">Town / City</label>
                         <input type="text" name="city" id="city"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your town/city">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your town/city">
                         <div id="city-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div class="md:col-span-2">
@@ -57,23 +110,27 @@
                     <div>
                         <label class="block text-gray-300 mb-1">Postcode / ZIP *</label>
                         <input type="text" name="pincode" id="pincode"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your postcode/ZIP">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your postcode/ZIP">
                         <div id="pincode-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div>
                         <label class="block text-gray-300 mb-1">Phone</label>
                         <input type="text" name="phone" id="phone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your phone number">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your phone number">
                         <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div>
                         <label class="block text-gray-300 mb-1">Alternative Phone</label>
                         <input type="text" name="altPhone" id="altPhone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your alternative phone number">
+                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            placeholder="Enter your alternative phone number">
                         <div id="altPhone-error" class="text-red-500 text-sm mt-1 hidden"></div>
                     </div>
                     <div class="md:col-span-2 flex justify-center mt-4">
-                        <button type="submit" id="submitButton" class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
+                        <button type="submit" id="submitButton"
+                            class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
                             Add Address
                         </button>
                     </div>
@@ -137,20 +194,38 @@
             }
 
             const pincode = document.getElementById('pincode').value.trim();
-            if (!/^\d{6}$/.test(pincode)) {
-                displayErrorMessage("pincode-error", "Please enter a valid 6-digit pincode");
+            if (pincode === "") {
+                displayErrorMessage("pincode-error", "Pincode is required");
+                isValid = false;
+            } else if (!/^[1-9][0-9]{5}$/.test(pincode)) {
+                displayErrorMessage("pincode-error", "Please enter a valid 6-digit Indian pincode");
                 isValid = false;
             }
 
             const phone = document.getElementById('phone').value.trim();
-            if (!/^\d{10}$/.test(phone)) {
+            if (phone === "") {
+                displayErrorMessage("phone-error", "Phone number is required");
+                isValid = false;
+            } else if (!/^\d{10}$/.test(phone)) {
                 displayErrorMessage("phone-error", "Please enter a valid 10-digit phone number");
+                isValid = false;
+            } else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("phone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("phone-error", "All digits cannot be the same");
                 isValid = false;
             }
 
             const altPhone = document.getElementById('altPhone').value.trim();
             if (altPhone && !/^\d{10}$/.test(altPhone)) {
                 displayErrorMessage("altPhone-error", "Please enter a valid 10-digit phone number or leave blank");
+                isValid = false;
+            } else if (!/^[6-9]/.test(phone)) {
+                displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
+                isValid = false;
+            } else if (/^(\d)\1{9}$/.test(phone)) {
+                displayErrorMessage("altPhone-error", "All digits cannot be the same");
                 isValid = false;
             }
 
