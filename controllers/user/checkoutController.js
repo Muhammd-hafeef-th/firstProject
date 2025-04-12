@@ -280,87 +280,124 @@ const proceedPayment = async (req, res, next) => {
 
 const choosePayment = async (req, res, next) => {
     try {
-        const body = req.body.payment;
-        const id = req.session.user?._id || req.session.user;
+        const paymentMethod = req.body.payment;
+        const userId = req.session.user?._id || req.session.user;
+        
+        if (!['cod', 'paypal', 'wallet'].includes(paymentMethod)) {
+            return res.status(400).redirect('/cart?error=Invalid payment method');
+        }
 
-        const userCart = await Cart.findOne({ userId: id })
+        const userCart = await Cart.findOne({ userId })
             .populate({
                 path: 'items.productId',
                 model: 'Product'
             }) || { items: [] };
 
-        const cartItems = userCart.items || [];
-
-        let subtotal = cartItems.reduce((total, item) => {
-            return total + (item.productId.regularPrice * item.quantity);
-        }, 0);
-
-        let discount = cartItems.reduce((total, item) => {
-            return total + (item.productId.discount * item.quantity);
-        }, 0);
-
-        let shipingCharge = cartItems.reduce((total, item) => {
-            total += item.productId.shipingCharge;
-            return total;
-        }, 0);
-
-        const finalAmount = subtotal - discount + shipingCharge;
-
-        const addressDocs = await Address.find({ userId: id });
-        let allAddresses = [];
-
-        addressDocs.forEach(doc => {
-            allAddresses.push(...doc.address.map(addr => ({
-                ...addr.toObject(),
-                _id: addr._id
-            })));
-        });
-
-        allAddresses.sort((a, b) => {
-            if (a.position !== undefined && b.position !== undefined) {
-                return a.position - b.position;
-            }
-            return a.createdAt - b.createdAt;
-        });
-        const selectedAddress = allAddresses[0];
-
-        if (body === 'cod') {
-            const orderItems = cartItems.map(item => ({
-                product: item.productId._id,
-                quantity: item.quantity,
-                price: item.productId.regularPrice
-            }));
-
-            const newOrder = new Order({
-                user:id,
-                orderItems: orderItems,
-                totalPrice: subtotal,
-                discount: discount,
-                finalAmount: finalAmount,
-                address: selectedAddress._id,
-                invoiceDate: new Date(),
-                status: 'Pending',
-                couponApplied: false
-            });
-
-            await newOrder.save();
-            for (const item of orderItems) {
-                await Product.findByIdAndUpdate(item.product, {
-                    $inc: { quantity: -item.quantity }
-                });
-            }
-
-            await Cart.deleteOne({ userId: id });
-
-            res.render('paymentSuccess',{newOrder,selectedAddress});
-        } else {
-            res.redirect('/pageNotFound');
+        if (!userCart?.items?.length) {
+            return res.redirect('/cart?error=Cart is empty');
         }
 
+        const { subtotal, discount, shippingCharge } = userCart.items.reduce((acc, item) => {
+            const product = item.productId;
+            acc.subtotal += product.regularPrice * item.quantity;
+            acc.discount += product.discount * item.quantity;
+            acc.shippingCharge += product.shipingCharge * item.quantity;
+            return acc;
+        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+
+        const finalAmount = subtotal - discount + shippingCharge;
+
+        const addressDoc = await Address.findOne({ userId });
+        const selectedAddress = addressDoc?.address?.[0];
+        
+        if (!selectedAddress) {
+            return res.redirect('/checkout?error=No shipping address found');
+        }
+
+        const orderItems = userCart.items.map(item => ({
+            product: item.productId._id,
+            quantity: item.quantity,
+            price: item.productId.regularPrice
+        }));
+
+        const newOrder = new Order({
+            user: userId,
+            orderItems,
+            totalPrice: subtotal,
+            discount,
+            finalAmount,
+            address: selectedAddress._id,
+            paymentMethod: {
+                type: paymentMethod,
+                details: {} 
+            },
+            paymentStatus: 'pending',
+            status: 'Pending'
+        });
+
+        switch(paymentMethod) {
+            case 'cod':
+                newOrder.paymentStatus = 'completed';
+                await newOrder.save();
+                break;
+
+            case 'paypal':
+                const paypalPayment = await createPayPalPayment(finalAmount);
+                
+                newOrder.paymentMethod.details = {
+                    paymentId: paypalPayment.id,
+                    approvalUrl: paypalPayment.links.find(l => l.rel === 'approval_url').href
+                };
+                await newOrder.save();
+                
+                return res.redirect(paypalPayment.links.find(l => l.rel === 'approval_url').href);
+
+            case 'wallet':
+                const userWallet = await Wallet.findOne({ user: userId });
+                
+                if (!userWallet || userWallet.balance < finalAmount) {
+                    return res.redirect('/checkout?error=Insufficient wallet balance');
+                }
+
+                userWallet.balance -= finalAmount;
+                await userWallet.save();
+
+                newOrder.paymentStatus = 'completed';
+                newOrder.paymentMethod.details = {
+                    walletTransaction: `WALLET-${nanoid()}`,
+                    previousBalance: userWallet.balance + finalAmount,
+                    newBalance: userWallet.balance
+                };
+                await newOrder.save();
+                break;
+
+            default:
+                throw new Error('Invalid payment method');
+        }
+
+        await Promise.all(orderItems.map(item => 
+            Product.findByIdAndUpdate(item.product, { 
+                $inc: { quantity: -item.quantity } 
+            })
+        ));
+
+        await Cart.deleteOne({ userId });
+
+        res.render('paymentSuccess', { 
+            newOrder,
+            selectedAddress,
+            paymentMethod
+        });
+
     } catch (error) {
-        next(error)
+        if (error.message.includes('PAYPAL')) {
+            await Order.deleteOne({ _id: newOrder._id });
+            return res.redirect('/checkout?error=Payment processing failed');
+        }
+        
+        next(error);
     }
-}
+};
 
 
 

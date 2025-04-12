@@ -9,7 +9,7 @@ const orders = async (req, res,next) => {
     const search = req.query.search?.toLowerCase() || '';
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-    let orders = await Order.find().populate('user').sort({ createdAt: -1 });
+    let orders = await Order.find().populate('user').sort({ invoiceDate: -1 });
     if (search) {
       orders = orders.filter(order =>
         order.orderId.toLowerCase().includes(search) ||
@@ -76,7 +76,7 @@ const returnAction = async (req, res) => {
     try {
         const { action, orderId } = req.body;
         
-        const order = await Order.findOne({ orderId }).populate('user');
+        const order = await Order.findOne({ orderId }).populate('user').populate('orderItems.product')
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
@@ -127,6 +127,11 @@ const returnAction = async (req, res) => {
 
         } else {
             order.status = 'Return Rejected';
+        }
+        for (const item of order.orderItems) {
+            const product = item.product;
+            product.quantity += item.quantity;
+            await product.save();
         }
 
     

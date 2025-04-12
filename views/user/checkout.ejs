@@ -1,294 +1,302 @@
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
     <%- include('../../views/partials/user/header')%>
 </header>
-    <!DOCTYPE html>
-    <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Checkout</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-            rel="stylesheet">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <style>
-            body {
-                font-family: 'Inter', sans-serif;
-            }
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
 
-            .address-card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            }
+        .address-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
 
-            .selected-address {
-                border-color: #f59e0b;
-                background-color: rgba(245, 158, 11, 0.05);
-            }
+        .selected-address {
+            border-color: #f59e0b;
+            background-color: rgba(245, 158, 11, 0.05);
+        }
 
-            .product-card:hover {
-                background-color: rgba(31, 41, 55, 0.5);
-            }
-        </style>
-    </head>
+        .product-card:hover {
+            background-color: rgba(31, 41, 55, 0.5);
+        }
+    </style>
+</head>
 
-    <body class="bg-[#1F1F1F] text-gray-100 min-h-screen">
-        <div class="container mx-auto px-4 py-8 max-w-7xl">
-            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-3"></div>
-            <div class="relative flex justify-center items-center mb-6">
-                <h2 class="text-white text-2xl font-sans">CHECKOUT</h2>
-            </div>
+<body class="bg-[#1F1F1F] text-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-3"></div>
+        <div class="relative flex justify-center items-center mb-6">
+            <h2 class="text-white text-2xl font-sans">CHECKOUT</h2>
+        </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 space-y-8">
-                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-xl font-semibold text-yellow-400">SELECT ADDRESS</h3>
-                            <a href="/addAddressCheckout"
-                                class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
-                                + Add New Address
-                            </a>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <% if (addresses && addresses.length> 0) { %>
-                                <% addresses.forEach((address, index)=> { %>
-                                    <div
-                                        class="address-card <%= index === 0 ? 'selected-address border-2 border-yellow-400' : 'border-2 border-gray-700' %> bg-gray-750 p-4 rounded-lg transition-all duration-300 cursor-pointer">
-
-                                        <% if (index===0) { %>
-                                            <div class="flex items-start mb-2">
-                                                <span
-                                                    class="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full mr-2">Default</span>
-                                                <p class="font-medium text-white">
-                                                    <%= address.name %>
-                                                </p>
-                                            </div>
-                                            <% } else { %>
-                                                <p class="font-medium text-white mb-2">
-                                                    <%= address.name %>
-                                                </p>
-                                                <% } %>
-
-                                                    <p class="text-sm text-gray-300 mb-1">
-                                                        <%= address.landMark %>
-                                                    </p>
-                                                    <p class="text-sm text-gray-300">
-                                                        <%= address.city %>, <%= address.state %>
-                                                    </p>
-                                                    <p class="text-sm text-gray-300 mb-3">
-                                                        <%= address.country %> - <%= address.pincode %>
-                                                    </p>
-                                                    <p class="text-sm text-gray-300">Phone: <%= address.phone %>
-                                                    </p>
-
-                                                    <div class="flex gap-2 mt-4">
-                                                        <% if (index !== 0) { %>
-                                                            <form method="POST" action="/setDefaultAddress/<%= address._id %>" class="set-default-form">
-                                                                <button type="submit"
-                                                                    class="w-20 h-9 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg font-medium transition">
-                                                                    Set Default
-                                                                </button>
-                                                            </form>
-                                                        <% } %>
-                                                    
-                                                        <a href="/editAddress-checkout?id=<%= address._id %>"
-                                                            class="w-28 h-9 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded-lg font-medium transition flex items-center justify-center">
-                                                            Edit
-                                                        </a>
-                                                    </div>
-                                                    
-
-                                    </div>
-                                    <% }); %>
-                                        <% } else { %>
-                                            <div class="col-span-3 text-center py-4">
-                                                <p class="text-gray-400">No addresses found. Please add an address to
-                                                    continue.</p>
-                                                <a href="/addAddressCheckout"
-                                                    class="mt-2 inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium">
-                                                    Add Address
-                                                </a>
-                                            </div>
-                                            <% } %>
-
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-semibold text-yellow-400">SELECT ADDRESS</h3>
+                        <a href="/addAddressCheckout"
+                            class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                            + Add New Address
+                        </a>
                     </div>
 
-                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                        <h4 class="text-lg font-semibold text-yellow-400 mb-3">DELIVERY INFORMATION</h4>
-                        <div class="flex items-center gap-4">
-                            <div class="bg-gray-750 p-3 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-400">Estimated Delivery</p>
-                                <p class="font-medium">
-                                    18/3/2222
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                        <h4 class="text-lg font-semibold text-yellow-400 mb-6">YOUR ORDER</h4>
-
-                        <div class="space-y-4">
-                            <% cartItems.forEach(item=> { %>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <% if (addresses && addresses.length> 0) { %>
+                            <% addresses.forEach((address, index)=> { %>
                                 <div
-                                    class="product-card flex items-center gap-4 p-4 rounded-lg transition-all duration-200">
-                                    <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
-                                        class="w-16 h-16 object-cover rounded-lg" />
-                                    <div class="flex-1">
-                                        <h5 class="font-medium">
-                                            <%= item.productId.productName %>
-                                        </h5>
-                                        <p class="text-sm text-gray-400">
-                                            <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% }
-                                                        %>
-                                                        Qty: <%= item.quantity %>
-                                        </p>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-white font-medium">$<%= (item.productId.salePrice *
-                                                item.quantity).toFixed(2) %>
-                                        </p>
-                                        <% if (item.productId.regularPrice) { %>
-                                            <p class="text-xs text-gray-500 line-through">$<%=
-                                                    (item.productId.regularPrice * item.quantity).toFixed(2) %>
+                                    class="address-card <%= index === 0 ? 'selected-address border-2 border-yellow-400' : 'border-2 border-gray-700' %> bg-gray-750 p-4 rounded-lg transition-all duration-300 cursor-pointer">
+
+                                    <% if (index===0) { %>
+                                        <div class="flex items-start mb-2">
+                                            <span
+                                                class="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full mr-2">Default</span>
+                                            <p class="font-medium text-white">
+                                                <%= address.name %>
+                                            </p>
+                                        </div>
+                                        <% } else { %>
+                                            <p class="font-medium text-white mb-2">
+                                                <%= address.name %>
                                             </p>
                                             <% } %>
-                                    </div>
+
+                                                <p class="text-sm text-gray-300 mb-1">
+                                                    <%= address.landMark %>
+                                                </p>
+                                                <p class="text-sm text-gray-300">
+                                                    <%= address.city %>, <%= address.state %>
+                                                </p>
+                                                <p class="text-sm text-gray-300 mb-3">
+                                                    <%= address.country %> - <%= address.pincode %>
+                                                </p>
+                                                <p class="text-sm text-gray-300">Phone: <%= address.phone %>
+                                                </p>
+
+                                                <div class="flex gap-2 mt-4">
+                                                    <% if (index !==0) { %>
+                                                        <form method="POST"
+                                                            action="/setDefaultAddress/<%= address._id %>"
+                                                            class="set-default-form">
+                                                            <button type="submit"
+                                                                class="w-20 h-9 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg font-medium transition">
+                                                                Set Default
+                                                            </button>
+                                                        </form>
+                                                        <% } %>
+
+                                                            <a href="/editAddress-checkout?id=<%= address._id %>"
+                                                                class="w-28 h-9 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded-lg font-medium transition flex items-center justify-center">
+                                                                Edit
+                                                            </a>
+                                                </div>
+
+
                                 </div>
                                 <% }); %>
+                                    <% } else { %>
+                                        <div class="col-span-3 text-center py-4">
+                                            <p class="text-gray-400">No addresses found. Please add an address to
+                                                continue.</p>
+                                            <a href="/addAddressCheckout"
+                                                class="mt-2 inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium">
+                                                Add Address
+                                            </a>
+                                        </div>
+                                        <% } %>
+
+                    </div>
+                </div>
+
+                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                    <h4 class="text-lg font-semibold text-yellow-400 mb-3">DELIVERY INFORMATION</h4>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-gray-750 p-3 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Estimated Delivery</p>
+                            <p class="font-medium" id="deliveryDate">
+
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg h-fit sticky top-6">
-                    <h4 class="text-xl font-semibold text-center text-yellow-400 mb-6">ORDER SUMMARY</h4>
+                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
+                    <h4 class="text-lg font-semibold text-yellow-400 mb-6">YOUR ORDER</h4>
 
-                    <div class="space-y-3 text-sm mb-6">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item)=> total +
-                                    item.quantity, 0) %> items)</span>
-                            <span>$<%= subtotal.toFixed(2) %></span>
-                        </div>
-                    
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Shipping</span>
-                            <span class="text-white">$<%=shipingCharge%>
+                    <div class="space-y-4">
+                        <% cartItems.forEach(item=> { %>
+                            <div
+                                class="product-card flex items-center gap-4 p-4 rounded-lg transition-all duration-200">
+                                <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
+                                    class="w-16 h-16 object-cover rounded-lg" />
+                                <div class="flex-1">
+                                    <h5 class="font-medium">
+                                        <%= item.productId.productName %>
+                                    </h5>
+                                    <p class="text-sm text-gray-400">
+                                        <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% } %>
+                                                    Qty: <%= item.quantity %>
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-white font-medium">$<%= (item.productId.salePrice *
+                                            item.quantity).toFixed(2) %>
+                                    </p>
+                                    <% if (item.productId.regularPrice) { %>
+                                        <p class="text-xs text-gray-500 line-through">$<%= (item.productId.regularPrice
+                                                * item.quantity).toFixed(2) %>
+                                        </p>
+                                        <% } %>
+                                </div>
+                            </div>
+                            <% }); %>
+                    </div>
+                </div>
+            </div>
 
-                            </span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Tax</span>
-                            <span class="text-white">$0</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400">Discount</span>
-                            <span class="text-green-400">-$<%=discount%></span>
-                        </div>
+            <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg h-fit sticky top-6">
+                <h4 class="text-xl font-semibold text-center text-yellow-400 mb-6">ORDER SUMMARY</h4>
+
+                <div class="space-y-3 text-sm mb-6">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item)=> total +
+                                item.quantity, 0) %> items)</span>
+                        <span>$<%= subtotal.toFixed(2) %></span>
                     </div>
 
-                    <hr class="border-gray-700 my-4" />
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Shipping</span>
+                        <span class="text-white">$<%=shipingCharge%>
 
-                    <div class="flex justify-between text-lg font-bold mb-6">
-                        <span>Total</span>
-                        <span>$<%= (subtotal - discount + shipingCharge + 0).toFixed(2) %></span>
+                        </span>
                     </div>
-
-                    <form action="/proceed-payment" method="get">
-                        <button type="submit"
-                            class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                            PROCEED TO PAYMENT
-                        </button>
-                    </form>
-
-                    <div class="mt-4 text-xs text-gray-500 text-center">
-                        <p>By placing your order, you agree to our <a href="#"
-                                class="text-yellow-400 hover:underline">Terms of Service</a></p>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Tax</span>
+                        <span class="text-white">$0</span>
                     </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Discount</span>
+                        <span class="text-green-400">-$<%=discount%></span>
+                    </div>
+                </div>
+
+                <hr class="border-gray-700 my-4" />
+
+                <div class="flex justify-between text-lg font-bold mb-6">
+                    <span>Total</span>
+                    <span>$<%= (subtotal - discount + shipingCharge + 0).toFixed(2) %></span>
+                </div>
+
+                <form action="/proceed-payment" method="get">
+                    <button type="submit"
+                        class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        PROCEED TO PAYMENT
+                    </button>
+                </form>
+
+                <div class="mt-4 text-xs text-gray-500 text-center">
+                    <p>By placing your order, you agree to our <a href="#" class="text-yellow-400 hover:underline">Terms
+                            of Service</a></p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
+    <script>
 
-            document.querySelectorAll('.set-default-form').forEach(form => {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
+        document.querySelectorAll('.set-default-form').forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-                    try {
-                        const result = await Swal.fire({
-                            title: 'Set as Default Address?',
-                            text: "This will be your primary shipping address",
-                            icon: 'question',
-                            showCancelButton: true,
-                            confirmButtonColor: '#10B981',
-                            cancelButtonColor: '#6B7280',
-                            confirmButtonText: 'Yes, set as default',
-                            cancelButtonText: 'Cancel',
-                            reverseButtons: true,
-                            allowOutsideClick: false,
-                            showLoaderOnConfirm: true,
-                            preConfirm: async () => {
-                                try {
-                                    const response = await fetch(form.action, {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded',
-                                        },
-                                        body: new URLSearchParams(new FormData(form))
-                                    });
+                try {
+                    const result = await Swal.fire({
+                        title: 'Set as Default Address?',
+                        text: "This will be your primary shipping address",
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#10B981',
+                        cancelButtonColor: '#6B7280',
+                        confirmButtonText: 'Yes, set as default',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true,
+                        allowOutsideClick: false,
+                        showLoaderOnConfirm: true,
+                        preConfirm: async () => {
+                            try {
+                                const response = await fetch(form.action, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/x-www-form-urlencoded',
+                                    },
+                                    body: new URLSearchParams(new FormData(form))
+                                });
 
-                                    if (!response.ok) {
-                                        throw new Error('Failed to set default address');
-                                    }
-                                    return response;
-                                } catch (error) {
-                                    Swal.showValidationMessage(
-                                        `Request failed: ${error.message}`
-                                    );
-                                    return false;
+                                if (!response.ok) {
+                                    throw new Error('Failed to set default address');
                                 }
+                                return response;
+                            } catch (error) {
+                                Swal.showValidationMessage(
+                                    `Request failed: ${error.message}`
+                                );
+                                return false;
                             }
-                        });
-
-                        if (result.isConfirmed) {
-                            await Swal.fire({
-                                title: 'Success!',
-                                text: 'Default address updated',
-                                icon: 'success',
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-                            window.location.reload();
                         }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'An unexpected error occurred'
+                    });
+
+                    if (result.isConfirmed) {
+                        await Swal.fire({
+                            title: 'Success!',
+                            text: 'Default address updated',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
                         });
+                        window.location.reload();
                     }
-                });
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An unexpected error occurred'
+                    });
+                }
             });
+        });
 
-        </script>
-    </body>
+        const today = new Date();
+        const deliveryDate = new Date(today);
+        deliveryDate.setDate(today.getDate() + 7);
 
-    </html>
-    <%- include('../../views/partials/user/footer') %>
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        const formattedDate = deliveryDate.toLocaleDateString('en-US', options);
+
+        document.getElementById('deliveryDate').textContent = formattedDate;
+
+    </script>
+</body>
+
+</html>
+<%- include('../../views/partials/user/footer') %>

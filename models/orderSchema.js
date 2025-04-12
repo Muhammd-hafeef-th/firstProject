@@ -41,6 +41,36 @@ const orderSchema=new Schema({
         type:Number,
         required:true
     },
+    paymentMethod: {
+        type: {
+            type: String,
+            enum: ['cod', 'paypal', 'wallet'],
+            required: true
+        },
+        details: {
+            transactionId: String,
+            
+            codVerification: {
+                type: String,
+                enum: ['pending', 'verified', 'rejected'],
+                default: 'pending'
+            },
+            
+            paypalPayerId: String,
+            paypalPayerEmail: String,
+            
+            walletId: {
+                type: Schema.Types.ObjectId,
+                ref: 'Wallet'
+            },
+            walletBalanceUsed: Number
+        }
+    },
+    paymentStatus: {
+        type: String,
+        enum: ['pending', 'completed', 'failed', 'refunded'],
+        default: 'pending'
+    },
     address:{
         type:Schema.Types.ObjectId,
         ref:"Address",

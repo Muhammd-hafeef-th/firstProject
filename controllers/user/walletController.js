@@ -18,9 +18,9 @@ const getWallet=async(req,res,next)=>{
     
       const newWallet = new Wallet({
         user: {
-          username: req.user.firstname,
-          email: req.user.email,
-          password: req.user.password 
+          username: userData.firstname,
+          email: userData.email,
+          password: userData.password 
         },
         balance: 0.00
       });

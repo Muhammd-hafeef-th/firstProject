@@ -708,7 +708,12 @@ const profileEdit = async (req, res, next) => {
     try {
         let userData = null
         if (req.session.user) {
-            userData = await User.findOne({ _id: req.session.user._id })
+            userData = await User.findOne({
+                $or: [
+                    { _id: req.session.user._id },
+                    { _id: req.session.user }
+                ]
+            });
         }
         res.render('profile-edit', { userDatas: userData })
     } catch (error) {
@@ -746,7 +751,12 @@ const sendVerifyEmail = async (email, otp) => {
 }
 const profileUpdate = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user._id);
+        const user = await User.findOne({
+            $or: [
+                { _id: req.session.user._id },
+                { _id: req.session.user }
+            ]
+        });
         const oldEmail = user.email;
         const newEmail = req.body.email;
 
@@ -762,17 +772,17 @@ const profileUpdate = async (req, res, next) => {
 
         if (oldEmail !== newEmail) {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Please enter a valid email address' 
+                return res.status(400).json({
+                    success: false,
+                    message: 'Please enter a valid email address'
                 });
             }
 
             const emailExists = await User.findOne({ email: newEmail });
             if (emailExists) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Email already in use by another account' 
+                return res.status(400).json({
+                    success: false,
+                    message: 'Email already in use by another account'
                 });
             }
 
@@ -785,35 +795,35 @@ const profileUpdate = async (req, res, next) => {
                     newEmail: newEmail,
                     updates: updates,
                     oldEmail: oldEmail,
-                    expiresAt: Date.now() + 1 * 60 * 1000 
+                    expiresAt: Date.now() + 1 * 60 * 1000
                 };
 
                 console.log(`OTP sent to ${newEmail}: ${otp}`);
-                return res.json({ 
-                    success: true, 
+                return res.json({
+                    success: true,
                     requiresOtp: true,
                     message: 'OTP sent to your new email address for verification',
-                    expiresIn: 1 * 60 
+                    expiresIn: 1 * 60
                 });
             } else {
-                return res.status(500).json({ 
-                    success: false, 
-                    message: 'Failed to send verification email. Please try again.' 
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to send verification email. Please try again.'
                 });
             }
         }
 
-        await User.findByIdAndUpdate(req.user._id, updates);
-        return res.json({ 
-            success: true, 
-            message: 'Profile updated successfully' 
+        await User.findOneAndUpdate(user, updates);
+        return res.json({
+            success: true,
+            message: 'Profile updated successfully'
         });
 
     } catch (error) {
         console.error('Profile update error:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'An error occurred while updating your profile' 
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while updating your profile'
         });
     }
 };
@@ -821,49 +831,56 @@ const profileUpdate = async (req, res, next) => {
 const verifyProfileUpdateOtp = async (req, res, next) => {
     try {
         const { otp } = req.body;
-        
+
+        const user = await User.findOne({
+            $or: [
+                { _id: req.session.user._id },
+                { _id: req.session.user }
+            ]
+        });
+
         if (!req.session.profileUpdate) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'OTP session expired. Please try updating your email again.' 
+            return res.status(400).json({
+                success: false,
+                message: 'OTP session expired. Please try updating your email again.'
             });
         }
 
         if (Date.now() > req.session.profileUpdate.expiresAt) {
             delete req.session.profileUpdate;
-            return res.status(400).json({ 
-                success: false, 
-                message: 'OTP has expired. Please request a new one.' 
+            return res.status(400).json({
+                success: false,
+                message: 'OTP has expired. Please request a new one.'
             });
         }
 
         if (otp !== req.session.profileUpdate.otp) {
-           
-            
-            return res.status(400).json({ 
-                success: false, 
-                message: `Incorrect OTP. ` 
+
+
+            return res.status(400).json({
+                success: false,
+                message: `Incorrect OTP. `
             });
         }
 
         const { updates, newEmail } = req.session.profileUpdate;
         updates.email = newEmail;
 
-        updates.emailVerified = false; 
-        await User.findByIdAndUpdate(req.user._id, updates);
+        updates.emailVerified = false;
+        await User.findOneAndUpdate(user, updates);
 
         delete req.session.profileUpdate;
 
-        return res.json({ 
-            success: true, 
-            message: 'Email changed and profile updated successfully. Please verify your new email address.' 
+        return res.json({
+            success: true,
+            message: 'Email changed and profile updated successfully. Please verify your new email address.'
         });
 
     } catch (error) {
         console.error('OTP verification error:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'An error occurred during OTP verification' 
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred during OTP verification'
         });
     }
 };
@@ -871,39 +888,39 @@ const verifyProfileUpdateOtp = async (req, res, next) => {
 const resendProfileUpdateOtp = async (req, res, next) => {
     try {
         if (!req.session.profileUpdate) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Session expired. Please try updating your email again.' 
+            return res.status(400).json({
+                success: false,
+                message: 'Session expired. Please try updating your email again.'
             });
         }
 
         const { newEmail } = req.session.profileUpdate;
-        
+
         const newOtp = generateOtp();
         const emailSent = await sendVerifyEmail(newEmail, newOtp);
 
         if (emailSent) {
             req.session.profileUpdate.otp = newOtp;
-            req.session.profileUpdate.expiresAt = Date.now() + 1 * 60 * 1000; 
+            req.session.profileUpdate.expiresAt = Date.now() + 1 * 60 * 1000;
 
             console.log(`New OTP sent to ${newEmail}: ${newOtp}`);
-            return res.json({ 
-                success: true, 
+            return res.json({
+                success: true,
                 message: 'New OTP sent to your email address',
-                expiresIn: 1 * 60 
+                expiresIn: 1 * 60
             });
         } else {
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Failed to resend OTP. Please try again.' 
+            return res.status(500).json({
+                success: false,
+                message: 'Failed to resend OTP. Please try again.'
             });
         }
 
     } catch (error) {
         console.error('Resend OTP error:', error);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'An error occurred while resending OTP' 
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred while resending OTP'
         });
     }
 };
@@ -1016,7 +1033,10 @@ const addtoCart = async (req, res, next) => {
     try {
         const productId = req.query.id;
         const requestedQuantity = parseInt(req.query.quantity) || 1;
-        const userId = req.session.user?._id;
+        const userId = req.session.user?._id || req.session.user;
+        
+        
+        const MAX_QUANTITY_PER_PRODUCT = 10; 
 
         if (!userId) {
             return res.redirect('/login');
@@ -1025,6 +1045,11 @@ const addtoCart = async (req, res, next) => {
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).send("Product not found");
+        }
+
+        if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
+            req.flash("error", `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`);
+            return res.redirect('/cart');
         }
 
         let cart = await Cart.findOne({ userId }) || new Cart({ userId, items: [] });
@@ -1040,12 +1065,22 @@ const addtoCart = async (req, res, next) => {
                 req.flash("error", "Not enough stock available");
                 return res.redirect('/cart');
             }
+            
+            if (newTotalQuantity > MAX_QUANTITY_PER_PRODUCT) {
+                req.flash("error", `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`);
+                return res.redirect('/cart');
+            }
 
             cart.items[existingItemIndex].quantity = newTotalQuantity;
             cart.items[existingItemIndex].totalPrice = newTotalQuantity * product.regularPrice;
         } else {
             if (requestedQuantity > product.quantity) {
                 req.flash("error", "Not enough stock available");
+                return res.redirect('/cart');
+            }
+            
+            if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
+                req.flash("error", `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`);
                 return res.redirect('/cart');
             }
 
@@ -1072,65 +1107,248 @@ const addtoCart = async (req, res, next) => {
 
 const cart = async (req, res, next) => {
     try {
-        const userId = req.session.user?._id;
-        if (!userId) {
-            return res.redirect('/login');
-        }
-        const userCart = await Cart.findOne({ userId }).populate('items.productId') || { items: [] };
-        const cartItems = {
-            items: userCart.items || []
+        const userId = req.session.user?._id || req.session.user;
+        if (!userId) return res.redirect('/login');
+
+        const cartData = await Cart.findOne({ userId })
+            .populate({
+                path: 'items.productId',
+                model: 'Product',
+                match: { status: { $ne: "Discontinued" } } 
+            })
+            .lean();
+
+        const validItems = cartData?.items?.filter(item => item.productId) || [];
+
+        let cartItems = {
+            items: validItems,
+            subtotal: 0,
+            discount: 0,
+            shippingCharge: 0,
+            total: 0
         };
-        res.render('addToCart', { cartItems });
+
+        if (validItems.length > 0) {
+            cartItems = validItems.reduce((acc, item) => {
+                const product = item.productId;
+                const quantity = item.quantity;
+                
+                if (!product) return acc;
+                
+                const itemPrice = product.regularPrice * quantity;
+                const itemDiscount = (product.discount || 0) * quantity;
+                const itemShipping = (product.shipingCharge || 0) * quantity;
+                
+                acc.items.push(item);
+                acc.subtotal += itemPrice;
+                acc.discount += itemDiscount;
+                acc.shippingCharge += itemShipping;
+                return acc;
+            }, { 
+                items: [],
+                subtotal: 0,
+                discount: 0,
+                shippingCharge: 0,
+                total: 0
+            });
+
+            cartItems.total = cartItems.subtotal - cartItems.discount + cartItems.shippingCharge;
+        }
+
+        res.render('addToCart', { 
+            cartItems,
+            regularPriceTotal: cartItems.subtotal,
+            discountedPriceTotal: cartItems.subtotal - cartItems.discount
+        });
     } catch (error) {
         error.message = "Error in cart controller: " + error.message;
         next(error);
     }
-
-}
-
+};
 const deleteCartProduct = async (req, res, next) => {
     try {
         const productId = req.query.id;
-        const userId = req.session.user._id;
-        await Cart.updateOne(
-            { userId: userId },
-            { $pull: { items: { _id: productId } } }
-        )
-        res.redirect('/cart')
-    } catch (error) {
-        next(error);
-    }
-}
+        const userId = req.session.user?._id || req.session.user;
 
-const updateCartQuantity = async (req, res, next) => {
-    try {
-        const userId = req.session.user?._id;
         if (!userId) {
-            return res.redirect('/login');
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Unauthorized. Please log in.' 
+            });
         }
-        const { itemId, quantity } = req.body;
-        const newQuantity = Math.max(parseInt(quantity, 10), 1);
-        const cart = await Cart.findOne({ userId });
-        const itemIndex = cart.items.findIndex(item => item._id.toString() === itemId);
-        const product = await Product.findById(cart.items[itemIndex].productId);
-        if (newQuantity > product.quantity) {
-            req.flash("error", "The selected quantity exceeds available stock");
-            return res.redirect("/cart");
-        }
-        cart.items[itemIndex].quantity = newQuantity;
-        cart.items[itemIndex].totalPrice = newQuantity * product.regularPrice;
-        await cart.save();
-        req.flash("success", "Cart updated successfully");
-        res.redirect('/cart');
-    } catch (error) {
-        next(error);
-    }
 
+        if (!productId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid product ID' 
+            });
+        }
+
+        const updatedCart = await Cart.findOneAndUpdate(
+            { userId },
+            { $pull: { items: { _id: productId } } },
+            { new: true }
+        ).populate({
+            path: 'items.productId',
+            model: 'Product',
+            match: { status: { $ne: "Discontinued" } } 
+        });
+
+        if (!updatedCart) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Cart not found or item already removed' 
+            });
+        }
+
+        const validItems = updatedCart.items.filter(item => item.productId !== null);
+     
+        const calculations = validItems.reduce((acc, item) => {
+            const product = item.productId;
+            const quantity = item.quantity;
+            
+            if (!product) return acc;
+            
+            acc.subtotal += product.regularPrice * quantity;
+            acc.discount += (product.discount || 0) * quantity;
+            acc.shippingCharge += (product.shipingCharge || 0) * quantity;
+            return acc;
+        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+
+        const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
+
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Item removed successfully',
+            cartSummary: {
+                subtotal: calculations.subtotal.toFixed(2),
+                discount: calculations.discount.toFixed(2),
+                shippingCharge: calculations.shippingCharge.toFixed(2),
+                total: total.toFixed(2)
+            },
+            itemCount: validItems.length 
+        });
+    } catch (error) {
+        console.error('Delete Cart Product Error:', error);
+        if (error.name === 'CastError') {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid product ID format' 
+            });
+        }
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error' 
+        });
+    }
 };
 
+const updateCartQuantity = async (req, res) => {
+    try {
+        const userId = req.session.user?._id || req.session.user;
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Please login to continue' });
+        }
 
+        const { itemIds, quantities } = req.body;
+        
+        if (!itemIds || !quantities || itemIds.length !== quantities.length) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Invalid input data' 
+            });
+        }
 
+        const cart = await Cart.findOne({ userId }).populate({
+            path: 'items.productId',
+            model: 'Product',
+            match: { status: { $ne: "Discontinued" } } 
+        });
+        
+        if (!cart) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Cart not found' 
+            });
+        }
 
+        cart.items = cart.items.filter(item => item.productId !== null);
+
+        const MAX_QUANTITY = 10;
+        const MIN_QUANTITY = 1;
+        const errors = [];
+
+        await Promise.all(itemIds.map(async (itemId, index) => {
+            const quantity = parseInt(quantities[index], 10);
+            const cartItem = cart.items.find(item => item._id.toString() === itemId);
+            
+            if (!cartItem || isNaN(quantity) || quantity < MIN_QUANTITY) {
+                errors.push(`Invalid quantity for item ${itemId}`);
+                return;
+            }
+
+            const product = cartItem.productId;
+            if (!product) {
+                errors.push(`Product not available for item ${itemId}`);
+                return;
+            }
+
+            if (quantity > product.quantity) {
+                errors.push(`Only ${product.quantity} available for ${product.productName}`);
+                return;
+            }
+
+            if (quantity > MAX_QUANTITY) {
+                errors.push(`Maximum ${MAX_QUANTITY} allowed for ${product.productName}`);
+                return;
+            }
+
+            cartItem.quantity = quantity;
+        }));
+
+        if (errors.length > 0) {
+            return res.status(400).json({ 
+                success: false, 
+                message: errors.join('. ') 
+            });
+        }
+
+        await cart.save();
+
+        const validItems = cart.items.filter(item => item.productId !== null);
+     
+        const calculations = validItems.reduce((acc, item) => {
+            const product = item.productId;
+            const quantity = item.quantity;
+            
+            acc.subtotal += product.regularPrice * quantity;
+            acc.discount += (product.discount || 0) * quantity;
+            acc.shippingCharge += (product.shipingCharge || 0) * quantity;
+            return acc;
+        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+
+        const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
+
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Cart updated successfully',
+            cartSummary: {
+                subtotal: calculations.subtotal.toFixed(2),
+                discount: calculations.discount.toFixed(2),
+                shippingCharge: calculations.shippingCharge.toFixed(2),
+                total: total.toFixed(2)
+            },
+            itemCount: validItems.length
+        });
+    } catch (error) {
+        console.error("Update Cart Error:", error);
+        return res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred while updating the cart',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
 module.exports = {
     loadHomepage,
     pageNotFound,

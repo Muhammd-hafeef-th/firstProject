@@ -111,7 +111,7 @@ router.post("/profilePasswordSaving",userController.profilePasswordSaving)
 
 router.get("/addtoCart",userController.addtoCart);
 router.get('/cart',userController.cart)
-router.post("/deleteCartProduct",userController.deleteCartProduct);
+router.get("/deleteCartProduct",userController.deleteCartProduct);
 router.post('/updateCartQuantity', userController.updateCartQuantity);
 
 

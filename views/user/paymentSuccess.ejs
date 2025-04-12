@@ -25,7 +25,17 @@
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Payment Method:</span>
-                            <span class="font-medium">Cash on delivery</span>
+                            <span class="font-medium">
+                                <% if (newOrder.paymentMethod.type === 'cod') { %>
+                                    Cash on Delivery
+                                <% } else if (newOrder.paymentMethod.type === 'paypal') { %>
+                                    PayPal
+                                <% } else if (newOrder.paymentMethod.type === 'wallet') { %>
+                                    Wallet
+                                <% } else { %>
+                                    Unknown
+                                <% } %>
+                            </span>
                         </div>
                     </div>
                     

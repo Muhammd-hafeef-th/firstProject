@@ -1,145 +1,269 @@
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
     <%- include('../../views/partials/user/header')%>
 </header>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    .no-spinner::-webkit-outer-spin-button,
+    .no-spinner::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    .no-spinner {
+        -moz-appearance: textfield;
+    }
+</style>
 
+<body class="bg-[#1F1F1F] text-white">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="text-center mb-10">
+            <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
+            <h2 class="text-3xl font-medium">Shopping Cart</h2>
+        </div>
 
-    <body class="bg-[#1F1F1F] text-white">
-        <div class="container mx-auto px-4 py-8 max-w-6xl">
-            <div class="text-center mb-8">
-                <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
-                <h2 class="text-2xl font-medium">Cart</h2>
-            </div>
-
-            <div class="mb-8 overflow-x-auto">
-                <div class="bg-[#E8B888] text-black font-semibold grid grid-cols-4 p-3 rounded-t-md">
-                    <div class="pl-4">Product</div>
-                    <div class="text-center">Price</div>
-                    <div class="text-center">Quantity</div>
-                    <div class="text-right pr-4">Total</div>
+        <div class="flex flex-col lg:flex-row gap-8">
+            <div class="flex-grow">
+                <div class="border-b border-[#333] pb-3 mb-4">
+                    <div class="grid grid-cols-12 text-sm text-gray-400 font-medium">
+                        <div class="col-span-5 pl-2">PRODUCT</div>
+                        <div class="col-span-2 text-center">PRICE</div>
+                        <div class="col-span-3 text-center">QUANTITY</div>
+                        <div class="col-span-2 text-right pr-2">TOTAL</div>
+                    </div>
                 </div>
 
-                <div class="bg-[#1F1F1F] divide-y divide-[#333]">
-                    <% cartItems.items.forEach(item=> { %>
-                        <div class="grid grid-cols-4 p-4 items-center">
-
-                            <a href="/productDetails?id=<%=item.productId._id%>">
-                                <div class="flex items-center gap-4">
-                                    <form action="/deleteCartProduct?id=<%=item._id%>" method="post"><button
-                                            class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 transition">
-                                            &times;
-                                        </button></form>
-                                    <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
-                                        class="w-16 h-16 object-cover rounded">
-                                    <div>
-                                        <h3 class="font-medium">
-                                            <%= item.productId.productName %>
-                                        </h3>
-                                        <p class="text-sm text-gray-400">
-                                            <%= item.productId.description %>
-                                        </p>
+                <div id="cartItemsContainer" class="space-y-6">
+                    <% if (cartItems.items.length> 0) { %>
+                        <% cartItems.items.forEach(item=> { %>
+                            <div class="grid grid-cols-12 items-center py-4 border-b border-[#333] cart-item"
+                                data-item-id="<%= item._id %>">
+                                <div class="col-span-5">
+                                    <div class="flex items-center gap-4">
+                                        <button class="text-gray-400 hover:text-red-500 transition delete-item-btn"
+                                            data-item-id="<%= item._id %>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                        <a href="/productDetails?id=<%=item.productId._id%>"
+                                            class="flex items-center gap-4">
+                                            <img src="<%= item.productId.productImage[0]%>"
+                                                alt="<%= item.productId.name %>"
+                                                class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition">
+                                            <div>
+                                                <h3 class="font-medium">
+                                                    <%= item.productId.productName %>
+                                                </h3>
+                                                <p class="text-xs text-gray-400 mt-1">
+                                                    <%=item.productId.description%>
+                                                </p>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
-                            </a>
 
-                            <div class="text-center">
-                                $<%= item.productId.regularPrice %>
-                            </div>
+                                <div class="col-span-2 text-center text-[#E8B888]" data-price="<%= item.productId.regularPrice %>">
+                                    $<%= item.productId.regularPrice.toFixed(2) %>
+                                </div>
 
-                            <div class="flex justify-center items-center gap-4">
-                                <form action="/updateCartQuantity" method="POST"
-                                    onsubmit="return validateQuantity(this)">
-                                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                                    <input type="number" name="quantity" value="<%= item.quantity %>"
-                                        class="w-12 bg-[#333] text-center p-1 rounded border border-[#444]">
-                                    <button type="submit"
-                                        class="text-white bg-[#E8B888] px-3 py-1 rounded-2xl">Edit</button>
-                                    <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                                </form>
+                                <div class="col-span-3">
+                                    <div class="flex items-center justify-center">
+                                        <div
+                                            class="flex items-center border border-[#444] rounded-full bg-[#2A2A2A] shadow-inner">
+                                            <button type="button"
+                                                class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn"
+                                                data-action="decrement">−</button>
+                                            <input type="number" name="quantity" value="<%= item.quantity %>"
+                                                class="w-10 bg-transparent text-center py-1 focus:outline-none item-quantity no-spinner"
+                                                min="1" data-item-id="<%= item._id %>">
+                                            <button type="button"
+                                                class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn"
+                                                data-action="increment">+</button>
+                                        </div>
+                                    </div>
+                                </div>
 
+                                <div class="col-span-2 text-right font-medium item-total">
+                                    $<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
+                                </div>
                             </div>
-                            <div class="text-right pr-4 font-medium">
-                                $<%= item.totalPrice %>
-                            </div>
-                        </div>
                         <% }); %>
+                    <% } else { %>
+                        <div class="text-center py-12">
+                            <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            <h3 class="mt-4 text-xl font-medium text-gray-200">Your cart is empty</h3>
+                            <a href="/products"
+                                class="mt-6 inline-block bg-[#E8B888] text-black px-6 py-2 rounded-full hover:bg-[#D9A76A] transition">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
+
+                <% if (cartItems.items.length> 0) { %>
+                    <div class="mt-10 flex justify-between items-center">
+                        <a href="/products"
+                            class="flex items-center text-gray-400 hover:text-[#E8B888] transition group">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                class="h-5 w-5 mr-2 group-hover:transform group-hover:-translate-x-1 transition-transform"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                            </svg>
+                            Continue Shopping
+                        </a>
+                        <button id="updateCartBtn"
+                            class="bg-[#E8B888] hover:bg-[#ae8052] px-6 py-2 rounded-full transition shadow-md hover:shadow-lg">
+                            Update Cart
+                        </button>
+                    </div>
+                <% } %>
             </div>
 
-            <div class="flex flex-col md:flex-row justify-between gap-6">
-                <div class="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-                    <input type="text" placeholder="Coupon Code....."
-                        class="bg-[#333] p-2 rounded text-white flex-grow">
-                    <button class="bg-[#8F9DDB] hover:bg-[#666] text-white px-4 py-2 rounded transition">
-                        Apply Coupon
-                    </button>
+            <% if (cartItems.items.length> 0) { %>
+                <div class="lg:w-80 bg-[#252525] rounded-lg p-6 h-fit shadow-xl">
+                    <h3 class="text-xl font-medium mb-6 border-b border-[#333] pb-2">Order Summary</h3>
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Subtotal</span>
+                            <span class="font-medium" id="cart-subtotal">$<%= cartItems.subtotal.toFixed(2) %></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Discount</span>
+                            <span class="text-green-500" id="cart-discount">-$<%= cartItems.discount.toFixed(2) %></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Shipping</span>
+                            <span id="cart-shipping">$<%= cartItems.shippingCharge.toFixed(2) %></span>
+                        </div>
+                        <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
+                            <span>Total</span>
+                            <span class="text-[#E8B888]" id="cart-total">$<%= cartItems.total.toFixed(2) %></span>
+                        </div>
+                    </div>
+                    <a href="/checkout"
+                        class="block bg-[#E8B888] hover:bg-[#D9A76A] text-black font-medium py-3 px-4 rounded-md text-center transition shadow-md hover:shadow-lg">
+                        Proceed to Checkout
+                    </a>
                 </div>
-                <%if(cartItems.items.length>0){%>
-                <button
-                    class="bg-[#E8B888] hover:bg-[#D9A76A] text-black font-bold py-2 px-6 rounded transition w-full md:w-auto">
-                   <a href="/checkout"> Proceed to Checkout</a>
-                </button>
-                <%}%>
-            </div>
+            <% } %>
         </div>
-    </body>
+    </div>
 
-    <script>
-        function validateQuantity(form) {
-            let isValid = true
-            let quantityInput = form.querySelector('input[name="quantity"]');
-            if (!quantityInput.value || quantityInput.value <= 0) {
-                showError("name-error", "Please enter the quantity");
-                isValid = false;
-            }
-            return isValid;
-        }
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[#252525] p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E8B888] mb-4"></div>
+            <p class="text-white">Updating cart...</p>
+        </div>
+    </div>
+</body>
 
-        function showError(elementId, message) {
-            const errorElement = document.getElementById(elementId);
-            if (errorElement) {
-                errorElement.textContent = message;
-                errorElement.classList.remove('hidden');
-            }
-        }
-
-        function clearErrorMessages() {
-            document.querySelectorAll('[id$="-error"]').forEach(el => {
-                el.textContent = '';
-                el.classList.add('hidden');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const input = this.parentNode.querySelector('input');
+                let value = parseInt(input.value) || 1;
+                
+                if(this.dataset.action === 'increment') {
+                    value = Math.min(value + 1, 10);
+                } else {
+                    value = Math.max(value - 1, 1);
+                }
+                input.value = value;
             });
+        });
+
+        document.querySelectorAll('.delete-item-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const itemId = this.dataset.itemId;
+                Swal.fire({
+                    title: 'Remove Item?',
+                    text: "This will remove the item from your cart",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#E8B888',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        showLoading();
+                        fetch(`/deleteCartProduct?id=${itemId}`, {
+                            method: 'GET'  
+                        }).then(r => r.json()).then(data => {
+                            hideLoading();
+                            if(data.success) {
+                                document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
+                                updateCartSummary(data.cartSummary);
+                                if(data.itemCount === 0) {
+                                    location.reload(); 
+                                }
+                                Swal.fire('Removed!', data.message, 'success');
+                            } else {
+                                Swal.fire('Error!', data.message, 'error');
+                            }
+                        }).catch(err => {
+                            hideLoading();
+                            Swal.fire('Error!', 'Unable to remove item', 'error');
+                        });
+                    }
+                });
+            });
+        });
+
+        document.getElementById('updateCartBtn').addEventListener('click', function() {
+            showLoading();
+            const items = Array.from(document.querySelectorAll('.cart-item')).map(item => ({
+                id: item.dataset.itemId,
+                quantity: item.querySelector('input').value
+            }));
+
+            fetch('/updateCartQuantity', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    itemIds: items.map(i => i.id),
+                    quantities: items.map(i => i.quantity)
+                })
+            }).then(r => r.json()).then(data => {
+                hideLoading();
+                if(data.success) {
+                    items.forEach((item, index) => {
+                        const price = parseFloat(document.querySelector(`[data-item-id="${item.id}"] [data-price]`).dataset.price);
+                        document.querySelector(`[data-item-id="${item.id}"] .item-total`).textContent = 
+                            `$${(price * item.quantity).toFixed(2)}`;
+                    });
+                    updateCartSummary(data.cartSummary);
+                    Swal.fire('Updated!', data.message, 'success');
+                } else {
+                    Swal.fire('Error!', data.message, 'error');
+                }
+            }).catch(err => {
+                hideLoading();
+                Swal.fire('Error!', 'Unable to update cart', 'error');
+            });
+        });
+
+        function updateCartSummary(summary) {
+            document.getElementById('cart-subtotal').textContent = `$${summary.subtotal}`;
+            document.getElementById('cart-discount').textContent = `-$${summary.discount}`;
+            document.getElementById('cart-shipping').textContent = `$${summary.shippingCharge}`;
+            document.getElementById('cart-total').textContent = `$${summary.total}`;
         }
 
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let errorMessage = '<%= messages.error ? String(messages.error).replace(/"/g, "&quot;") : "" %>';
-            let successMessage = '<%= messages.success ? String(messages.success).replace(/"/g, "&quot;") : "" %>';
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+    });
+</script>
 
-
-            if (errorMessage) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: errorMessage,
-                    timer: 2500,
-                    showConfirmButton: false
-                });
-            }
-
-            if (successMessage) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: successMessage,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            }
-        });
-    </script>
-
-
-
-    <%- include('../../views/partials/user/footer') %>
+<%- include('../../views/partials/user/footer') %>
