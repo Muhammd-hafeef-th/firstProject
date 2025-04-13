@@ -44,12 +44,14 @@ const GetOrder = async (req, res, next) => {
             date: order.createdOn.toLocaleDateString('en-GB'),
             mobileDate: order.createdOn.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
             status: order.status,
-            items: order.orderItems.map(item => ({
-                image: item.product.productImage[0],
-                name: item.product.name,
-                quantity: item.quantity,
-                price: item.price
-            }))
+            items: order.orderItems
+                .filter(item => item.product)
+                .map(item => ({
+                    image: item.product.productImage[0],
+                    name: item.product.name || item.product.productName, 
+                    quantity: item.quantity,
+                    price: item.price
+                }))
         }));
         const totalPages = Math.ceil(totalOrders / limit);
         res.render('order', {

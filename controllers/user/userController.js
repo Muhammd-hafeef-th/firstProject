@@ -1034,9 +1034,9 @@ const addtoCart = async (req, res, next) => {
         const productId = req.query.id;
         const requestedQuantity = parseInt(req.query.quantity) || 1;
         const userId = req.session.user?._id || req.session.user;
-        
-        
-        const MAX_QUANTITY_PER_PRODUCT = 10; 
+
+
+        const MAX_QUANTITY_PER_PRODUCT = 10;
 
         if (!userId) {
             return res.redirect('/login');
@@ -1065,7 +1065,7 @@ const addtoCart = async (req, res, next) => {
                 req.flash("error", "Not enough stock available");
                 return res.redirect('/cart');
             }
-            
+
             if (newTotalQuantity > MAX_QUANTITY_PER_PRODUCT) {
                 req.flash("error", `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`);
                 return res.redirect('/cart');
@@ -1078,7 +1078,7 @@ const addtoCart = async (req, res, next) => {
                 req.flash("error", "Not enough stock available");
                 return res.redirect('/cart');
             }
-            
+
             if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
                 req.flash("error", `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`);
                 return res.redirect('/cart');
@@ -1114,48 +1114,62 @@ const cart = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
-                match: { status: { $ne: "Discontinued" } } 
+                match: { status: { $ne: "Discontinued" } }
             })
             .lean();
 
         const validItems = cartData?.items?.filter(item => item.productId) || [];
+        const itemsWithStockInfo = validItems.map(item => {
+            return {
+                ...item,
+                isOutOfStock: item.quantity > item.productId.quantity,
+                availableQuantity: item.productId.quantity
+            };
+        });
 
         let cartItems = {
-            items: validItems,
+            items: itemsWithStockInfo,
             subtotal: 0,
             discount: 0,
             shippingCharge: 0,
-            total: 0
+            total: 0,
+            hasOutOfStockItems: false 
         };
 
-        if (validItems.length > 0) {
-            cartItems = validItems.reduce((acc, item) => {
+        if (itemsWithStockInfo.length > 0) {
+            cartItems = itemsWithStockInfo.reduce((acc, item) => {
                 const product = item.productId;
                 const quantity = item.quantity;
-                
+
                 if (!product) return acc;
-                
+
                 const itemPrice = product.regularPrice * quantity;
                 const itemDiscount = (product.discount || 0) * quantity;
                 const itemShipping = (product.shipingCharge || 0) * quantity;
-                
+
                 acc.items.push(item);
                 acc.subtotal += itemPrice;
                 acc.discount += itemDiscount;
                 acc.shippingCharge += itemShipping;
+
+                if (item.isOutOfStock) {
+                    acc.hasOutOfStockItems = true;
+                }
+
                 return acc;
-            }, { 
+            }, {
                 items: [],
                 subtotal: 0,
                 discount: 0,
                 shippingCharge: 0,
-                total: 0
+                total: 0,
+                hasOutOfStockItems: false
             });
 
             cartItems.total = cartItems.subtotal - cartItems.discount + cartItems.shippingCharge;
         }
 
-        res.render('addToCart', { 
+        res.render('addToCart', {
             cartItems,
             regularPriceTotal: cartItems.subtotal,
             discountedPriceTotal: cartItems.subtotal - cartItems.discount
@@ -1171,16 +1185,16 @@ const deleteCartProduct = async (req, res, next) => {
         const userId = req.session.user?._id || req.session.user;
 
         if (!userId) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Unauthorized. Please log in.' 
+            return res.status(401).json({
+                success: false,
+                message: 'Unauthorized. Please log in.'
             });
         }
 
         if (!productId) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Invalid product ID' 
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid product ID'
             });
         }
 
@@ -1191,24 +1205,24 @@ const deleteCartProduct = async (req, res, next) => {
         ).populate({
             path: 'items.productId',
             model: 'Product',
-            match: { status: { $ne: "Discontinued" } } 
+            match: { status: { $ne: "Discontinued" } }
         });
 
         if (!updatedCart) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Cart not found or item already removed' 
+            return res.status(404).json({
+                success: false,
+                message: 'Cart not found or item already removed'
             });
         }
 
         const validItems = updatedCart.items.filter(item => item.productId !== null);
-     
+
         const calculations = validItems.reduce((acc, item) => {
             const product = item.productId;
             const quantity = item.quantity;
-            
+
             if (!product) return acc;
-            
+
             acc.subtotal += product.regularPrice * quantity;
             acc.discount += (product.discount || 0) * quantity;
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
@@ -1217,8 +1231,8 @@ const deleteCartProduct = async (req, res, next) => {
 
         const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             message: 'Item removed successfully',
             cartSummary: {
                 subtotal: calculations.subtotal.toFixed(2),
@@ -1226,19 +1240,16 @@ const deleteCartProduct = async (req, res, next) => {
                 shippingCharge: calculations.shippingCharge.toFixed(2),
                 total: total.toFixed(2)
             },
-            itemCount: validItems.length 
+            itemCount: validItems.length,
+            removedItemId: productId 
         });
+        
     } catch (error) {
         console.error('Delete Cart Product Error:', error);
-        if (error.name === 'CastError') {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Invalid product ID format' 
-            });
-        }
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Internal server error' 
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Internal server error',
+            error: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 };
@@ -1251,24 +1262,24 @@ const updateCartQuantity = async (req, res) => {
         }
 
         const { itemIds, quantities } = req.body;
-        
+
         if (!itemIds || !quantities || itemIds.length !== quantities.length) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Invalid input data' 
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid input data'
             });
         }
 
         const cart = await Cart.findOne({ userId }).populate({
             path: 'items.productId',
             model: 'Product',
-            match: { status: { $ne: "Discontinued" } } 
+            match: { status: { $ne: "Discontinued" } }
         });
-        
+
         if (!cart) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Cart not found' 
+            return res.status(404).json({
+                success: false,
+                message: 'Cart not found'
             });
         }
 
@@ -1281,7 +1292,7 @@ const updateCartQuantity = async (req, res) => {
         await Promise.all(itemIds.map(async (itemId, index) => {
             const quantity = parseInt(quantities[index], 10);
             const cartItem = cart.items.find(item => item._id.toString() === itemId);
-            
+
             if (!cartItem || isNaN(quantity) || quantity < MIN_QUANTITY) {
                 errors.push(`Invalid quantity for item ${itemId}`);
                 return;
@@ -1307,20 +1318,20 @@ const updateCartQuantity = async (req, res) => {
         }));
 
         if (errors.length > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: errors.join('. ') 
+            return res.status(400).json({
+                success: false,
+                message: errors.join('. ')
             });
         }
 
         await cart.save();
 
         const validItems = cart.items.filter(item => item.productId !== null);
-     
+
         const calculations = validItems.reduce((acc, item) => {
             const product = item.productId;
             const quantity = item.quantity;
-            
+
             acc.subtotal += product.regularPrice * quantity;
             acc.discount += (product.discount || 0) * quantity;
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
@@ -1329,8 +1340,8 @@ const updateCartQuantity = async (req, res) => {
 
         const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             message: 'Cart updated successfully',
             cartSummary: {
                 subtotal: calculations.subtotal.toFixed(2),
@@ -1342,8 +1353,8 @@ const updateCartQuantity = async (req, res) => {
         });
     } catch (error) {
         console.error("Update Cart Error:", error);
-        return res.status(500).json({ 
-            success: false, 
+        return res.status(500).json({
+            success: false,
             message: 'An error occurred while updating the cart',
             error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
