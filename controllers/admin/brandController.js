@@ -112,25 +112,45 @@ const editBrand = async (req, res) => {
 const editBrandDetails = async (req, res) => {
     try {
         const { brandId, name, description } = req.body;
-        const image = req.file ? `/uploads/${req.file.filename}` : null;
-
+        
         if (!brandId) {
             req.flash("error", "Invalid Brand ID");
             return res.redirect("/admin/brands");
         }
 
-        const existingBrand = await Brand.findOne({ brandName: { $regex: new RegExp(`^${name}$`, "i") } });
-        const oldName=await Brand.findById({_id:brandId});
+        // Get the existing brand data
+        const existingBrand = await Brand.findById(brandId);
+        if (!existingBrand) {
+            req.flash("error", "Brand not found");
+            return res.redirect("/admin/brands");
+        }
 
+        // Check for duplicate brand name (case insensitive) excluding current brand
+        const duplicateBrand = await Brand.findOne({ 
+            brandName: { $regex: new RegExp(`^${name}$`, "i") },
+            _id: { $ne: brandId }
+        });
 
-        if (existingBrand && name !==oldName.brandName) {
-            req.flash("error", "Brand already exists!");
+        if (duplicateBrand) {
+            req.flash("error", "Brand name already exists!");
             return res.redirect(`/admin/edit-brand?id=${brandId}`); 
         }
 
-        let updateData = { brandName: name, description };
-        if (image) updateData.brandImage = image;
+        // Prepare update data
+        const updateData = { 
+            brandName: name, 
+            description 
+        };
 
+        // Only update image if new one was uploaded
+        if (req.file) {
+            updateData.brandImage = `/uploads/${req.file.filename}`;
+        } else {
+            // Keep the existing image path
+            updateData.brandImage = existingBrand.brandImage;
+        }
+
+        // Update the brand
         await Brand.updateOne({ _id: brandId }, { $set: updateData });
 
         req.flash("success", "Brand updated successfully!");
@@ -138,7 +158,7 @@ const editBrandDetails = async (req, res) => {
     } catch (error) {
         console.log("Error in editBrandDetails:", error);
         req.flash("error", "Internal Server Error");
-        return res.redirect(`/admin/edit-brand?id=${brandId}`); 
+        return res.redirect(`/admin/edit-brand?id=${req.body.brandId}`); 
     }
 };
 

@@ -304,6 +304,7 @@ const products = async (req, res, next) => {
         const query = {
             quantity: { $gt: 0 }
         };
+
         if (search) {
             query.productName = { $regex: search, $options: "i" };
         }
@@ -311,7 +312,12 @@ const products = async (req, res, next) => {
             query.category = category;
         }
         if (brand) {
-            query.brand = brand;
+            const brandDoc = await Brand.findOne({
+                brandName: brand});
+            if (brandDoc) {
+                query.brand = brandDoc._id;
+            }
+           
         }
         if (priceFrom || priceTo) {
             query.regularPrice = {};
@@ -472,6 +478,8 @@ const productDetails = async (req, res, next) => {
     try {
         let productId = req.query.id;
         let productDe = await Product.findById(productId);
+        let brandId = productDe.brand;
+        let brand = await Brand.findOne({ _id: brandId });
 
         let avgRating = 0;
         if (productDe.review.length > 0) {
@@ -479,7 +487,7 @@ const productDetails = async (req, res, next) => {
             avgRating = total / productDe.review.length;
         }
 
-        res.render("product-details", { productDet: productDe, avgRating });
+        res.render("product-details", { productDet: productDe, avgRating, brand });
     } catch (error) {
         next(error);
     }
@@ -513,13 +521,22 @@ const filterProduct = async (req, res, next) => {
     try {
         const brandsdetails = await Brand.find({});
         const { category, brands, sortByPrice, priceTo, priceFrom } = req.body;
+
         const filter = {};
+
         if (category) {
             filter.category = category;
         }
+
         if (brands) {
-            filter.brand = brands;
+            const brandDoc = await Brand.findOne({
+                brandName: brands });
+            if (brandDoc) {
+                filter.brand = brandDoc._id;
+            }
+           
         }
+
         if (priceTo || priceFrom) {
             filter.regularPrice = {};
             if (priceFrom) filter.regularPrice.$gte = parseInt(priceFrom);
@@ -536,15 +553,15 @@ const filterProduct = async (req, res, next) => {
         } else if (sortByPrice === "lowToHigh") {
             sortOption.regularPrice = 1;
         }
+
         const products = await Product.find(filter).sort(sortOption);
         return res.render("products", { products: products, brands: brandsdetails });
     } catch (error) {
         error.message = "Error in filterProduct: " + error.message;
         next(error);
     }
-
-
 };
+
 const ladiesBrandFilter = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -553,11 +570,13 @@ const ladiesBrandFilter = async (req, res, next) => {
         const { brands: selectedBrand } = req.body;
         const filter = { category: /ladies/i };
 
+        const brand = await Brand.findOne({ brandName: selectedBrand });
+
         if (selectedBrand) {
-            filter.brand = selectedBrand;
+            filter.brand = brand._id
         }
 
-        const brands = await Brand.find({});
+        const brands=await Brand.find();
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -584,11 +603,14 @@ const gentsBrandFilter = async (req, res, next) => {
         const { brands: selectedBrand } = req.body;
         const filter = { category: /gents/i };
 
-        if (selectedBrand) {
-            filter.brand = selectedBrand;
-        }
+        const brand = await Brand.findOne({ brandName: selectedBrand });
 
-        const brands = await Brand.find({});
+
+        if (selectedBrand) {
+            filter.brand = brand._id;
+        }
+        const brands=await Brand.find();
+
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -615,10 +637,12 @@ const couplesBrandFilter = async (req, res, next) => {
         const { brands: selectedBrand } = req.body;
         const filter = { category: /couples/i };
 
-        if (selectedBrand) {
-            filter.brand = selectedBrand;
-        }
 
+        const brand = await Brand.findOne({ brandName: selectedBrand });
+
+        if (selectedBrand) {
+            filter.brand = brand._id
+        }
         const brands = await Brand.find({});
         const filteredProducts = await Product.find(filter)
             .skip(skip)
@@ -658,7 +682,7 @@ const brandButton = async (req, res, next) => {
 
         }
 
-        let query = { brand: brand.brandName };
+        let query = { brand: brand._id };
 
         if (selectedCategory) {
             query.category = selectedCategory;
@@ -1133,7 +1157,7 @@ const cart = async (req, res, next) => {
             discount: 0,
             shippingCharge: 0,
             total: 0,
-            hasOutOfStockItems: false 
+            hasOutOfStockItems: false
         };
 
         if (itemsWithStockInfo.length > 0) {
@@ -1166,7 +1190,8 @@ const cart = async (req, res, next) => {
                 hasOutOfStockItems: false
             });
 
-            cartItems.total = cartItems.subtotal - cartItems.discount + cartItems.shippingCharge;
+            const discountAmount = (cartItems.subtotal * cartItems.discount) / 100;
+            cartItems.total = cartItems.subtotal - discountAmount + cartItems.shippingCharge;
         }
 
         res.render('addToCart', {
@@ -1229,7 +1254,8 @@ const deleteCartProduct = async (req, res, next) => {
             return acc;
         }, { subtotal: 0, discount: 0, shippingCharge: 0 });
 
-        const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
+        const discountAmount = (calculations.subtotal * calculations.discount) / 100;
+        const total = calculations.subtotal - discountAmount + calculations.shippingCharge;
 
         return res.status(200).json({
             success: true,
@@ -1241,9 +1267,9 @@ const deleteCartProduct = async (req, res, next) => {
                 total: total.toFixed(2)
             },
             itemCount: validItems.length,
-            removedItemId: productId 
+            removedItemId: productId
         });
-        
+
     } catch (error) {
         console.error('Delete Cart Product Error:', error);
         return res.status(500).json({
@@ -1338,16 +1364,17 @@ const updateCartQuantity = async (req, res) => {
             return acc;
         }, { subtotal: 0, discount: 0, shippingCharge: 0 });
 
-        const total = calculations.subtotal - calculations.discount + calculations.shippingCharge;
+        const discountAmount = (calculations.subtotal * calculations.discount) / 100;
+        const total = calculations.subtotal - discountAmount + calculations.shippingCharge;
 
         return res.status(200).json({
             success: true,
             message: 'Cart updated successfully',
             cartSummary: {
-                subtotal: calculations.subtotal.toFixed(2),
-                discount: calculations.discount.toFixed(2),
-                shippingCharge: calculations.shippingCharge.toFixed(2),
-                total: total.toFixed(2)
+                subtotal: parseFloat(calculations.subtotal),
+                discount: parseFloat(calculations.discount),
+                shippingCharge: parseFloat(calculations.shippingCharge),
+                total: parseFloat(total)
             },
             itemCount: validItems.length
         });

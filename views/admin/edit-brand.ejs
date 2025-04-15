@@ -134,19 +134,14 @@
 
                 let isValid = true;
 
-                if (!image) {
-                    showError("image-error", "Please upload an image");
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+                if (image && !allowedTypes.includes(image.type)) {
+                    displayErrorMessage("image-error", "Only JPG, PNG, or WEBP images are allowed");
+                    document.getElementById('fileInput').value = '';
                     isValid = false;
-                } else {
-
-                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                    if (!allowedTypes.includes(image.type)) {
-                        showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
-
-                        document.getElementById('fileInput').value = '';
-                        isValid = false;
-                    }
                 }
+
                 if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
                     displayErrorMessage("name-error", "Brand name should start with a capital letter and contain only alphabets");
                     isValid = false;

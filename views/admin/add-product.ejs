@@ -9,7 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-    <title>Edit Brand</title>
+    <title></title>
     <style>
         .error-message {
             color: red;
@@ -102,8 +102,8 @@
                                     <select name="brand" id="brand"
                                         class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
                                         <option value="">Select a brand</option>
-                                        <% brand.forEach(watch=> { %>
-                                            <option value="<%= watch.brandName %>">
+                                        <% brands.forEach(watch=> { %>
+                                            <option value="<%= watch._id %>">
                                                 <%= watch.brandName %>
                                             </option>
                                             <% }) %>
@@ -113,8 +113,13 @@
 
                                 <div>
                                     <label class="block mb-1">Category:</label>
-                                    <input type="text" name="category" placeholder="gents/ladies/couples" id="category"
-                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-gray-400">
+                                    <select name="category" id="category"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white">
+                                        <option value="">Select category</option>
+                                        <option value="gents">Gents</option>
+                                        <option value="ladies">Ladies</option>
+                                        <option value="couples">Couples</option>
+                                    </select>
                                     <div id="category-error" class="error-message"></div>
                                 </div>
                             </div>
@@ -126,9 +131,13 @@
                                 <div id="amount-error" class="error-message"></div>
                             </div>
                             <div>
-                                <label class="block mb-1">Discount:</label>
-                                <input type="number" name="discount" id="discount"
-                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600">
+                                <label class="block mb-1">Discount (%):</label>
+                                <div class="relative">
+                                    <input type="number" name="discount" id="discount"
+                                        class="w-full p-2 rounded bg-gray-700 border border-gray-600 pr-8" min="0"
+                                        max="100" step="0.01" placeholder="0-100">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
+                                </div>
                                 <div id="discount-error" class="error-message"></div>
                             </div>
                             <div>
@@ -174,10 +183,10 @@
                             <div class="md:col-span-2">
                                 <label class="block mb-1">Colour:</label>
                                 <div class="grid grid-cols-3 gap-2">
-                                    <input type="text" name="colors[]"
+                                    <input type="text" name="color" id="color"
                                         class="p-2 rounded bg-gray-700 border border-gray-600">
                                 </div>
-                                <div id="colors-error" class="error-message"></div>
+                                <div id="color-error" class="error-message"></div>
                             </div>
 
 
@@ -195,86 +204,192 @@
                 </div>
         </div>
         <script>
+            function setupDiscountHandling() {
+                const amountInput = document.getElementById('amount');
+                const discountInput = document.getElementById('discount');
+                const salesAmountInput = document.getElementById('salesAmount');
+
+                function calculateSalePrice() {
+                    const amount = parseFloat(amountInput.value);
+                    const discount = parseFloat(discountInput.value);
+
+                    if (!isNaN(amount) && !isNaN(discount)) {
+                        const salePrice = amount * (1 - (discount / 100));
+                        salesAmountInput.value = salePrice.toFixed(2);
+                    }
+                }
+
+                amountInput.addEventListener('input', calculateSalePrice);
+                discountInput.addEventListener('input', calculateSalePrice);
+            }
 
             document.addEventListener("DOMContentLoaded", function () {
                 let isSubmitting = false;
+                setupDiscountHandling();
                 const submitButton = document.getElementById("submitButton");
                 const form = document.getElementById("addProductForm");
 
-                form.addEventListener("submit", handleFormSubmit);
+                let cropper;
+                let selectedFileIndex = 0;
+                const imageInputs = [
+                    document.getElementById("imageUpload1"),
+                    document.getElementById("imageUpload2"),
+                    document.getElementById("imageUpload3")
+                ];
+                const previewImages = [
+                    document.getElementById("preview1"),
+                    document.getElementById("preview2"),
+                    document.getElementById("preview3")
+                ];
 
-                function handleFormSubmit(event) {
+                imageInputs.forEach((input, index) => {
+                    input.addEventListener("change", function (event) {
+                        const file = event.target.files[0];
+                        if (!file) return;
+
+                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                            displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                            event.target.value = '';
+                            return;
+                        }
+
+                        selectedFileIndex = index;
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            document.getElementById("cropImage").src = e.target.result;
+                            document.getElementById("cropModal").classList.remove("hidden");
+
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+
+                            cropper = new Cropper(document.getElementById("cropImage"), {
+                                aspectRatio: 0, 
+                                viewMode: 1,
+                                autoCropArea: 0.8
+                            });
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                });
+
+                // Handle crop button
+                document.getElementById("cropButton").addEventListener("click", function () {
+                    if (cropper) {
+                        const canvas = cropper.getCroppedCanvas({
+                            width: 800,
+                            height: 800,
+                            minWidth: 256,
+                            minHeight: 256,
+                            maxWidth: 4096,
+                            maxHeight: 4096,
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        });
+
+                        if (canvas) {
+                            canvas.toBlob((blob) => {
+                                const file = new File([blob], `cropped_${Date.now()}.png`, { type: 'image/png' });
+                                const dataTransfer = new DataTransfer();
+                                dataTransfer.items.add(file);
+                                imageInputs[selectedFileIndex].files = dataTransfer.files;
+
+                                previewImages[selectedFileIndex].src = URL.createObjectURL(blob);
+                                previewImages[selectedFileIndex].classList.remove("hidden");
+                            }, 'image/png', 0.9);
+
+                            document.getElementById("cropModal").classList.add("hidden");
+                        }
+                    }
+                });
+
+                // Handle cancel crop
+                document.getElementById("cancelCrop").addEventListener("click", function () {
+                    document.getElementById("cropModal").classList.add("hidden");
+                    imageInputs[selectedFileIndex].value = '';
+                });
+
+                // Form submission
+                form.addEventListener("submit", async function (event) {
                     event.preventDefault();
 
                     if (isSubmitting) return;
                     isSubmitting = true;
                     submitButton.disabled = true;
-
-                    console.log("Form submitted");
+                    submitButton.innerHTML = 'Processing...';
 
                     if (!validationForm()) {
                         isSubmitting = false;
                         submitButton.disabled = false;
-                        return false;
-                    }
-                    const formData = new FormData();
-                    formData.append("name", document.getElementById("name").value);
-                    formData.append("description", document.getElementById("description").value);
-                    formData.append("brand", document.getElementById("brand").value);
-                    formData.append("category", document.getElementById("category").value);
-                    formData.append("amount", document.getElementById("amount").value);
-                    formData.append("discount", document.getElementById("discount").value);
-                    formData.append("shiping-charge", document.getElementById("shiping-charge").value);
-                    formData.append("salesAmount", document.getElementById('salesAmount').value);
-                    formData.append("stock", document.getElementById("stock").value);
-                    formData.append("images", document.getElementById("imageUpload1").files[0]);
-                    formData.append("images", document.getElementById("imageUpload2").files[0]);
-                    formData.append("images", document.getElementById("imageUpload3").files[0]);
-
-                    document.getElementsByName("colors[]").forEach((input) => {
-                        if (input.value.trim() !== "") {
-                            formData.append("colors[]", input.value);
-                        }
-                    });
-
-                    const featuredValue = document.querySelector('input[name="featured"]:checked');
-                    if (featuredValue) {
-                        formData.append("featured", featuredValue.value);
+                        submitButton.innerHTML = 'ADD PRODUCT';
+                        return;
                     }
 
-                    const newValue = document.querySelector('input[name="new"]:checked');
-                    if (newValue) {
-                        formData.append("new", newValue.value);
-                    }
+                    try {
+                        const formData = new FormData();
 
-                    fetch("/admin/add-productItem", {
-                        method: "POST",
-                        body: formData,
-                    })
-                        .then(async (response) => {
-                            if (!response.ok) {
-                                const errorData = await response.json();
-                                throw new Error(errorData.error || "Something went wrong");
+                        // Append all form data
+                        formData.append("name", document.getElementById("name").value);
+                        formData.append("description", document.getElementById("description").value);
+                        formData.append("brand", document.getElementById("brand").value);
+                        formData.append("category", document.getElementById("category").value);
+                        formData.append("amount", document.getElementById("amount").value);
+                        formData.append("discount", document.getElementById("discount").value);
+                        formData.append("shiping", document.getElementById("shiping").value);
+                        formData.append("salesAmount", document.getElementById("salesAmount").value);
+                        formData.append("stock", document.getElementById("stock").value);
+                        formData.append('color',document.getElementById('color').value);
+
+                        // Append images
+                        for (let i = 0; i < imageInputs.length; i++) {
+                            if (imageInputs[i].files[0]) {
+                                formData.append("images", imageInputs[i].files[0]);
                             }
-                            return response.json();
-                        })
-                        .then((data) => {
-                            Swal.fire({ icon: "success", title: "Success", text: data.message });
-                            window.location.href = "/admin/products";
-                        })
-                        .catch(error => {
-                            Swal.fire({ icon: "error", title: "Oops", text: error.message });
-                            submitButton.disabled = false;
-                        })
-                        .finally(() => {
-                            isSubmitting = false;
+                        }
+
+
+                        const featuredValue = document.querySelector('input[name="featured"]:checked').value;
+                        const newValue = document.querySelector('input[name="new"]:checked').value;
+
+                        formData.append("featured", featuredValue);
+                        formData.append("new", newValue);
+
+                        const response = await fetch("/admin/add-productItem", {
+                            method: "POST",
+                            body: formData,
                         });
 
-                    return false;
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.error || "Failed to add product");
+                        }
 
-                    form.submit();
-                }
+                        const data = await response.json();
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "/admin/products";
+                        });
 
+                    } catch (error) {
+                        console.error("Error:", error);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: error.message
+                        });
+                    } finally {
+                        isSubmitting = false;
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = 'ADD PRODUCT';
+                    }
+                });
+
+                // Validation function remains the same
                 function validationForm() {
                     clearErrorMessage();
                     const name = document.getElementById('name').value.trim();
@@ -287,9 +402,9 @@
                     const categoryMatch = /^(gents|ladies|couples)$/i;
                     const featuredSelected = document.querySelector('input[name="featured"]:checked');
                     const newSelected = document.querySelector('input[name="new"]:checked');
+                    const discount = document.getElementById("discount").value.trim();
+                    const color=document.getElementById('color').value.trim();
 
-                    const colorInputs = document.querySelectorAll('input[name="colors[]"]');
-                    let isColorFilled = Array.from(colorInputs).some(input => input.value.trim() !== "");
 
                     const image1 = document.getElementById('imageUpload1').files[0];
                     const image2 = document.getElementById('imageUpload2').files[0];
@@ -304,9 +419,18 @@
                         displayErrorMessage("name-error", "Product name should start with a capital letter and contain only alphabets");
                         isValid = false;
                     }
+                    if (discount === "" || isNaN(discount) || discount < 0 || discount > 100) {
+                        displayErrorMessage("discount-error", "Discount must be between 0% and 100%");
+                        isValid = false;
+                    }
+
                     if (!categoryMatch.test(category)) {
                         displayErrorMessage("category-error", "Category must be either 'gents', 'ladies', or 'couples'");
                         isValid = false;
+                    }
+                    if(color===''){
+                        displayErrorMessage('color-error',"Please enter a colour");
+                        isValid=false;
                     }
 
                     if (description === "") {
@@ -328,6 +452,10 @@
                         displayErrorMessage("image-error", "Only jpg, jpeg, png, and webp files are allowed.");
                         isValid = false;
                     }
+                    if (salesAmount && (parseFloat(salesAmount) >= parseFloat(amount))) {
+                        displayErrorMessage("salesAmount-error", "Sale price must be less than regular price");
+                        isValid = false;
+                    }
 
                     if (amount === "" || isNaN(amount) || amount <= 0) {
                         displayErrorMessage("amount-error", "Enter a valid amount greater than 0");
@@ -338,13 +466,27 @@
                         displayErrorMessage("stock-error", "Enter a valid stock quantity (0 or more)");
                         isValid = false;
                     }
+                    if (!brand) {
+                        displayErrorMessage("brand-error", "Please select a brand");
+                        isValid = false;
+                    }
+                    if (!featuredSelected) {
+                        displayErrorMessage("featured-error", "Please select featured status");
+                        isValid = false;
+                    }
+
+                    if (!newSelected) {
+                        displayErrorMessage("new-error", "Please select new product status");
+                        isValid = false;
+                    }
 
 
                     return isValid;
                 }
 
+
                 function displayErrorMessage(elementId, message) {
-                    var errorElement = document.getElementById(elementId);
+                    const errorElement = document.getElementById(elementId);
                     errorElement.innerText = message;
                     errorElement.style.display = 'block';
                 }
@@ -356,105 +498,7 @@
                         element.style.display = "none";
                     });
                 }
-                document.addEventListener("DOMContentLoaded", function () {
-                    function handleFileInput(inputId, previewId) {
-                        const fileInput = document.getElementById(inputId);
-                        const previewImage = document.getElementById(previewId);
-
-                        fileInput.addEventListener("change", function () {
-                            if (this.files.length === 0) return;
-
-                            const file = this.files[0];
-
-                            if (!file.type.startsWith("image/")) {
-                                alert("Only image files are allowed.");
-                                fileInput.value = "";
-                                return;
-                            }
-
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                previewImage.src = e.target.result;
-                                previewImage.classList.remove("hidden");
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    }
-
-                    handleFileInput("imageUpload1", "preview1");
-                    handleFileInput("imageUpload2", "preview2");
-                    handleFileInput("imageUpload3", "preview3");
-                });
-
-                const imageInputs = [
-                    document.getElementById("imageUpload1"),
-                    document.getElementById("imageUpload2"),
-                    document.getElementById("imageUpload3")
-                ];
-
-                const previewImages = [
-                    document.getElementById("preview1"),
-                    document.getElementById("preview2"),
-                    document.getElementById("preview3")
-                ];
-
-                const cropperContainer = document.getElementById("cropperContainer");
-                const cropperImage = document.getElementById("cropperImage");
-                const cropButton = document.getElementById("cropButton");
-                const croppedImageInput = document.getElementById("croppedImageInput");
-                let cropper;
-                let selectedFileIndex = 0;
-
-                imageInputs.forEach((input, index) => {
-                    input.addEventListener("change", function (event) {
-                        const file = event.target.files[0];
-                        if (!file) return;
-
-                        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                            displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
-                            event.target.value = ''; 
-                            return;
-                        }
-
-
-                        selectedFileIndex = index;
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            document.getElementById("cropImage").src = e.target.result;
-                            document.getElementById("cropModal").classList.remove("hidden");
-
-                            if (cropper) {
-                                cropper.destroy();
-                            }
-
-                            cropper = new Cropper(document.getElementById("cropImage"), {
-                                aspectRatio: 0,
-                                viewMode: 2,
-                            });
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                });
-
-
-                document.getElementById("cropButton").addEventListener("click", function () {
-                    if (cropper) {
-                        const canvas = cropper.getCroppedCanvas();
-                        if (canvas) {
-                            previewImages[selectedFileIndex].src = canvas.toDataURL();
-                            previewImages[selectedFileIndex].classList.remove("hidden");
-
-                            document.getElementById("cropModal").classList.add("hidden");
-                        }
-                    }
-                });
-
-                document.getElementById("cancelCrop").addEventListener("click", function () {
-                    document.getElementById("cropModal").classList.add("hidden");
-                });
-
             });
-
         </script>
 
 </body>

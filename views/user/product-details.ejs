@@ -32,7 +32,7 @@
                             </h2>
                             <div class="flex items-center justify-between text-sm text-gray-300">
                                 <span>Brands: <a href="#" class="text-yellow-300">
-                                        <%= productDet.brand %>
+                                        <%= brand.brandName %>
                                     </a></span>
                                 <div class="flex items-center">
                                     <div class="flex space-x-1 text-yellow-200">
@@ -73,8 +73,8 @@
                                 <div class="">
                                     <span
                                         class="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium animate-pulse shadow-lg">
-                                        Save $<%= productDet.discount %>
-                                            (<%= Math.round((productDet.discount / productDet.regularPrice) * 100) %>%
+                                        Save 
+                                        ( <%= productDet.discount %> %
                                                 off)
                                     </span>
                                 </div>

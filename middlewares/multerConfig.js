@@ -1,28 +1,31 @@
-const multer = require("multer");
-const path = require("path");
+const multer = require('multer');
+const path = require('path');
+const crypto = require('crypto');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "public/uploads/");
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
+        const uniqueSuffix = crypto.randomBytes(8).toString('hex');
+        cb(null, `${uniqueSuffix}-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
-const fileFilter = function (req, file, cb) {
+const fileFilter = (req, file, cb) => {
     const allowedTypes = /jpeg|jpg|png|webp/;
-    const extName = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimeType = allowedTypes.test(file.mimetype);
-
-    if (extName && mimeType) {
-        cb(null, true);
-    } else {
-        cb(new Error("Only images (jpeg, jpg, png, webp) are allowed!"));
-    }
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    extname && mimetype ? cb(null, true) : cb(new Error("Only images are allowed!"), false);
 };
 
-const upload = multer({
+exports.upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: { fileSize: 5 * 1024 * 1024 }
+}).array('images', 3);
+
+exports.editUpload =  multer({
     storage: storage,
     fileFilter: fileFilter,
 }).fields([
@@ -30,5 +33,3 @@ const upload = multer({
     { name: 'images2', maxCount: 1 },
     { name: 'images3', maxCount: 1 }
 ]);
-
-module.exports = upload;

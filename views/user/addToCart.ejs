@@ -180,14 +180,15 @@
                             <span class="font-medium" id="cart-subtotal">$<%= cartItems.subtotal.toFixed(2) %></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-400">Discount</span>
-                            <span class="text-green-500" id="cart-discount">-$<%= cartItems.discount.toFixed(2) %>
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
                             <span class="text-gray-400">Shipping</span>
                             <span id="cart-shipping">$<%= cartItems.shippingCharge.toFixed(2) %></span>
                         </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Discount</span>
+                            <span class="text-green-500" id="cart-discount">- %<%= cartItems.discount.toFixed(2) %>
+                            </span>
+                        </div>
+                       
                         <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
                             <span>Total</span>
                             <span class="text-[#E8B888]" id="cart-total">$<%= cartItems.total.toFixed(2) %></span>
@@ -301,32 +302,46 @@
 
             fetch('/updateCartQuantity', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({
                     itemIds: items.map(i => i.id),
                     quantities: items.map(i => i.quantity)
                 })
-            }).then(r => r.json()).then(data => {
-                hideLoading();
-                if (data.success) {
-                    items.forEach((item, index) => {
-                        const price = parseFloat(document.querySelector(`[data-item-id="${item.id}"] [data-price]`).dataset.price);
-                        document.querySelector(`[data-item-id="${item.id}"] .item-total`).textContent =
-                            `$${(price * item.quantity).toFixed(2)}`;
-                    });
-                    updateCartSummary(data.cartSummary);
-                    Swal.fire('Updated!', data.message, 'success');
-
-                    if (data.stockUpdated) {
-                        setTimeout(() => location.reload(), 1000);
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
                     }
-                } else {
-                    Swal.fire('Error!', data.message, 'error');
-                }
-            }).catch(err => {
-                hideLoading();
-                Swal.fire('Error!', 'Unable to update cart', 'error');
-            });
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        items.forEach((item, index) => {
+                            const price = parseFloat(document.querySelector(`[data-item-id="${item.id}"] [data-price]`).dataset.price);
+                            document.querySelector(`[data-item-id="${item.id}"] .item-total`).textContent =
+                                `$${(price * item.quantity).toFixed(2)}`;
+                        });
+
+                        updateCartSummary(data.cartSummary);
+
+                        Swal.fire('Updated!', data.message, 'success');
+
+                        if (data.stockUpdated) {
+                            setTimeout(() => location.reload(), 1000);
+                        }
+                    } else {
+                        Swal.fire('Error!', data.message, 'error');
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    console.log("new error", err);
+                    Swal.fire('Error!', err.message || 'Unable to update cart', 'error');
+                });
         });
 
         document.getElementById('checkoutBtn')?.addEventListener('click', function (e) {
@@ -353,10 +368,20 @@
 
         function updateCartSummary(summary) {
             if (!summary) return;
-            document.getElementById('cart-subtotal').textContent = `$${summary.subtotal.toFixed(2)}`;
-            document.getElementById('cart-discount').textContent = `-$${summary.discount.toFixed(2)}`;
-            document.getElementById('cart-shipping').textContent = `$${summary.shippingCharge.toFixed(2)}`;
-            document.getElementById('cart-total').textContent = `$${summary.total.toFixed(2)}`;
+
+            const subtotal = typeof summary.subtotal === 'string' ?
+                parseFloat(summary.subtotal) : summary.subtotal;
+            const discount = typeof summary.discount === 'string' ?
+                parseFloat(summary.discount) : summary.discount;
+            const shippingCharge = typeof summary.shippingCharge === 'string' ?
+                parseFloat(summary.shippingCharge) : summary.shippingCharge;
+            const total = typeof summary.total === 'string' ?
+                parseFloat(summary.total) : summary.total;
+
+            document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cart-discount').textContent = `-$${discount.toFixed(2)}`;
+            document.getElementById('cart-shipping').textContent = `$${shippingCharge.toFixed(2)}`;
+            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
         }
 
         function showLoading() {

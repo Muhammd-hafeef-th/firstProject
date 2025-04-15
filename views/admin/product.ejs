@@ -72,9 +72,7 @@
                                                 <%}%>
                                         </td>
 
-                                        <td class="p-3">
-                                            <%= product.brand %>
-                                        </td>
+                                        <td class="p-3"><%= product.brand.brandName %></td>
                                         <td class="p-3">
                                             <%= product.category %>
                                         </td>
@@ -88,10 +86,10 @@
                                                 Date(product.updatedAt).toLocaleDateString("en-GB") : "Not Available" %>
                                         </td>
                                         <td class="flex  gap-2 m-6 ">
-                                            <% product.color.forEach(color=> { %>
+                                            
                                                 <span class="w-4 h-4 rounded-full"
-                                                    style="background-color: <%=color%>"></span>
-                                                <% }) %>
+                                                    style="background-color: <%=product.color%>"></span>
+                                                
                                         </td>
                                         <td class="p-3">
                                             <a href="/admin/edit-product?id=<%= product._id %>"

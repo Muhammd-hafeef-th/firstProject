@@ -23,8 +23,9 @@ const productSchema = new Schema({
         min:0
     },
     brand: {
-        type: String,
-        required: true,
+        type: Schema.Types.ObjectId,
+        ref: 'Brand',
+        required: true
     },
     category: {
         type: String,
@@ -39,12 +40,6 @@ const productSchema = new Schema({
         type: Number,
         required: false,
         min: 0,
-        validate: {
-            validator: function (value) {
-                return value < this.regularPrice;
-            },
-            message: "Sale price must be less than the regular price",
-        },
     },
     productOffer: {
         type: Number,
@@ -57,7 +52,7 @@ const productSchema = new Schema({
         min: 0,
     },
     color: {
-        type: [String],
+        type: String,
         required: true,
     },
     productImage: {
