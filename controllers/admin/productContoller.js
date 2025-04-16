@@ -108,18 +108,18 @@ const editProductItem = async (req, res) => {
             return res.redirect(`/admin/edit-product?id=${productId}&error=Product not found`);
         }
 
-        const { 
-            name, 
-            description, 
-            brand, 
-            category, 
+        const {
+            name,
+            description,
+            brand,
+            category,
             amount,
             saleAmount,
             discount,
-            shiping, 
-            stock, 
-            featured, 
-            new: isNew, 
+            shiping,
+            stock,
+            featured,
+            new: isNew,
             color,
             existingImages,
             croppedImage1,
@@ -127,13 +127,11 @@ const editProductItem = async (req, res) => {
             croppedImage3
         } = req.body;
 
-        // Validate brand exists
         const brandExists = await Brand.findById(brand);
         if (!brandExists) {
             return res.redirect(`/admin/edit-product?id=${productId}&error=Brand does not exist. Please add the brand first`);
         }
 
-        // Parse existing images
         let productImages = [];
         try {
             if (typeof existingImages === 'string') {
@@ -147,53 +145,43 @@ const editProductItem = async (req, res) => {
             console.error("Error parsing existing images:", e);
             productImages = [...product.productImage];
         }
-
-        // Handle uploaded files and cropped images
         const handleImageUpdates = async () => {
             const imageUpdates = [];
-            
-            // Process regular file uploads
+
             for (let i = 1; i <= 3; i++) {
                 if (req.files && req.files[`images${i}`]) {
                     imageUpdates.push({
-                        index: i-1,
+                        index: i - 1,
                         filename: `/uploads/${req.files[`images${i}`][0].filename}`
                     });
                 }
             }
-            
-            // Process cropped images (base64)
+
             for (let i = 1; i <= 3; i++) {
                 const croppedImage = req.body[`croppedImage${i}`];
                 if (croppedImage && croppedImage.startsWith('data:image')) {
-                    // Here you would typically save the base64 image to a file
-                    // and get the path, but for simplicity we'll just use the base64
-                    // In production, you should save it to disk or cloud storage
                     imageUpdates.push({
-                        index: i-1,
-                        filename: croppedImage // This would be the file path in real implementation
+                        index: i - 1,
+                        filename: croppedImage
                     });
                 }
             }
-            
+
             return imageUpdates;
         };
 
         const imageUpdates = await handleImageUpdates();
-        
-        // Update productImages array with new images
+
         imageUpdates.forEach(update => {
             productImages[update.index] = update.filename;
         });
 
-        // Calculate sale price if not provided
         let finalSalePrice = parseFloat(saleAmount);
         if (isNaN(finalSalePrice) && discount) {
             const calculatedSalePrice = parseFloat(amount) * (1 - (parseFloat(discount) / 100));
             finalSalePrice = calculatedSalePrice.toFixed(2);
         }
 
-        // Prepare update data
         const updateData = {
             productName: name.trim(),
             description: description.trim(),
@@ -211,7 +199,6 @@ const editProductItem = async (req, res) => {
             productImage: productImages
         };
 
-        // Update product
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
             updateData,
@@ -244,6 +231,48 @@ const deleteProduct = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+const toggleProductStatus = async (req, res) => {
+    try {
+        const { productId, isListed } = req.body;
+        const currentStatus = typeof isListed === 'string' ? 
+                             isListed === 'true' : 
+                             Boolean(isListed);
+
+        if (!productId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Product ID is required' 
+            });
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            { isListed: !currentStatus }, 
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Product not found' 
+            });
+        }
+
+        res.status(200).json({ 
+            success: true,
+            isListed: updatedProduct.isListed,
+            message: `Product ${updatedProduct.isListed ? 'listed' : 'unlisted'} successfully`
+        });
+
+    } catch (error) {
+        console.error('Error toggling product status:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server error while updating product status' 
+        });
+    }
+};
+
 
 module.exports = {
     productInfo,
@@ -251,5 +280,6 @@ module.exports = {
     addProductItem,
     editProduct,
     editProductItem,
-    deleteProduct
+    deleteProduct,
+    toggleProductStatus
 };

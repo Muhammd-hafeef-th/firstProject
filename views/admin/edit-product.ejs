@@ -35,7 +35,6 @@
                     <input type="hidden" name="existingImages" id="existingImages" 
                            value="<%= JSON.stringify(product.productImage) %>">
 
-                    <!-- Images Section -->
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-lg font-semibold">Product Images:</label>
                         <div class="flex gap-4">
@@ -69,7 +68,6 @@
                         <div id="image-error" class="error-message"></div>
                     </div>
 
-                    <!-- Product Details -->
                     <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block mb-1">Product Name:</label>
@@ -111,7 +109,6 @@
                         </div>
                     </div>
 
-                    <!-- Pricing Section -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block mb-1">Regular Price:</label>
@@ -121,7 +118,7 @@
                         </div>
 
                         <div>
-                            <label class="block mb-1">Discount (%):</label>
+                            <label class="block mb-1">Offer (%):</label>
                             <div class="relative">
                                 <input type="number" name="discount" id="discount" value="<%= product.discount %>"
                                     class="w-full p-2 rounded bg-gray-700 border border-gray-600 pr-8" min="0"
@@ -153,7 +150,6 @@
                         </div>
                     </div>
 
-                    <!-- Options Section -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="flex flex-col">
                             <label class="block mb-1">Featured Product:</label>
@@ -192,7 +188,6 @@
                         </div>
                     </div>
 
-                    <!-- Color -->
                     <div>
                         <label class="block mb-1">Color:</label>
                         <input type="text" name="color" id="color" value="<%= product.color %>"
@@ -200,7 +195,6 @@
                         <div id="color-error" class="error-message"></div>
                     </div>
 
-                    <!-- Submit Button -->
                     <div class="md:col-span-2 flex justify-center">
                         <button type="submit" id="submitButton"
                             class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 transition">
@@ -212,7 +206,6 @@
         </div>
     </div>
 
-    <!-- Crop Modal -->
     <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
         <div class="bg-white p-4 rounded-lg w-[450px] max-w-full shadow-lg">
             <h2 class="text-black text-xl mb-4">Crop Image</h2>
@@ -234,7 +227,6 @@
             let cropper;
             let currentImageIndex;
 
-            // Get existing images from hidden input
             let existingImages = [];
             try {
                 const existingImagesValue = document.getElementById('existingImages').value;
@@ -244,7 +236,6 @@
                 existingImages = [];
             }
 
-            // Setup discount calculation
             function setupDiscountHandling() {
                 const amountInput = document.getElementById('amount');
                 const discountInput = document.getElementById('discount');
@@ -267,7 +258,6 @@
             }
             setupDiscountHandling();
 
-            // Image upload and cropping functionality
             function handleImageUpload(event, index) {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -321,21 +311,17 @@
                         fillColor: '#fff'
                     });
 
-                    // Convert canvas to blob and store in hidden input
                     canvas.toBlob((blob) => {
                         const reader = new FileReader();
                         reader.onload = function() {
-                            // Store base64 in hidden input
                             document.getElementById(`croppedImage${currentImageIndex}`).value = reader.result;
                             
-                            // Update preview
                             const preview = document.getElementById(`imagePreview${currentImageIndex}`);
                             if (preview) {
                                 preview.src = reader.result;
                                 preview.style.display = 'block';
                             }
                             
-                            // Hide "No image" text if exists
                             const noImageText = document.getElementById(`noImageText${currentImageIndex}`);
                             if (noImageText) noImageText.style.display = 'none';
                         };
@@ -364,7 +350,6 @@
                 }
             }
 
-            // Set up image upload handlers
             for (let i = 1; i <= 3; i++) {
                 const input = document.getElementById(`imageUpload${i}`);
                 if (input) {
@@ -374,7 +359,6 @@
                 }
             }
 
-            // Form submission
             form.addEventListener("submit", function (event) {
                 event.preventDefault();
 
@@ -399,7 +383,6 @@
                     return false;
                 }
 
-                // If validation passes, submit the form
                 form.submit();
             });
 
@@ -425,7 +408,6 @@
                 let isValid = true;
                 let hasAtLeastOneImage = false;
 
-                // Validate images
                 for (let i = 1; i <= 3; i++) {
                     const input = document.getElementById(`imageUpload${i}`);
                     const preview = document.getElementById(`imagePreview${i}`);
@@ -537,7 +519,6 @@
                 });
             }
 
-            // Handle any error messages from backend
             const urlParams = new URLSearchParams(window.location.search);
             const errorMessage = urlParams.get('error');
             if (errorMessage) {
@@ -546,7 +527,6 @@
                     title: 'Error',
                     text: errorMessage,
                 });
-                // Clean URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });

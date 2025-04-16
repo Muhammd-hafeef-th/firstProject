@@ -12,6 +12,10 @@ const productSchema = new Schema({
         required: true,
         trim: true,
     },
+    isListed:{
+        type:Boolean,
+        default:true
+    },
     discount:{
         type:Number,
         required:false,

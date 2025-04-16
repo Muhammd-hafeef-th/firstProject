@@ -2,6 +2,8 @@ const Brand=require('../../models/brandSchema')
 const multer = require("multer");
 const path = require("path");
 const { nextTick } = require('process');
+const Product = require('../../models/productSchema');
+const { findById } = require('../../models/userSchema');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -118,14 +120,12 @@ const editBrandDetails = async (req, res) => {
             return res.redirect("/admin/brands");
         }
 
-        // Get the existing brand data
         const existingBrand = await Brand.findById(brandId);
         if (!existingBrand) {
             req.flash("error", "Brand not found");
             return res.redirect("/admin/brands");
         }
 
-        // Check for duplicate brand name (case insensitive) excluding current brand
         const duplicateBrand = await Brand.findOne({ 
             brandName: { $regex: new RegExp(`^${name}$`, "i") },
             _id: { $ne: brandId }
@@ -136,21 +136,17 @@ const editBrandDetails = async (req, res) => {
             return res.redirect(`/admin/edit-brand?id=${brandId}`); 
         }
 
-        // Prepare update data
         const updateData = { 
             brandName: name, 
             description 
         };
 
-        // Only update image if new one was uploaded
         if (req.file) {
             updateData.brandImage = `/uploads/${req.file.filename}`;
         } else {
-            // Keep the existing image path
             updateData.brandImage = existingBrand.brandImage;
         }
 
-        // Update the brand
         await Brand.updateOne({ _id: brandId }, { $set: updateData });
 
         req.flash("success", "Brand updated successfully!");
@@ -172,6 +168,37 @@ const deleteBrand= async (req,res)=>{
         res.status(500).json({error:"Internal Server Error"})
     }
 }
+const toggleBrandStatus = async (req, res) => {
+    try {
+        const { brandId, isListed } = req.body;
+        await Brand.findByIdAndUpdate(brandId, { isListed: isListed });
+        await Product.updateMany(
+            { brand: brandId },
+            { $set: { isListed: isListed } }
+        );
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+};
+const addBrandOffer=async(req,res)=>{
+    const { brandId, offerPercentage } = req.body;
+    try {
+        const brand = await Brand.findById(brandId);
+        if (!brand) {
+            return res.status(404).json({ message: 'Brand not found' });
+        }
+        brand.brandOffer = offerPercentage;
+        await brand.save();
+        res.status(200).json({ message: 'Offer added successfully', brand });
+    } catch (error) {
+        console.error('Error adding offer:', error);
+        res.status(500).json({ message: 'Failed to add offer', error: error.message });
+    }
+}
+
 
 
 module.exports={
@@ -181,5 +208,7 @@ module.exports={
     upload,
     editBrand,
     editBrandDetails,
-    deleteBrand
+    deleteBrand,
+    toggleBrandStatus,
+    addBrandOffer
 }

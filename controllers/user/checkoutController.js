@@ -12,10 +12,24 @@ const checkout = async (req, res, next) => {
         const userCart = await Cart.findOne({ userId: id })
             .populate({
                 path: 'items.productId',
-                model: 'Product'
+                model: 'Product',
+                match: { 
+                    $and: [
+                        { status: { $ne: "Discontinued" } },
+                    ]
+                }
             }) || { items: [] };
 
-        const cartItems = userCart.items || [];
+        const validItems = userCart.items?.filter(item => item.productId) || [];
+        
+        const invalidItems = validItems.filter(item => {
+            return item.quantity > item.productId.quantity || !item.productId.isListed;
+        });
+
+        if (invalidItems.length > 0) {
+            return res.redirect('/cart');
+        }
+
         const addressDocs = await Address.find({ userId: id });
         let allAddresses = [];
 
@@ -33,29 +47,27 @@ const checkout = async (req, res, next) => {
             return a.createdAt - b.createdAt;
         });
 
-        let subtotal = cartItems.reduce((total, item) => {
+        let subtotal = validItems.reduce((total, item) => {
             return total + (item.productId.regularPrice * item.quantity);
         }, 0);
 
-        let discount = cartItems.reduce((total, item) => {
+        let discount = validItems.reduce((total, item) => {
             return total + (item.productId.discount * item.quantity);
-
         }, 0);
 
-        let shipingCharge = cartItems.reduce((total, item) => {
-            total += item.productId.shipingCharge
-            return total;
-        }, 0)
-
+        let shipingCharge = validItems.reduce((total, item) => {
+            return total + (item.productId.shipingCharge * item.quantity);
+        }, 0);
 
         res.render('checkout', {
-            cartItems,
+            cartItems: validItems,
             discount,
             shipingCharge,
             addresses: allAddresses,
             subtotal,
             messages: req.flash()
         });
+
     } catch (error) {
         next(error);
     }

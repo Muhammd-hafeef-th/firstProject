@@ -131,7 +131,7 @@
                                 <div id="amount-error" class="error-message"></div>
                             </div>
                             <div>
-                                <label class="block mb-1">Discount (%):</label>
+                                <label class="block mb-1">Offer (%):</label>
                                 <div class="relative">
                                     <input type="number" name="discount" id="discount"
                                         class="w-full p-2 rounded bg-gray-700 border border-gray-600 pr-8" min="0"
@@ -273,7 +273,6 @@
                     });
                 });
 
-                // Handle crop button
                 document.getElementById("cropButton").addEventListener("click", function () {
                     if (cropper) {
                         const canvas = cropper.getCroppedCanvas({
@@ -303,13 +302,11 @@
                     }
                 });
 
-                // Handle cancel crop
                 document.getElementById("cancelCrop").addEventListener("click", function () {
                     document.getElementById("cropModal").classList.add("hidden");
                     imageInputs[selectedFileIndex].value = '';
                 });
 
-                // Form submission
                 form.addEventListener("submit", async function (event) {
                     event.preventDefault();
 
@@ -328,7 +325,6 @@
                     try {
                         const formData = new FormData();
 
-                        // Append all form data
                         formData.append("name", document.getElementById("name").value);
                         formData.append("description", document.getElementById("description").value);
                         formData.append("brand", document.getElementById("brand").value);
@@ -340,7 +336,6 @@
                         formData.append("stock", document.getElementById("stock").value);
                         formData.append('color',document.getElementById('color').value);
 
-                        // Append images
                         for (let i = 0; i < imageInputs.length; i++) {
                             if (imageInputs[i].files[0]) {
                                 formData.append("images", imageInputs[i].files[0]);
@@ -389,7 +384,6 @@
                     }
                 });
 
-                // Validation function remains the same
                 function validationForm() {
                     clearErrorMessage();
                     const name = document.getElementById('name').value.trim();

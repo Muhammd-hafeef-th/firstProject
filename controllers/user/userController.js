@@ -22,18 +22,18 @@ const upload = multer({ storage: storage });
 
 const loadHomepage = async (req, res, next) => {
     try {
-        let productsData = await Product.find({ quantity: { $gt: 0 } })
-        let featuredData = await Product.find({ isFeatured: true, quantity: { $gt: 0 } })
-        let newArrivalsData = await Product.find({ isNew: true, quantity: { $gt: 0 } })
-        const brandData = await Brand.find({})
+        let productsData = await Product.find({ quantity: { $gt: 0 },isListed:true })
+        let featuredData = await Product.find({ isFeatured: true,isListed:true, quantity: { $gt: 0 } })
+        let newArrivalsData = await Product.find({ isNew: true,isListed:true, quantity: { $gt: 0 } })
+        const brandData = await Brand.find({isListed:true})
 
-        productsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productsData = productsData.slice(0, 3)
 
-        featuredData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        featuredData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         featuredData = featuredData.slice(0, 3);
 
-        newArrivalsData.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn));
+        newArrivalsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         newArrivalsData = newArrivalsData.slice(0, 4);
 
         const user = await User.findOne({ _id: req.session.user });
@@ -276,7 +276,8 @@ const featuredProducts = async (req, res, next) => {
 
         let baseQuery = {
             quantity: { $gt: 0 },
-            isFeatured: true
+            isFeatured: true,
+            isListed:true
         };
         let featuredData = await Product.find(baseQuery)
             .sort({ createdOn: -1 })
@@ -302,7 +303,8 @@ const products = async (req, res, next) => {
         const skip = (page - 1) * limit;
         const { search, category, brand, sort, priceFrom, priceTo } = req.query;
         const query = {
-            quantity: { $gt: 0 }
+            quantity: { $gt: 0 },
+            isListed:true
         };
 
         if (search) {
@@ -340,7 +342,7 @@ const products = async (req, res, next) => {
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
 
-        const brands = await Brand.find({});
+        const brands = await Brand.find({isListed:true});
         const filters = new URLSearchParams(req.query).toString().replace(/page=\d+&?/, '');
 
         res.render("products", {
@@ -364,7 +366,8 @@ const newArrivals = async (req, res, next) => {
 
         let baseQuery = {
             quantity: { $gt: 0 },
-            isNew: true
+            isNew: true,
+            isListed:true
         };
         let newArrivalsData = await Product.find(baseQuery)
             .sort({ createdOn: -1 })
@@ -393,10 +396,10 @@ const mensWatch = async (req, res, next) => {
         const limit = 12;
         const skip = (page - 1) * limit;
 
-        let brands = await Brand.find({})
+        let brands = await Brand.find({isListed:true})
         let gentsMatch = /gents/i;
 
-        let mensWatch = await Product.find({ category: gentsMatch })
+        let mensWatch = await Product.find({ category: gentsMatch,isListed:true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -422,9 +425,9 @@ const ladiesWatch = async (req, res, next) => {
         const limit = 12;
         const skip = (page - 1) * limit;
 
-        const brands = await Brand.find({});
+        const brands = await Brand.find({isListed:true});
         const ladiesMatch = /ladies/i;
-        const ladiesProducts = await Product.find({ category: ladiesMatch })
+        const ladiesProducts = await Product.find({ category: ladiesMatch,isListed:true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -451,9 +454,9 @@ const couplesWatch = async (req, res, next) => {
         const limit = 6;
         const skip = (page - 1) * limit;
 
-        let brands = await Brand.find({})
+        let brands = await Brand.find({isListed:true})
         let couplesMatch = /couples/i;
-        let couplesWatch = await Product.find({ category: couplesMatch })
+        let couplesWatch = await Product.find({ category: couplesMatch,isListed:true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -519,10 +522,10 @@ const addReview = async (req, res, next) => {
 
 const filterProduct = async (req, res, next) => {
     try {
-        const brandsdetails = await Brand.find({});
+        const brandsdetails = await Brand.find({isListed:true});
         const { category, brands, sortByPrice, priceTo, priceFrom } = req.body;
 
-        const filter = {};
+        const filter = {isListed:true};
 
         if (category) {
             filter.category = category;
@@ -568,7 +571,7 @@ const ladiesBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /ladies/i };
+        const filter = { category: /ladies/i,isListed:true };
 
         const brand = await Brand.findOne({ brandName: selectedBrand });
 
@@ -576,7 +579,7 @@ const ladiesBrandFilter = async (req, res, next) => {
             filter.brand = brand._id
         }
 
-        const brands=await Brand.find();
+        const brands=await Brand.find({isListed:true});
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -601,7 +604,7 @@ const gentsBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /gents/i };
+        const filter = { category: /gents/i,isListed:true };
 
         const brand = await Brand.findOne({ brandName: selectedBrand });
 
@@ -609,7 +612,7 @@ const gentsBrandFilter = async (req, res, next) => {
         if (selectedBrand) {
             filter.brand = brand._id;
         }
-        const brands=await Brand.find();
+        const brands=await Brand.find({isListed:true});
 
         const filteredProducts = await Product.find(filter)
             .skip(skip)
@@ -635,15 +638,12 @@ const couplesBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /couples/i };
-
-
+        const filter = { category: /couples/i ,isListed:true};
         const brand = await Brand.findOne({ brandName: selectedBrand });
-
         if (selectedBrand) {
             filter.brand = brand._id
         }
-        const brands = await Brand.find({});
+        const brands = await Brand.find({isListed:true});
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -682,7 +682,7 @@ const brandButton = async (req, res, next) => {
 
         }
 
-        let query = { brand: brand._id };
+        let query = { brand: brand._id,isListed:true };
 
         if (selectedCategory) {
             query.category = selectedCategory;
@@ -1058,8 +1058,6 @@ const addtoCart = async (req, res, next) => {
         const productId = req.query.id;
         const requestedQuantity = parseInt(req.query.quantity) || 1;
         const userId = req.session.user?._id || req.session.user;
-
-
         const MAX_QUANTITY_PER_PRODUCT = 10;
 
         if (!userId) {
@@ -1069,6 +1067,16 @@ const addtoCart = async (req, res, next) => {
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).send("Product not found");
+        }
+
+        if (!product.isListed) {
+            req.flash("error", "This product is currently unavailable");
+            return res.redirect('back')
+        }
+
+        if (product.status === "Discontinued") {
+            req.flash("error", "This product has been discontinued");
+            return res.redirect('back');
         }
 
         if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
@@ -1138,48 +1146,60 @@ const cart = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
-                match: { status: { $ne: "Discontinued" } }
+                match: { 
+                    $and: [
+                        { status: { $ne: "Discontinued" } },
+                    ]
+                }
             })
             .lean();
 
         const validItems = cartData?.items?.filter(item => item.productId) || [];
-        const itemsWithStockInfo = validItems.map(item => {
+        const itemsWithStatusInfo = validItems.map(item => {
             return {
                 ...item,
                 isOutOfStock: item.quantity > item.productId.quantity,
+                isUnlisted: !item.productId.isListed, 
                 availableQuantity: item.productId.quantity
             };
         });
 
         let cartItems = {
-            items: itemsWithStockInfo,
+            items: itemsWithStatusInfo,
             subtotal: 0,
             discount: 0,
             shippingCharge: 0,
             total: 0,
-            hasOutOfStockItems: false
+            hasOutOfStockItems: false,
+            hasUnlistedItems: false 
         };
 
-        if (itemsWithStockInfo.length > 0) {
-            cartItems = itemsWithStockInfo.reduce((acc, item) => {
+        if (itemsWithStatusInfo.length > 0) {
+            cartItems = itemsWithStatusInfo.reduce((acc, item) => {
                 const product = item.productId;
                 const quantity = item.quantity;
 
                 if (!product) return acc;
 
-                const itemPrice = product.regularPrice * quantity;
-                const itemDiscount = (product.discount || 0) * quantity;
-                const itemShipping = (product.shipingCharge || 0) * quantity;
+                if (product.isListed && product.status !== "Discontinued") {
+                    const itemPrice = product.regularPrice * quantity;
+                    const itemDiscount = product.discount 
+                    const itemShipping = (product.shipingCharge || 0) * quantity;
 
-                acc.items.push(item);
-                acc.subtotal += itemPrice;
-                acc.discount += itemDiscount;
-                acc.shippingCharge += itemShipping;
+                    acc.subtotal += itemPrice;
+                    acc.discount += itemDiscount;
+                    acc.shippingCharge += itemShipping;
+                }
 
                 if (item.isOutOfStock) {
                     acc.hasOutOfStockItems = true;
                 }
 
+                if (item.isUnlisted) {
+                    acc.hasUnlistedItems = true;
+                }
+
+                acc.items.push(item);
                 return acc;
             }, {
                 items: [],
@@ -1187,7 +1207,8 @@ const cart = async (req, res, next) => {
                 discount: 0,
                 shippingCharge: 0,
                 total: 0,
-                hasOutOfStockItems: false
+                hasOutOfStockItems: false,
+                hasUnlistedItems: false
             });
 
             const discountAmount = (cartItems.subtotal * cartItems.discount) / 100;
@@ -1197,7 +1218,11 @@ const cart = async (req, res, next) => {
         res.render('addToCart', {
             cartItems,
             regularPriceTotal: cartItems.subtotal,
-            discountedPriceTotal: cartItems.subtotal - cartItems.discount
+            discountedPriceTotal: cartItems.subtotal - cartItems.discount,
+            messages: {
+                hasUnlistedItems: cartItems.hasUnlistedItems,
+                hasOutOfStockItems: cartItems.hasOutOfStockItems
+            }
         });
     } catch (error) {
         error.message = "Error in cart controller: " + error.message;

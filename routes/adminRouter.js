@@ -31,21 +31,21 @@ router.get('/add-brandItem',adminAuth,brandController.addBrandItem)
 router.get("/edit-brand",adminAuth,brandController.editBrand)
 router.post("/editBrandDetails", adminAuth, brandController.upload.single("image"), brandController.editBrandDetails);
 router.post('/delete-brand',adminAuth,brandController.deleteBrand)
+router.post('/toggle-brand-status',brandController.toggleBrandStatus);
+router.post('/add-brand-offer',adminAuth,brandController.addBrandOffer)
 
 //products management
 
 
 router.get('/products', adminAuth, productController.productInfo);
 router.get("/add-product", adminAuth, productController.addProduct);
-router.post("/add-productItem", 
-    adminAuth,
-    upload,
-    productController.addProductItem
-);
+router.post("/add-productItem",adminAuth,upload,productController.addProductItem);
 router.get("/edit-product", adminAuth, productController.editProduct);
 router.get("/edit-product", adminAuth, productController.editProduct);
 router.post("/edit-productItem", adminAuth, editUpload, productController.editProductItem);
 router.post("/delete-product",adminAuth,productController.deleteProduct)
+router.post('/toggle-product-status', productController.toggleProductStatus);
+
 
 
 //order management
