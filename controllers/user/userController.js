@@ -22,10 +22,10 @@ const upload = multer({ storage: storage });
 
 const loadHomepage = async (req, res, next) => {
     try {
-        let productsData = await Product.find({ quantity: { $gt: 0 },isListed:true })
-        let featuredData = await Product.find({ isFeatured: true,isListed:true, quantity: { $gt: 0 } })
-        let newArrivalsData = await Product.find({ isNew: true,isListed:true, quantity: { $gt: 0 } })
-        const brandData = await Brand.find({isListed:true})
+        let productsData = await Product.find({ quantity: { $gt: 0 }, isListed: true })
+        let featuredData = await Product.find({ isFeatured: true, isListed: true, quantity: { $gt: 0 } })
+        let newArrivalsData = await Product.find({ isNew: true, isListed: true, quantity: { $gt: 0 } })
+        const brandData = await Brand.find({ isListed: true })
 
         productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productsData = productsData.slice(0, 3)
@@ -277,7 +277,7 @@ const featuredProducts = async (req, res, next) => {
         let baseQuery = {
             quantity: { $gt: 0 },
             isFeatured: true,
-            isListed:true
+            isListed: true
         };
         let featuredData = await Product.find(baseQuery)
             .sort({ createdOn: -1 })
@@ -304,7 +304,7 @@ const products = async (req, res, next) => {
         const { search, category, brand, sort, priceFrom, priceTo } = req.query;
         const query = {
             quantity: { $gt: 0 },
-            isListed:true
+            isListed: true
         };
 
         if (search) {
@@ -315,11 +315,12 @@ const products = async (req, res, next) => {
         }
         if (brand) {
             const brandDoc = await Brand.findOne({
-                brandName: brand});
+                brandName: brand
+            });
             if (brandDoc) {
                 query.brand = brandDoc._id;
             }
-           
+
         }
         if (priceFrom || priceTo) {
             query.regularPrice = {};
@@ -342,7 +343,7 @@ const products = async (req, res, next) => {
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
 
-        const brands = await Brand.find({isListed:true});
+        const brands = await Brand.find({ isListed: true });
         const filters = new URLSearchParams(req.query).toString().replace(/page=\d+&?/, '');
 
         res.render("products", {
@@ -367,7 +368,7 @@ const newArrivals = async (req, res, next) => {
         let baseQuery = {
             quantity: { $gt: 0 },
             isNew: true,
-            isListed:true
+            isListed: true
         };
         let newArrivalsData = await Product.find(baseQuery)
             .sort({ createdOn: -1 })
@@ -396,10 +397,10 @@ const mensWatch = async (req, res, next) => {
         const limit = 12;
         const skip = (page - 1) * limit;
 
-        let brands = await Brand.find({isListed:true})
+        let brands = await Brand.find({ isListed: true })
         let gentsMatch = /gents/i;
 
-        let mensWatch = await Product.find({ category: gentsMatch,isListed:true })
+        let mensWatch = await Product.find({ category: gentsMatch, isListed: true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -425,9 +426,9 @@ const ladiesWatch = async (req, res, next) => {
         const limit = 12;
         const skip = (page - 1) * limit;
 
-        const brands = await Brand.find({isListed:true});
+        const brands = await Brand.find({ isListed: true });
         const ladiesMatch = /ladies/i;
-        const ladiesProducts = await Product.find({ category: ladiesMatch,isListed:true })
+        const ladiesProducts = await Product.find({ category: ladiesMatch, isListed: true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -454,9 +455,9 @@ const couplesWatch = async (req, res, next) => {
         const limit = 6;
         const skip = (page - 1) * limit;
 
-        let brands = await Brand.find({isListed:true})
+        let brands = await Brand.find({ isListed: true })
         let couplesMatch = /couples/i;
-        let couplesWatch = await Product.find({ category: couplesMatch,isListed:true })
+        let couplesWatch = await Product.find({ category: couplesMatch, isListed: true })
             .skip(skip)
             .limit(limit)
             .exec()
@@ -484,13 +485,25 @@ const productDetails = async (req, res, next) => {
         let brandId = productDe.brand;
         let brand = await Brand.findOne({ _id: brandId });
 
+        let brandOffer = brand?.brandOffer || 0;
+        let productOffer = productDe.discount 
+
+
+        let newOffer = productOffer;
+
+        if (productOffer < brandOffer) {
+            newOffer = brandOffer;
+        }
+
+        let salesPrice = Math.round(productDe.regularPrice * (1 - newOffer / 100));
+
         let avgRating = 0;
         if (productDe.review.length > 0) {
             let total = productDe.review.reduce((sum, review) => sum + review.rating, 0);
             avgRating = total / productDe.review.length;
         }
 
-        res.render("product-details", { productDet: productDe, avgRating, brand });
+        res.render("product-details", { productDet: productDe, avgRating, brand, newOffer, salesPrice });
     } catch (error) {
         next(error);
     }
@@ -522,10 +535,10 @@ const addReview = async (req, res, next) => {
 
 const filterProduct = async (req, res, next) => {
     try {
-        const brandsdetails = await Brand.find({isListed:true});
+        const brandsdetails = await Brand.find({ isListed: true });
         const { category, brands, sortByPrice, priceTo, priceFrom } = req.body;
 
-        const filter = {isListed:true};
+        const filter = { isListed: true };
 
         if (category) {
             filter.category = category;
@@ -533,11 +546,12 @@ const filterProduct = async (req, res, next) => {
 
         if (brands) {
             const brandDoc = await Brand.findOne({
-                brandName: brands });
+                brandName: brands
+            });
             if (brandDoc) {
                 filter.brand = brandDoc._id;
             }
-           
+
         }
 
         if (priceTo || priceFrom) {
@@ -571,7 +585,7 @@ const ladiesBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /ladies/i,isListed:true };
+        const filter = { category: /ladies/i, isListed: true };
 
         const brand = await Brand.findOne({ brandName: selectedBrand });
 
@@ -579,7 +593,7 @@ const ladiesBrandFilter = async (req, res, next) => {
             filter.brand = brand._id
         }
 
-        const brands=await Brand.find({isListed:true});
+        const brands = await Brand.find({ isListed: true });
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -604,7 +618,7 @@ const gentsBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /gents/i,isListed:true };
+        const filter = { category: /gents/i, isListed: true };
 
         const brand = await Brand.findOne({ brandName: selectedBrand });
 
@@ -612,7 +626,7 @@ const gentsBrandFilter = async (req, res, next) => {
         if (selectedBrand) {
             filter.brand = brand._id;
         }
-        const brands=await Brand.find({isListed:true});
+        const brands = await Brand.find({ isListed: true });
 
         const filteredProducts = await Product.find(filter)
             .skip(skip)
@@ -638,12 +652,12 @@ const couplesBrandFilter = async (req, res, next) => {
         const limit = 9;
         const skip = (page - 1) * limit;
         const { brands: selectedBrand } = req.body;
-        const filter = { category: /couples/i ,isListed:true};
+        const filter = { category: /couples/i, isListed: true };
         const brand = await Brand.findOne({ brandName: selectedBrand });
         if (selectedBrand) {
             filter.brand = brand._id
         }
-        const brands = await Brand.find({isListed:true});
+        const brands = await Brand.find({ isListed: true });
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
@@ -682,7 +696,7 @@ const brandButton = async (req, res, next) => {
 
         }
 
-        let query = { brand: brand._id,isListed:true };
+        let query = { brand: brand._id, isListed: true };
 
         if (selectedCategory) {
             query.category = selectedCategory;
@@ -1146,7 +1160,7 @@ const cart = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
-                match: { 
+                match: {
                     $and: [
                         { status: { $ne: "Discontinued" } },
                     ]
@@ -1159,7 +1173,7 @@ const cart = async (req, res, next) => {
             return {
                 ...item,
                 isOutOfStock: item.quantity > item.productId.quantity,
-                isUnlisted: !item.productId.isListed, 
+                isUnlisted: !item.productId.isListed,
                 availableQuantity: item.productId.quantity
             };
         });
@@ -1171,7 +1185,7 @@ const cart = async (req, res, next) => {
             shippingCharge: 0,
             total: 0,
             hasOutOfStockItems: false,
-            hasUnlistedItems: false 
+            hasUnlistedItems: false
         };
 
         if (itemsWithStatusInfo.length > 0) {
@@ -1183,7 +1197,7 @@ const cart = async (req, res, next) => {
 
                 if (product.isListed && product.status !== "Discontinued") {
                     const itemPrice = product.regularPrice * quantity;
-                    const itemDiscount = product.discount 
+                    const itemDiscount = product.discount
                     const itemShipping = (product.shipingCharge || 0) * quantity;
 
                     acc.subtotal += itemPrice;

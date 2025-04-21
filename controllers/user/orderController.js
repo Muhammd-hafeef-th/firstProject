@@ -48,7 +48,7 @@ const GetOrder = async (req, res, next) => {
                 .filter(item => item.product)
                 .map(item => ({
                     image: item.product.productImage[0],
-                    name: item.product.name || item.product.productName, 
+                    name: item.product.name || item.product.productName,
                     quantity: item.quantity,
                     price: item.price
                 }))
@@ -87,9 +87,9 @@ const orderDetails = async (req, res, next) => {
         let progress = 0;
         switch (order.status) {
             case 'Pending': progress = 12; break;
-            case 'Processing': progress = 36.33; break; 
-            case 'Shipped': progress = 66.66; break;    
-            case 'Delivered': progress = 100; break;   
+            case 'Processing': progress = 36.33; break;
+            case 'Shipped': progress = 66.66; break;
+            case 'Delivered': progress = 100; break;
         }
 
 
@@ -158,8 +158,11 @@ const downloadInvoice = async (req, res, next) => {
         doc.moveDown();
 
         doc.fontSize(10).font('Helvetica');
+
+        const invoiceDate = new Date(order.invoiceDate); 
+
         doc.text(`Invoice No: INV-${orderId}`, 50);
-        doc.text(`Order Date: ${order.invoiceDate.toLocaleDateString()}`);
+        doc.text(`Order Date: ${invoiceDate.toLocaleDateString()}`);
         doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`);
         doc.moveDown();
 

@@ -96,10 +96,17 @@
                                     <td class="py-4 px-6 font-medium text-white"><%= brands[i].brandName %></td>
                                     <td class="py-4 px-6 text-gray-300 max-w-xs truncate"><%= brands[i].description %></td>
                                     <td class="py-4 px-6">
-                                        <% if(brands[i].offerPercentage) { %>
-                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-900/50 text-purple-300">
-                                                <%= brands[i].offerPercentage %>%
-                                            </span>
+                                        <% if(brands[i].brandOffer) { %>
+                                            <div class="flex items-center gap-2">
+                                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-900/50 text-purple-300">
+                                                    <%= brands[i].brandOffer %>%
+                                                </span>
+                                                <button onclick="openOfferModal('<%= brands[i]._id %>', <%= brands[i].brandOffer %>)" 
+                                                        class="text-gray-400 hover:text-purple-400 transition-colors duration-200 p-1 rounded-full hover:bg-purple-900/30"
+                                                        title="Edit Offer">
+                                                    <i class="fas fa-pencil-alt text-xs"></i>
+                                                </button>
+                                            </div>
                                         <% } else { %>
                                             <button onclick="openOfferModal('<%= brands[i]._id %>')" 
                                                     class="text-gray-400 hover:text-purple-400 transition-colors duration-200 p-2 rounded-full hover:bg-purple-900/30"
