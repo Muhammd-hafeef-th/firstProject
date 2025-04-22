@@ -13,7 +13,11 @@ const checkout = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
-                match: { 
+                populate: {  // Add brand population
+                    path: 'brand',
+                    model: 'Brand'
+                },
+                match: {
                     $and: [
                         { status: { $ne: "Discontinued" } },
                     ]
@@ -21,7 +25,7 @@ const checkout = async (req, res, next) => {
             }) || { items: [] };
 
         const validItems = userCart.items?.filter(item => item.productId) || [];
-        
+
         const invalidItems = validItems.filter(item => {
             return item.quantity > item.productId.quantity || !item.productId.isListed;
         });
@@ -47,24 +51,31 @@ const checkout = async (req, res, next) => {
             return a.createdAt - b.createdAt;
         });
 
-        let subtotal = validItems.reduce((total, item) => {
-            return total + (item.productId.regularPrice * item.quantity);
-        }, 0);
+        // Updated calculations with the same discount logic
+        const calculations = validItems.reduce((acc, item) => {
+            const product = item.productId;
+            const quantity = item.quantity;
+            const itemPrice = product.regularPrice * quantity;
 
-        let discount = validItems.reduce((total, item) => {
-            return total + (item.productId.discount * item.quantity);
-        }, 0);
+            // Apply the same discount logic as other controllers
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            const effectiveDiscount = Math.max(brandOffer, productOffer);
+            const itemSavings = itemPrice * (effectiveDiscount / 100);
 
-        let shipingCharge = validItems.reduce((total, item) => {
-            return total + (item.productId.shipingCharge * item.quantity);
-        }, 0);
+            acc.subtotal += itemPrice;
+            acc.discountAmount += itemSavings; // Actual savings amount
+            acc.shippingCharge += (product.shipingCharge || 0) * quantity;
+            return acc;
+        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
         res.render('checkout', {
             cartItems: validItems,
-            discount,
-            shipingCharge,
+            discountAmount: calculations.discountAmount, // Changed from discount to discountAmount
+            shipingCharge: calculations.shippingCharge,
             addresses: allAddresses,
-            subtotal,
+            subtotal: calculations.subtotal,
+            total: calculations.subtotal - calculations.discountAmount + calculations.shippingCharge,
             messages: req.flash()
         });
 
@@ -243,23 +254,30 @@ const proceedPayment = async (req, res, next) => {
         const userCart = await Cart.findOne({ userId: id })
             .populate({
                 path: 'items.productId',
-                model: 'Product'
+                model: 'Product',
+                populate: {
+                    path: 'brand',
+                    model: 'Brand'
+                }
             }) || { items: [] };
 
-        const cartItems = userCart.items || [];
-        let subtotal = cartItems.reduce((total, item) => {
-            return total + (item.productId.regularPrice * item.quantity);
-        }, 0);
+        const cartItems = userCart.items?.filter(item => item.productId) || [];
 
-        let discount = cartItems.reduce((total, item) => {
-            return total + (item.productId.discount * item.quantity);
+        const calculations = cartItems.reduce((acc, item) => {
+            const product = item.productId;
+            const quantity = item.quantity;
+            const itemPrice = product.regularPrice * quantity;
 
-        }, 0);
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            const effectiveDiscount = Math.max(brandOffer, productOffer);
+            const itemSavings = itemPrice * (effectiveDiscount / 100);
 
-        let shipingCharge = cartItems.reduce((total, item) => {
-            total += item.productId.shipingCharge
-            return total;
-        }, 0)
+            acc.subtotal += itemPrice;
+            acc.discountAmount += itemSavings;
+            acc.shippingCharge += (product.shipingCharge || 0);
+            return acc;
+        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
         const addressDocs = await Address.find({ userId: id });
         let allAddresses = [];
@@ -280,21 +298,22 @@ const proceedPayment = async (req, res, next) => {
 
         res.render('proceedPayment', {
             cartItems,
-            discount,
-            shipingCharge,
-            subtotal,
+            discountAmount: calculations.discountAmount, 
+            shipingCharge: calculations.shippingCharge,
+            subtotal: calculations.subtotal,
+            total: calculations.subtotal - calculations.discountAmount,
             addresses: allAddresses
-        })
+        });
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
 
 const choosePayment = async (req, res, next) => {
     try {
         const paymentMethod = req.body.payment;
         const userId = req.session.user?._id || req.session.user;
-        
+
         if (!['cod', 'paypal', 'wallet'].includes(paymentMethod)) {
             return res.status(400).redirect('/cart?error=Invalid payment method');
         }
@@ -302,26 +321,39 @@ const choosePayment = async (req, res, next) => {
         const userCart = await Cart.findOne({ userId })
             .populate({
                 path: 'items.productId',
-                model: 'Product'
+                model: 'Product',
+                populate: { 
+                    path: 'brand',
+                    model: 'Brand'
+                }
             }) || { items: [] };
 
         if (!userCart?.items?.length) {
             return res.redirect('/cart?error=Cart is empty');
         }
 
-        const { subtotal, discount, shippingCharge } = userCart.items.reduce((acc, item) => {
+        const calculations = userCart.items.reduce((acc, item) => {
             const product = item.productId;
-            acc.subtotal += product.regularPrice * item.quantity;
-            acc.discount += product.discount * item.quantity;
-            acc.shippingCharge += product.shipingCharge * item.quantity;
-            return acc;
-        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+            if (!product) return acc;
+            
+            const itemPrice = product.regularPrice * item.quantity;
+            
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            const effectiveDiscount = Math.max(brandOffer, productOffer);
+            const itemSavings = itemPrice * (effectiveDiscount / 100);
 
-        const finalAmount = subtotal - discount + shippingCharge;
+            acc.subtotal += itemPrice;
+            acc.discountAmount += itemSavings; 
+            acc.shippingCharge += (product.shipingCharge || 0) * item.quantity;
+            return acc;
+        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
+
+        const finalAmount = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
 
         const addressDoc = await Address.findOne({ userId });
         const selectedAddress = addressDoc?.address?.[0];
-        
+
         if (!selectedAddress) {
             return res.redirect('/checkout?error=No shipping address found');
         }
@@ -329,25 +361,26 @@ const choosePayment = async (req, res, next) => {
         const orderItems = userCart.items.map(item => ({
             product: item.productId._id,
             quantity: item.quantity,
-            price: item.productId.regularPrice
+            price: item.productId.regularPrice,
+            discountApplied: Math.max(item.productId.discount || 0, item.productId.brand?.brandOffer || 0) 
         }));
 
         const newOrder = new Order({
             user: userId,
             orderItems,
-            totalPrice: subtotal,
-            discount,
+            totalPrice: calculations.subtotal,
+            discountAmount: calculations.discountAmount, 
             finalAmount,
             address: selectedAddress._id,
             paymentMethod: {
                 type: paymentMethod,
-                details: {} 
+                details: {}
             },
             paymentStatus: 'pending',
             status: 'Pending'
         });
 
-        switch(paymentMethod) {
+        switch (paymentMethod) {
             case 'cod':
                 newOrder.paymentStatus = 'completed';
                 await newOrder.save();
@@ -355,18 +388,18 @@ const choosePayment = async (req, res, next) => {
 
             case 'paypal':
                 const paypalPayment = await createPayPalPayment(finalAmount);
-                
+
                 newOrder.paymentMethod.details = {
                     paymentId: paypalPayment.id,
                     approvalUrl: paypalPayment.links.find(l => l.rel === 'approval_url').href
                 };
                 await newOrder.save();
-                
+
                 return res.redirect(paypalPayment.links.find(l => l.rel === 'approval_url').href);
 
             case 'wallet':
                 const userWallet = await Wallet.findOne({ user: userId });
-                
+
                 if (!userWallet || userWallet.balance < finalAmount) {
                     return res.redirect('/checkout?error=Insufficient wallet balance');
                 }
@@ -387,18 +420,21 @@ const choosePayment = async (req, res, next) => {
                 throw new Error('Invalid payment method');
         }
 
-        await Promise.all(orderItems.map(item => 
-            Product.findByIdAndUpdate(item.product, { 
-                $inc: { quantity: -item.quantity } 
+        await Promise.all(orderItems.map(item =>
+            Product.findByIdAndUpdate(item.product, {
+                $inc: { quantity: -item.quantity }
             })
         ));
 
         await Cart.deleteOne({ userId });
 
-        res.render('paymentSuccess', { 
+        res.render('paymentSuccess', {
             newOrder,
             selectedAddress,
-            paymentMethod
+            paymentMethod,
+            discountAmount: calculations.discountAmount, // Pass discountAmount to view
+            subtotal: calculations.subtotal,
+            shippingCharge: calculations.shippingCharge
         });
 
     } catch (error) {
@@ -406,7 +442,7 @@ const choosePayment = async (req, res, next) => {
             await Order.deleteOne({ _id: newOrder._id });
             return res.redirect('/checkout?error=Payment processing failed');
         }
-        
+
         next(error);
     }
 };

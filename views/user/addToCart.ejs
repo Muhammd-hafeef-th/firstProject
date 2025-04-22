@@ -223,8 +223,8 @@
                             <span id="cart-shipping">$<%= cartItems.shippingCharge.toFixed(2) %></span>
                         </div>
                         <div class="flex justify-between items-center">
-                            <span class="text-gray-400">Discount</span>
-                            <span class="text-green-500" id="cart-discount">- %<%= cartItems.discount.toFixed(2) %>
+                            <span class="text-gray-400">Savings</span>
+                            <span class="text-green-500" id="cart-discount">-$<%= cartItems.discountAmount.toFixed(2) %>
                             </span>
                         </div>
 
@@ -319,15 +319,18 @@
                         })
                             .then(response => {
                                 if (!response.ok) {
-                                    throw new Error('Network response was not ok');
+                                    return response.json().then(err => { throw err; });
                                 }
                                 return response.json();
                             })
                             .then(data => {
                                 hideLoading();
                                 if (data && data.success) {
-                                    document.querySelector(`[data-item-id="${itemId}"]`)?.remove();
-                                    updateCartSummary(data.cartSummary);
+                                    const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                                    if (itemElement) {
+                                        itemElement.remove();
+                                    }
+                                    updateCartSummary(data.cartSummary || {});
                                     if (data.itemCount === 0) {
                                         location.reload();
                                     }
@@ -339,14 +342,13 @@
                             .catch(err => {
                                 hideLoading();
                                 console.error('Delete error:', err);
-                                if (document.querySelector(`[data-item-id="${itemId}"]`)) {
-                                    Swal.fire('Error!', err.message || 'Unable to remove item', 'error');
-                                }
+                                Swal.fire('Error!', err.message || 'Unable to remove item', 'error');
                             });
                     }
                 });
             });
         });
+
         document.getElementById('updateCartBtn')?.addEventListener('click', function () {
             showLoading();
             const items = Array.from(document.querySelectorAll('.cart-item')).map(item => ({
@@ -375,12 +377,18 @@
                     hideLoading();
                     if (data.success) {
                         items.forEach((item, index) => {
-                            const price = parseFloat(document.querySelector(`[data-item-id="${item.id}"] [data-price]`).dataset.price);
-                            document.querySelector(`[data-item-id="${item.id}"] .item-total`).textContent =
-                                `$${(price * item.quantity).toFixed(2)}`;
+                            const priceElement = document.querySelector(`[data-item-id="${item.id}"] [data-price]`);
+                            if (priceElement) {
+                                const price = parseFloat(priceElement.dataset.price);
+                                const quantity = parseInt(item.quantity);
+                                const itemTotalElement = document.querySelector(`[data-item-id="${item.id}"] .item-total`);
+                                if (itemTotalElement) {
+                                    itemTotalElement.textContent = `$${(price * quantity).toFixed(2)}`;
+                                }
+                            }
                         });
 
-                        updateCartSummary(data.cartSummary);
+                        updateCartSummary(data.cartSummary || {});
 
                         Swal.fire('Updated!', data.message, 'success');
 
@@ -393,7 +401,7 @@
                 })
                 .catch(err => {
                     hideLoading();
-                    console.log("new error", err);
+                    console.error("Update error:", err);
                     Swal.fire('Error!', err.message || 'Unable to update cart', 'error');
                 });
         });
@@ -423,21 +431,25 @@
         });
 
         function updateCartSummary(summary) {
-            if (!summary) return;
+            if (!summary) {
+                console.error('No cart summary provided');
+                return;
+            }
 
-            const subtotal = typeof summary.subtotal === 'string' ?
-                parseFloat(summary.subtotal) : summary.subtotal;
-            const discount = typeof summary.discount === 'string' ?
-                parseFloat(summary.discount) : summary.discount;
-            const shippingCharge = typeof summary.shippingCharge === 'string' ?
-                parseFloat(summary.shippingCharge) : summary.shippingCharge;
-            const total = typeof summary.total === 'string' ?
-                parseFloat(summary.total) : summary.total;
+            const subtotal = parseFloat(summary.subtotal || 0);
+            const discountAmount = parseFloat(summary.discountAmount || 0); 
+            const shippingCharge = parseFloat(summary.shippingCharge || 0);
+            const total = parseFloat(summary.total || 0);
 
-            document.getElementById('cart-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-            document.getElementById('cart-discount').textContent = `-$${discount.toFixed(2)}`;
-            document.getElementById('cart-shipping').textContent = `$${shippingCharge.toFixed(2)}`;
-            document.getElementById('cart-total').textContent = `$${total.toFixed(2)}`;
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const discountEl = document.getElementById('cart-discount');
+            const shippingEl = document.getElementById('cart-shipping');
+            const totalEl = document.getElementById('cart-total');
+
+            if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+            if (discountEl) discountEl.textContent = `-$${discountAmount.toFixed(2)}`;
+            if (shippingEl) shippingEl.textContent = `$${shippingCharge.toFixed(2)}`;
+            if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
         }
 
         function showLoading() {

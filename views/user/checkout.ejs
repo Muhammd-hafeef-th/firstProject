@@ -182,120 +182,118 @@
 
                     <div class="flex justify-between">
                         <span class="text-gray-400">Shipping</span>
-                        <span class="text-white">$<%=shipingCharge%>
-
-                        </span>
+                        <span class="text-white">$<%= shipingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Tax</span>
                         <span class="text-white">$0</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-400">Discount</span>
-                        <span class="text-green-400">-$<%=discount%></span>
+                        <span class="text-gray-400">Savings</span>
+                        <span class="text-green-400">-$<%= discountAmount.toFixed(2) %></span>
                     </div>
-                </div>
 
-                <hr class="border-gray-700 my-4" />
+                    <hr class="border-gray-700 my-4" />
 
-                <div class="flex justify-between text-lg font-bold mb-6">
-                    <span>Total</span>
-                    <span>$<%= (subtotal - discount + shipingCharge + 0).toFixed(2) %></span>
-                </div>
+                    <div class="flex justify-between text-lg font-bold mb-6">
+                        <span>Total</span>
+                        <span>$<%= (subtotal - discountAmount + shipingCharge).toFixed(2) %></span>
+                    </div>
+                    <form action="/proceed-payment" method="get">
+                        <button type="submit"
+                            class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            PROCEED TO PAYMENT
+                        </button>
+                    </form>
 
-                <form action="/proceed-payment" method="get">
-                    <button type="submit"
-                        class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        PROCEED TO PAYMENT
-                    </button>
-                </form>
-
-                <div class="mt-4 text-xs text-gray-500 text-center">
-                    <p>By placing your order, you agree to our <a href="#" class="text-yellow-400 hover:underline">Terms
-                            of Service</a></p>
+                    <div class="mt-4 text-xs text-gray-500 text-center">
+                        <p>By placing your order, you agree to our <a href="#"
+                                class="text-yellow-400 hover:underline">Terms
+                                of Service</a></p>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script>
+        <script>
 
-        document.querySelectorAll('.set-default-form').forEach(form => {
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            document.querySelectorAll('.set-default-form').forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
 
-                try {
-                    const result = await Swal.fire({
-                        title: 'Set as Default Address?',
-                        text: "This will be your primary shipping address",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#10B981',
-                        cancelButtonColor: '#6B7280',
-                        confirmButtonText: 'Yes, set as default',
-                        cancelButtonText: 'Cancel',
-                        reverseButtons: true,
-                        allowOutsideClick: false,
-                        showLoaderOnConfirm: true,
-                        preConfirm: async () => {
-                            try {
-                                const response = await fetch(form.action, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/x-www-form-urlencoded',
-                                    },
-                                    body: new URLSearchParams(new FormData(form))
-                                });
+                    try {
+                        const result = await Swal.fire({
+                            title: 'Set as Default Address?',
+                            text: "This will be your primary shipping address",
+                            icon: 'question',
+                            showCancelButton: true,
+                            confirmButtonColor: '#10B981',
+                            cancelButtonColor: '#6B7280',
+                            confirmButtonText: 'Yes, set as default',
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true,
+                            allowOutsideClick: false,
+                            showLoaderOnConfirm: true,
+                            preConfirm: async () => {
+                                try {
+                                    const response = await fetch(form.action, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/x-www-form-urlencoded',
+                                        },
+                                        body: new URLSearchParams(new FormData(form))
+                                    });
 
-                                if (!response.ok) {
-                                    throw new Error('Failed to set default address');
+                                    if (!response.ok) {
+                                        throw new Error('Failed to set default address');
+                                    }
+                                    return response;
+                                } catch (error) {
+                                    Swal.showValidationMessage(
+                                        `Request failed: ${error.message}`
+                                    );
+                                    return false;
                                 }
-                                return response;
-                            } catch (error) {
-                                Swal.showValidationMessage(
-                                    `Request failed: ${error.message}`
-                                );
-                                return false;
                             }
-                        }
-                    });
-
-                    if (result.isConfirmed) {
-                        await Swal.fire({
-                            title: 'Success!',
-                            text: 'Default address updated',
-                            icon: 'success',
-                            timer: 1500,
-                            showConfirmButton: false
                         });
-                        window.location.reload();
+
+                        if (result.isConfirmed) {
+                            await Swal.fire({
+                                title: 'Success!',
+                                text: 'Default address updated',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            window.location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An unexpected error occurred'
+                        });
                     }
-                } catch (error) {
-                    console.error('Error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An unexpected error occurred'
-                    });
-                }
+                });
             });
-        });
 
-        const today = new Date();
-        const deliveryDate = new Date(today);
-        deliveryDate.setDate(today.getDate() + 7);
+            const today = new Date();
+            const deliveryDate = new Date(today);
+            deliveryDate.setDate(today.getDate() + 7);
 
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        const formattedDate = deliveryDate.toLocaleDateString('en-US', options);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = deliveryDate.toLocaleDateString('en-US', options);
 
-        document.getElementById('deliveryDate').textContent = formattedDate;
+            document.getElementById('deliveryDate').textContent = formattedDate;
 
-    </script>
+        </script>
 </body>
 
 </html>

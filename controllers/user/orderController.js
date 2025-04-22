@@ -73,8 +73,17 @@ const orderDetails = async (req, res, next) => {
         const order = await Order.findOne({ orderId: orderId })
             .populate({
                 path: 'orderItems.product',
-                select: 'productName productImage salePrice regularPrice description'
-            })
+                select: 'productName productImage salePrice regularPrice description brand discount',
+                populate: {
+                    path: 'brand',
+                    model: 'Brand',
+                    select: 'brandName brandOffer'
+                }
+            });
+
+        if (!order) {
+            return res.status(404).render('error', { message: 'Order not found' });
+        }
 
         const fullAddressDoc = await Address.findOne(
             { "address._id": order.address }
@@ -84,6 +93,7 @@ const orderDetails = async (req, res, next) => {
         if (fullAddressDoc) {
             selectedAddress = fullAddressDoc.address.find(addr => addr._id.equals(order.address));
         }
+
         let progress = 0;
         switch (order.status) {
             case 'Pending': progress = 12; break;
@@ -91,13 +101,40 @@ const orderDetails = async (req, res, next) => {
             case 'Shipped': progress = 66.66; break;
             case 'Delivered': progress = 100; break;
         }
+        let totalSavings = 0;
+
+        const orderWithDiscountDetails = {
+            ...order.toObject(),
+            orderItems: order.orderItems.map(item => {
+                const product = item.product;
+                const brandOffer = product.brand?.brandOffer || 0;
+                const productOffer = product.discount || 0;
+                const effectiveDiscount = Math.max(brandOffer, productOffer);
+
+                const savings = (item.price * item.quantity * effectiveDiscount / 100);
+                totalSavings += savings;
+
+                return {
+                    ...item.toObject(),
+                    effectiveDiscount: effectiveDiscount,
+                    savings: savings.toFixed(2)
+                };
+            }),
+            discountAmount: totalSavings
+        };
+
+        console.log(`Total Savings: ${totalSavings}`);
 
 
-        res.render('order-details', { order: order, selectedAddress: selectedAddress, progress });
+        res.render('order-details', {
+            order: orderWithDiscountDetails,
+            selectedAddress,
+            progress
+        });
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
 
 const cancelOrder = async (req, res, next) => {
     try {
@@ -159,7 +196,7 @@ const downloadInvoice = async (req, res, next) => {
 
         doc.fontSize(10).font('Helvetica');
 
-        const invoiceDate = new Date(order.invoiceDate); 
+        const invoiceDate = new Date(order.invoiceDate);
 
         doc.text(`Invoice No: INV-${orderId}`, 50);
         doc.text(`Order Date: ${invoiceDate.toLocaleDateString()}`);

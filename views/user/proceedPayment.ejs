@@ -11,7 +11,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Payment Methods -->
             <div class="lg:col-span-2 bg-[#2A2A2A] rounded-xl p-8 shadow-lg">
                 <h2 class="text-lg font-bold tracking-wider mb-6 flex items-center">
                     <span class="w-4 h-4 bg-yellow-400 rounded-full mr-3"></span>
@@ -20,7 +19,6 @@
 
                 <div class="space-y-6 max-w-lg mx-auto p-6 bg-[#1F1F1F] shadow rounded-xl">
                     <form action="/choose-payment" method="post" id="paymentForm">
-                        <!-- COD Option -->
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 <input type="radio" name="payment" value="cod" class="accent-yellow-400" 
@@ -33,7 +31,6 @@
                             </p>
                         </div>
 
-                        <!-- PayPal Option -->
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 <input type="radio" name="payment" value="paypal" class="accent-yellow-400" 
@@ -44,7 +41,6 @@
                             </label>
                         </div>
 
-                        <!-- Wallet Option -->
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 <input type="radio" name="payment" value="wallet" class="accent-yellow-400" 
@@ -57,7 +53,6 @@
                             </p>
                         </div>
 
-                        <!-- Submit Button -->
                         <div class="pt-6 text-center">
                             <button type="submit" id="payBtn"
                                 class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
@@ -69,7 +64,6 @@
                 </div>
             </div>
 
-            <!-- Order Summary -->
             <div class="bg-[#2A2A2A] rounded-xl p-8 shadow-lg h-fit sticky top-8">
                 
 
@@ -85,18 +79,18 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Delivery</span>
-                        <span class="text-white">$00</span>
+                        <span class="text-white">$<%= shipingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-400">Discount</span>
-                        <span class="text-green-400">-$<%= discount.toFixed(2) %></span>
+                        <span class="text-gray-400">Savings</span>
+                        <span class="text-green-400">-$<%= discountAmount.toFixed(2) %></span>
                     </div>
                 </div>
-
+                
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
-                        <span>$<%= (subtotal - discount ).toFixed(2) %></span>
+                        <span>$<%= (subtotal - discountAmount).toFixed(2) %></span>
                     </div>
                 </div>
             </div>

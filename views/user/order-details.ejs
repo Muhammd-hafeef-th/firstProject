@@ -289,23 +289,20 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-white">Shipping</span>
-                        <span class="font-medium text-white">Free</span>
+                        <span class="font-medium text-white"><%= order.shippingCharge > 0 ? `$${order.shippingCharge.toFixed(2)}` : 'Free' %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-white">Tax</span>
                         <span class="font-medium text-white">$0.00</span>
                     </div>
-                    <% if (order.discount> 0) { %>
                         <div class="flex justify-between">
-                            <span class="text-white">Discount</span>
-                            <span class="font-medium text-green-600">-$<%= order.discount.toFixed(2) %></span>
+                            <span class="text-white">Savings</span>
+                            <span class="font-medium text-green-600">-$<%= order.discountAmount.toFixed(2) %></span>
                         </div>
-                        <% } %>
-                            <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
-                                <span class="text-rose-gold font-semibold">Total</span>
-                                <span class="font-bold text-rose-gold-dark text-lg">$<%= order.finalAmount.toFixed(2) %>
-                                        </span>
-                            </div>
+                    <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
+                        <span class="text-rose-gold font-semibold">Total</span>
+                        <span class="font-bold text-rose-gold-dark text-lg">$<%= order.finalAmount.toFixed(2) %></span>
+                    </div>
                 </div>
             </div>
         </div>

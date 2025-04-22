@@ -1160,6 +1160,10 @@ const cart = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
+                populate: {
+                    path: 'brand',
+                    model: 'Brand'
+                },
                 match: {
                     $and: [
                         { status: { $ne: "Discontinued" } },
@@ -1181,7 +1185,7 @@ const cart = async (req, res, next) => {
         let cartItems = {
             items: itemsWithStatusInfo,
             subtotal: 0,
-            discount: 0,
+            discountAmount: 0, // This will now be the actual savings amount
             shippingCharge: 0,
             total: 0,
             hasOutOfStockItems: false,
@@ -1197,11 +1201,16 @@ const cart = async (req, res, next) => {
 
                 if (product.isListed && product.status !== "Discontinued") {
                     const itemPrice = product.regularPrice * quantity;
-                    const itemDiscount = product.discount
+                    const brandOffer = product.brand?.brandOffer || 0;
+                    const productOffer = product.discount || 0;
+                    
+                    // Apply the same discount logic as product details
+                    const effectiveDiscount = Math.max(brandOffer, productOffer);
+                    const itemSavings = itemPrice * (effectiveDiscount / 100);
                     const itemShipping = (product.shipingCharge || 0) * quantity;
 
                     acc.subtotal += itemPrice;
-                    acc.discount += itemDiscount;
+                    acc.discountAmount += itemSavings; // Accumulate actual savings
                     acc.shippingCharge += itemShipping;
                 }
 
@@ -1218,21 +1227,20 @@ const cart = async (req, res, next) => {
             }, {
                 items: [],
                 subtotal: 0,
-                discount: 0,
+                discountAmount: 0,
                 shippingCharge: 0,
                 total: 0,
                 hasOutOfStockItems: false,
                 hasUnlistedItems: false
             });
 
-            const discountAmount = (cartItems.subtotal * cartItems.discount) / 100;
-            cartItems.total = cartItems.subtotal - discountAmount + cartItems.shippingCharge;
+            cartItems.total = cartItems.subtotal - cartItems.discountAmount + cartItems.shippingCharge;
         }
 
         res.render('addToCart', {
             cartItems,
             regularPriceTotal: cartItems.subtotal,
-            discountedPriceTotal: cartItems.subtotal - cartItems.discount,
+            discountedPriceTotal: cartItems.total,
             messages: {
                 hasUnlistedItems: cartItems.hasUnlistedItems,
                 hasOutOfStockItems: cartItems.hasOutOfStockItems
@@ -1269,6 +1277,10 @@ const deleteCartProduct = async (req, res, next) => {
         ).populate({
             path: 'items.productId',
             model: 'Product',
+            populate: { 
+                path: 'brand',
+                model: 'Brand'
+            },
             match: { status: { $ne: "Discontinued" } }
         });
 
@@ -1287,21 +1299,27 @@ const deleteCartProduct = async (req, res, next) => {
 
             if (!product) return acc;
 
-            acc.subtotal += product.regularPrice * quantity;
-            acc.discount += (product.discount || 0) * quantity;
+            const itemPrice = product.regularPrice * quantity;
+            
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            const effectiveDiscount = Math.max(brandOffer, productOffer);
+            const itemSavings = itemPrice * (effectiveDiscount / 100);
+
+            acc.subtotal += itemPrice;
+            acc.discountAmount += itemSavings; 
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
-        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
-        const discountAmount = (calculations.subtotal * calculations.discount) / 100;
-        const total = calculations.subtotal - discountAmount + calculations.shippingCharge;
+        const total = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
 
         return res.status(200).json({
             success: true,
             message: 'Item removed successfully',
             cartSummary: {
                 subtotal: calculations.subtotal.toFixed(2),
-                discount: calculations.discount.toFixed(2),
+                discountAmount: calculations.discountAmount.toFixed(2),
                 shippingCharge: calculations.shippingCharge.toFixed(2),
                 total: total.toFixed(2)
             },
@@ -1318,7 +1336,6 @@ const deleteCartProduct = async (req, res, next) => {
         });
     }
 };
-
 const updateCartQuantity = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.session.user;
@@ -1338,6 +1355,10 @@ const updateCartQuantity = async (req, res) => {
         const cart = await Cart.findOne({ userId }).populate({
             path: 'items.productId',
             model: 'Product',
+            populate: {
+                path: 'brand',
+                model: 'Brand'
+            },
             match: { status: { $ne: "Discontinued" } }
         });
 
@@ -1396,24 +1417,29 @@ const updateCartQuantity = async (req, res) => {
         const calculations = validItems.reduce((acc, item) => {
             const product = item.productId;
             const quantity = item.quantity;
+            const itemPrice = product.regularPrice * quantity;
+            
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            const effectiveDiscount = Math.max(brandOffer, productOffer);
+            const itemSavings = itemPrice * (effectiveDiscount / 100);
 
-            acc.subtotal += product.regularPrice * quantity;
-            acc.discount += (product.discount || 0) * quantity;
+            acc.subtotal += itemPrice;
+            acc.discountAmount += itemSavings; 
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
-        }, { subtotal: 0, discount: 0, shippingCharge: 0 });
+        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
-        const discountAmount = (calculations.subtotal * calculations.discount) / 100;
-        const total = calculations.subtotal - discountAmount + calculations.shippingCharge;
+        const total = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
 
         return res.status(200).json({
             success: true,
             message: 'Cart updated successfully',
             cartSummary: {
-                subtotal: parseFloat(calculations.subtotal),
-                discount: parseFloat(calculations.discount),
-                shippingCharge: parseFloat(calculations.shippingCharge),
-                total: parseFloat(total)
+                subtotal: parseFloat(calculations.subtotal.toFixed(2)),
+                discountAmount: parseFloat(calculations.discountAmount.toFixed(2)), 
+                shippingCharge: parseFloat(calculations.shippingCharge.toFixed(2)),
+                total: parseFloat(total.toFixed(2))
             },
             itemCount: validItems.length
         });
