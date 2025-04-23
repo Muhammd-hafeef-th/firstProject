@@ -6,6 +6,7 @@ const customerController=require("../controllers/admin/customerController");
 const brandController=require('../controllers/admin/brandController');
 const orderController=require('../controllers/admin/orderController')
 const productController=require('../controllers/admin/productContoller')
+const couponController=require("../controllers/admin/couponController")
 const {upload} = require('../middlewares/multerConfig');
 const {editUpload} =require('../middlewares/multerConfig')
 
@@ -55,5 +56,12 @@ router.get('/order-admin-details',adminAuth,orderController.orderDetails)
 router.post('/change-status',adminAuth,orderController.changeStatus)
 router.post('/return-action',adminAuth,orderController.returnAction)
 
+//coupons management
+
+router.get('/coupons',adminAuth,couponController.getCoupon)
+router.post('/add-coupon',adminAuth,couponController.addCoupon)
+router.post('/edit-coupon',adminAuth,couponController.editCoupon)
+router.post('/toggle-coupon/:couponId',adminAuth,couponController.toggleCoupon)
+router.get('/get-coupon/:couponId',adminAuth,couponController.getCouponById)
 
 module.exports=router;

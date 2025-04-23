@@ -10,6 +10,11 @@ const path=require('path')
 const orderController=require('../controllers/user/orderController')
 const walletController=require('../controllers/user/walletController')
 const wishlistController=require('../controllers/user/wishlishtController')
+const cartCount=require('../middlewares/cartCount')
+const wishlistCount=require('../middlewares/wishlistCount')
+
+router.use(cartCount)
+router.use(wishlistCount)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -111,6 +116,7 @@ router.post("/profilePasswordSaving",userController.profilePasswordSaving)
 //add to cart
 
 router.get("/addtoCart",userController.addtoCart);
+router.post('/addToCart', userController.addToCartAPI);
 router.get('/cart',userController.cart)
 router.get("/deleteCartProduct",userController.deleteCartProduct);
 router.post('/updateCartQuantity', userController.updateCartQuantity);
@@ -154,6 +160,9 @@ router.get('/wallet',walletController.getWallet)
 //wishlist management
 
 router.get('/wishlist',wishlistController.getWishlist)
+router.get('/addToWishlist', wishlistController.addToWishlist)
+router.get('/removeFromWishlist', wishlistController.removeFromWishlist)
+router.post('/moveToCart', wishlistController.moveToCart)
 
 
 module.exports = router;

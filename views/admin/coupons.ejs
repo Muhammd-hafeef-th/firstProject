@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Coupon Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+
+    <!-- Navbar -->
+    <%- include('../../views/partials/admin/navbar') %>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <%- include('../../views/partials/admin/sidebar') %>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-6 lg:p-8 ">
+            <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-white">Coupon Management</h1>
+                    <button id="openAddModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        Add New Coupon
+                    </button>
+                </div>
+
+                <!-- Coupon Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Coupon Code</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Min Purchase</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Created</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Expires</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-gray-800 divide-y divide-gray-700" id="couponsList">
+                            <% if (typeof coupons !== 'undefined' && coupons.length > 0) { %>
+                                <% coupons.forEach(function(coupon) { %>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white"><%= coupon.name %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹<%= coupon.offerPrice %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹<%= coupon.minimumPrice %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300"><%= new Date(coupon.createdOn).toLocaleDateString() %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300"><%= new Date(coupon.expireOn).toLocaleDateString() %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <% var isExpired = new Date(coupon.expireOn) < new Date(); %>
+                                            <% var isActive = coupon.isList && !isExpired; %>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                                                <%= isActive ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button onclick="editCoupon('<%= coupon._id %>')" class="text-indigo-400 hover:text-indigo-300 mr-3">
+                                                Edit
+                                            </button>
+                                            <button onclick="toggleCouponStatus('<%= coupon._id %>', <%= coupon.isList %>)" class="<%= coupon.isList ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300' %>">
+                                                <%= coupon.isList ? 'Disable' : 'Enable' %>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">No coupons found. Add a new coupon to get started.</td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Coupon Modal -->
+    <div id="addCouponModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="relative bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="flex justify-between items-center p-5 border-b border-gray-700">
+                <h3 class="text-xl font-semibold text-white" id="modalTitle">Add New Coupon</h3>
+                <button id="closeAddModal" class="text-gray-400 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="couponForm" action="/admin/add-coupon" method="POST">
+                <input type="hidden" id="couponId" name="couponId">
+                <div class="p-5 space-y-4">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Coupon Code</label>
+                        <input type="text" name="name" id="name" class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <p class="mt-1 text-xs text-gray-400">Code should be uppercase without spaces (e.g., SUMMER25)</p>
+                    </div>
+                    <div>
+                        <label for="offerPrice" class="block text-sm font-medium text-gray-300">Discount Amount (₹)</label>
+                        <input type="number" name="offerPrice" id="offerPrice" min="1" class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="minimumPrice" class="block text-sm font-medium text-gray-300">Minimum Purchase (₹)</label>
+                        <input type="number" name="minimumPrice" id="minimumPrice" min="0" class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <p class="mt-1 text-xs text-gray-400">Discount amount must be less than minimum purchase amount</p>
+                    </div>
+                    <div>
+                        <label for="expireOn" class="block text-sm font-medium text-gray-300">Expiry Date</label>
+                        <input type="date" name="expireOn" id="expireOn" class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                </div>
+                <div class="px-5 py-4 bg-gray-700 rounded-b-lg flex justify-end">
+                    <button type="button" id="cancelButton" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg mr-2">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+                        Save Coupon
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        var addModal = document.getElementById('addCouponModal');
+        var openAddModalBtn = document.getElementById('openAddModal');
+        var closeAddModalBtn = document.getElementById('closeAddModal');
+        var cancelButton = document.getElementById('cancelButton');
+        var couponForm = document.getElementById('couponForm');
+        var modalTitle = document.getElementById('modalTitle');
+
+        var expireOnInput = document.getElementById('expireOn');
+        var today = new Date();
+        var formattedDate = today.toISOString().split('T')[0];
+        expireOnInput.min = formattedDate;
+
+        var offerPriceInput = document.getElementById('offerPrice');
+        var minimumPriceInput = document.getElementById('minimumPrice');
+        var validatePrices = function() {
+            var offerPrice = Number(offerPriceInput.value);
+            var minimumPrice = Number(minimumPriceInput.value);
+            
+            if (offerPrice && minimumPrice && offerPrice >= minimumPrice) {
+                offerPriceInput.setCustomValidity('Discount amount must be less than minimum purchase amount');
+                return false;
+            } else {
+                offerPriceInput.setCustomValidity('');
+                return true;
+            }
+        };
+        
+        offerPriceInput.addEventListener('input', validatePrices);
+        minimumPriceInput.addEventListener('input', validatePrices);
+
+        openAddModalBtn.addEventListener('click', function() {
+            modalTitle.textContent = 'Add New Coupon';
+            couponForm.reset();
+            couponForm.action = '/admin/add-coupon';
+            document.getElementById('couponId').value = '';
+            addModal.classList.remove('hidden');
+        });
+
+        function closeModal() {
+            addModal.classList.add('hidden');
+        }
+
+        closeAddModalBtn.addEventListener('click', closeModal);
+        cancelButton.addEventListener('click', closeModal);
+
+        addModal.addEventListener('click', function(e) {
+            if (e.target === addModal) {
+                closeModal();
+            }
+        });
+
+        function editCoupon(couponId) {
+            modalTitle.textContent = 'Edit Coupon';
+            couponForm.action = '/admin/edit-coupon';
+            document.getElementById('couponId').value = couponId;
+            
+            fetch('/admin/get-coupon/' + couponId)
+                .then(function(response) { return response.json(); })
+                .then(function(coupon) {
+                    document.getElementById('name').value = coupon.name;
+                    document.getElementById('offerPrice').value = coupon.offerPrice;
+                    document.getElementById('minimumPrice').value = coupon.minimumPrice;
+                    document.getElementById('expireOn').value = new Date(coupon.expireOn).toISOString().split('T')[0];
+                    addModal.classList.remove('hidden');
+                })
+                .catch(function(error) {
+                    console.error('Error fetching coupon details:', error);
+                    swal("Error", "Failed to fetch coupon details", "error");
+                });
+        }
+
+        function toggleCouponStatus(couponId, currentStatus) {
+            var action = currentStatus ? 'disable' : 'enable';
+            
+            swal({
+                title: action.charAt(0).toUpperCase() + action.slice(1) + " this coupon?",
+                text: currentStatus ? "Users won't be able to use this coupon anymore." : "This will make the coupon available to users.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: currentStatus
+            })
+            .then(function(willToggle) {
+                if (willToggle) {
+                    fetch('/admin/toggle-coupon/' + couponId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ status: !currentStatus })
+                    })
+                    .then(function(response) { return response.json(); })
+                    .then(function(data) {
+                        if (data.success) {
+                            swal("Success", "Coupon " + action + "d successfully", "success")
+                            .then(function() {
+                                window.location.reload();
+                            });
+                        } else {
+                            swal("Error", data.message || "Something went wrong", "error");
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error('Error toggling coupon status:', error);
+                        swal("Error", "Failed to update coupon status", "error");
+                    });
+                }
+            });
+        }
+
+        couponForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            var couponName = document.getElementById('name').value;
+            if (couponName !== couponName.toUpperCase() || couponName.includes(' ')) {
+                swal("Invalid Format", "Coupon code must be uppercase and contain no spaces", "warning");
+                return;
+            }
+            
+            var offerPrice = Number(document.getElementById('offerPrice').value);
+            var minimumPrice = Number(document.getElementById('minimumPrice').value);
+            
+            if (offerPrice >= minimumPrice) {
+                swal("Invalid Amount", "Discount amount must be less than minimum purchase amount", "warning");
+                return;
+            }
+            
+            var couponData = {
+                name: document.getElementById('name').value,
+                offerPrice: offerPrice,
+                minimumPrice: minimumPrice,
+                expireOn: document.getElementById('expireOn').value
+            };
+            
+            var couponId = document.getElementById('couponId').value;
+            if (couponId) {
+                couponData.couponId = couponId;
+            }
+            
+            var url = this.action;
+            
+            console.log('Submitting coupon data:', couponData);
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(couponData)
+            })
+            .then(function(response) { 
+                console.log('Response status:', response.status);
+                return response.json(); 
+            })
+            .then(function(data) {
+                console.log('Response data:', data);
+                if (data.success) {
+                    swal("Success", data.message || "Coupon saved successfully", "success")
+                    .then(function() {
+                        window.location.reload();
+                    });
+                } else {
+                    swal("Error", data.message || "Something went wrong", "error");
+                }
+            })
+            .catch(function(error) {
+                console.error('Error saving coupon:', error);
+                swal("Error", "Failed to save coupon", "error");
+            });
+        });
+    </script>
+</body>
+</html> 

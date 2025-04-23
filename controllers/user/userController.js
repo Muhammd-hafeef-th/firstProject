@@ -22,9 +22,9 @@ const upload = multer({ storage: storage });
 
 const loadHomepage = async (req, res, next) => {
     try {
-        let productsData = await Product.find({ quantity: { $gt: 0 }, isListed: true })
-        let featuredData = await Product.find({ isFeatured: true, isListed: true, quantity: { $gt: 0 } })
-        let newArrivalsData = await Product.find({ isNew: true, isListed: true, quantity: { $gt: 0 } })
+        let productsData = await Product.find({ quantity: { $gt: 0 }, isListed: true }).populate('brand')
+        let featuredData = await Product.find({ isFeatured: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
+        let newArrivalsData = await Product.find({ isNew: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
         const brandData = await Brand.find({ isListed: true })
 
         productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -35,6 +35,27 @@ const loadHomepage = async (req, res, next) => {
 
         newArrivalsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         newArrivalsData = newArrivalsData.slice(0, 4);
+        
+        // Calculate sales price and offer percentage for each product
+        const processProducts = (products) => {
+            return products.map(product => {
+                const brandOffer = product.brand?.brandOffer || 0;
+                const productOffer = product.discount || 0;
+                
+                const newOffer = Math.max(productOffer, brandOffer);
+                const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+                
+                return {
+                    ...product._doc,
+                    newOffer,
+                    salesPrice
+                };
+            });
+        };
+        
+        const productsWithPrices = processProducts(productsData);
+        const featuredWithPrices = processProducts(featuredData);
+        const newArrivalsWithPrices = processProducts(newArrivalsData);
 
         const user = await User.findOne({ _id: req.session.user });
 
@@ -52,9 +73,9 @@ const loadHomepage = async (req, res, next) => {
         }
         res.render('home', {
             user: userData,
-            products: productsData,
-            featured: featuredData,
-            newArrival: newArrivalsData,
+            products: productsWithPrices,
+            featured: featuredWithPrices,
+            newArrival: newArrivalsWithPrices,
             brands: brandData
         });
 
@@ -283,11 +304,28 @@ const featuredProducts = async (req, res, next) => {
             .sort({ createdOn: -1 })
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+            
+        // Calculate sales price and offer percentage for each product
+        const featuredWithPrices = await Promise.all(featuredData.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+            
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
+        
         const totalProducts = await Product.countDocuments(baseQuery);
         const totalPages = Math.ceil(totalProducts / limit);
         res.render("featured-products", {
-            featured: featuredData,
+            featured: featuredWithPrices,
             currentPage: page,
             totalPages: totalPages,
             query: req.query
@@ -338,7 +376,23 @@ const products = async (req, res, next) => {
             .sort(sortOption)
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+            
+        // Calculate sales price and offer percentage for each product
+        const productsWithPrices = await Promise.all(productsData.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+            
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
 
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
@@ -347,7 +401,7 @@ const products = async (req, res, next) => {
         const filters = new URLSearchParams(req.query).toString().replace(/page=\d+&?/, '');
 
         res.render("products", {
-            products: productsData,
+            products: productsWithPrices,
             brands,
             currentPage: page,
             totalPages,
@@ -366,30 +420,45 @@ const newArrivals = async (req, res, next) => {
         const skip = (page - 1) * limit;
 
         let baseQuery = {
-            quantity: { $gt: 0 },
             isNew: true,
             isListed: true
         };
-        let newArrivalsData = await Product.find(baseQuery)
-            .sort({ createdOn: -1 })
+
+        let newArrivalData = await Product.find(baseQuery)
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+            
+        // Calculate sales price and offer percentage for each product
+        const newArrivalsWithPrices = await Promise.all(newArrivalData.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+            
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+            
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
 
         const totalProducts = await Product.countDocuments(baseQuery);
         const totalPages = Math.ceil(totalProducts / limit);
 
-
-        res.render("new-arrivals", {
-            newArrivals: newArrivalsData,
+        res.render("new-arrivals", { 
+            newArrivals: newArrivalsWithPrices,
             currentPage: page,
             totalPages: totalPages,
             query: req.query
-        })
+        });
     } catch (error) {
         next(error);
     }
-}
+};
 
 const mensWatch = async (req, res, next) => {
     try {
@@ -1452,6 +1521,101 @@ const updateCartQuantity = async (req, res) => {
         });
     }
 };
+
+// Add API endpoint for adding to cart
+const addToCartAPI = async (req, res) => {
+    try {
+        const productId = req.body.productId;
+        const requestedQuantity = parseInt(req.body.quantity) || 1;
+        const userId = req.session.user?._id || req.session.user;
+        const MAX_QUANTITY_PER_PRODUCT = 10;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: 'Please login to add items to cart' });
+        }
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        if (!product.isListed) {
+            return res.status(400).json({ success: false, message: 'This product is currently unavailable' });
+        }
+
+        if (product.status === "Discontinued") {
+            return res.status(400).json({ success: false, message: 'This product has been discontinued' });
+        }
+
+        if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+            });
+        }
+
+        let cart = await Cart.findOne({ userId }) || new Cart({ userId, items: [] });
+
+        const existingItemIndex = cart.items.findIndex(
+            item => item.productId.toString() === productId
+        );
+
+        if (existingItemIndex >= 0) {
+            const newTotalQuantity = cart.items[existingItemIndex].quantity + requestedQuantity;
+
+            if (newTotalQuantity > product.quantity) {
+                return res.status(400).json({ success: false, message: 'Not enough stock available' });
+            }
+
+            if (newTotalQuantity > MAX_QUANTITY_PER_PRODUCT) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+                });
+            }
+
+            cart.items[existingItemIndex].quantity = newTotalQuantity;
+            cart.items[existingItemIndex].totalPrice = newTotalQuantity * product.regularPrice;
+        } else {
+            if (requestedQuantity > product.quantity) {
+                return res.status(400).json({ success: false, message: 'Not enough stock available' });
+            }
+
+            if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+                });
+            }
+
+            cart.items.push({
+                productId: product._id,
+                price: product.regularPrice,
+                quantity: requestedQuantity,
+                totalPrice: requestedQuantity * product.regularPrice,
+                status: "active",
+                cancelationReason: "none"
+            });
+        }
+
+        await cart.save();
+        
+        // Update cart count in session
+        const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
+        req.session.cartCount = cartCount;
+
+        return res.status(200).json({ 
+            success: true, 
+            message: 'Product added to cart successfully',
+            cartCount: cartCount
+        });
+
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        return res.status(500).json({ success: false, message: 'Failed to add to cart' });
+    }
+};
+
 module.exports = {
     loadHomepage,
     pageNotFound,
@@ -1489,7 +1653,8 @@ module.exports = {
     deleteCartProduct,
     updateCartQuantity,
     verifyProfileUpdateOtp,
-    resendProfileUpdateOtp
+    resendProfileUpdateOtp,
+    addToCartAPI
 };
 
 

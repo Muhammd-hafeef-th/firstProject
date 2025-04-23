@@ -54,25 +54,28 @@
                                 <%= watch.productName %>
                             </h3>
                             
-                            <div class="flex items-center justify-center">
-                                <p class="text-black text-xl font-bold">
-                                    $<%= watch.regularPrice %>
-                                </p>
-                                
-                                <% if (watch.discountPrice) { %>
-                                    <p class="text-gray-700 text-sm line-through ml-2">
-                                        $<%= watch.discountPrice %>
+                            <div class="relative flex items-center justify-between mb-4">
+                                <div class="price-container">
+                                    <p class="text-xl font-bold text-black group-hover:text-white transition-all">
+                                        ₹<%= watch.salesPrice %>
                                     </p>
-                                <% } %>
+                                    <p class="text-black/70 text-sm line-through group-hover:text-white/70">
+                                        ₹<%= watch.regularPrice %>
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-black text-[#E8B888] px-3 py-1 rounded shadow-lg transform -rotate-3 group-hover:rotate-0 transition-all duration-300">
+                                    <span class="text-sm font-bold"><%= watch.newOffer %>% OFF</span>
+                                </div>
                             </div>
                             
                             <div class="mt-6">
-                                <a href="/addtoCart?id=<%= watch._id %>" 
+                                <button onclick="addToCart('<%= watch._id %>')" 
                                    class="block w-full bg-black text-[#E8B888] py-3 rounded-lg text-center font-medium 
                                           transition-all duration-300 hover:bg-gray-900 hover:text-white hover:shadow-lg
                                           transform hover:-translate-y-0.5">
                                     ADD TO CART
-                                </a>
+                                </button>
                             </div>
                         </div>
                         

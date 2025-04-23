@@ -98,7 +98,7 @@ const returnAction = async (req, res) => {
                             email: order.user.email,
                             password: order.user.password
                         },
-                        currency: 'USD',
+                        currency: 'RUPEES',
                         status: 'active',
                         transactions: []
                     }

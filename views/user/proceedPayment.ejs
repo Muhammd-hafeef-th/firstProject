@@ -75,22 +75,22 @@
                 <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                         <span class="text-gray-400">Subtotal (<%= cartItems.length %> items)</span>
-                        <span>$<%= subtotal.toFixed(2) %></span>
+                        <span>₹<%= subtotal.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Delivery</span>
-                        <span class="text-white">$<%= shipingCharge.toFixed(2) %></span>
+                        <span class="text-white">₹<%= shipingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Savings</span>
-                        <span class="text-green-400">-$<%= discountAmount.toFixed(2) %></span>
+                        <span class="text-green-400">-₹<%= discountAmount.toFixed(2) %></span>
                     </div>
                 </div>
                 
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
-                        <span>$<%= (subtotal - discountAmount).toFixed(2) %></span>
+                        <span>₹<%= (subtotal - discountAmount).toFixed(2) %></span>
                     </div>
                 </div>
             </div>

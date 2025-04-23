@@ -1,7 +1,7 @@
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
     <%- include('../../views/partials/user/header')%>
 </header>
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     .no-spinner::-webkit-outer-spin-button,
@@ -72,8 +72,8 @@
         <div class="text-center mb-10">
             <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
             <h2 class="text-3xl font-medium">Shopping Cart</h2>
-        </div>
-
+            </div>
+            
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="flex-grow">
                 <div class="border-b border-[#333] pb-3 mb-4">
@@ -112,7 +112,7 @@
                                                     <img src="<%= item.productId.productImage[0]%>"
                                                         alt="<%= item.productId.name %>"
                                                         class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition <%= item.isOutOfStock ? 'opacity-70' : '' %>">
-                                                    <div>
+                        <div>
                                                         <h3
                                                             class="font-medium <%= item.isOutOfStock ? 'text-gray-400' : '' %>">
                                                             <%= item.productId.productName %>
@@ -136,15 +136,15 @@
                                                             in cart)
                                                 </div>
                                                 <% } %>
-                                        </div>
+                        </div>
 
                                         <div class="col-span-2 text-center text-[#E8B888]"
                                             data-price="<%= item.productId.regularPrice %>">
-                                            $<%= item.productId.regularPrice.toFixed(2) %>
-                                        </div>
-
+                                            ₹<%= item.productId.regularPrice.toFixed(2) %>
+                    </div>
+                    
                                         <div class="col-span-3">
-                                            <div class="flex items-center justify-center">
+                    <div class="flex items-center justify-center">
                                                 <div
                                                     class="flex items-center border border-[#444] rounded-full bg-[#2A2A2A] shadow-inner <%= item.isOutOfStock ? 'opacity-50' : '' %>">
                                                     <button type="button"
@@ -170,7 +170,7 @@
                                         </div>
 
                                         <div class="col-span-2 text-right font-medium item-total">
-                                            $<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
+                                            ₹<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
                                         </div>
                             </div>
                             <% }); %>
@@ -188,8 +188,8 @@
                                         </a>
                                     </div>
                                     <% } %>
-                </div>
-
+                    </div>
+                    
                 <% if (cartItems.items.length> 0) { %>
                     <div class="mt-10 flex justify-between items-center">
                         <a href="/products"
@@ -216,21 +216,21 @@
                     <div class="space-y-4 mb-6">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-400">Subtotal</span>
-                            <span class="font-medium" id="cart-subtotal">$<%= cartItems.subtotal.toFixed(2) %></span>
+                            <span class="font-medium" id="cart-subtotal">₹<%= cartItems.subtotal.toFixed(2) %></span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-400">Shipping</span>
-                            <span id="cart-shipping">$<%= cartItems.shippingCharge.toFixed(2) %></span>
+                            <span id="cart-shipping">₹<%= cartItems.shippingCharge.toFixed(2) %></span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-400">Savings</span>
-                            <span class="text-green-500" id="cart-discount">-$<%= cartItems.discountAmount.toFixed(2) %>
+                            <span class="text-green-500" id="cart-discount">-₹<%= cartItems.discountAmount.toFixed(2) %>
                             </span>
-                        </div>
-
+                    </div>
+                    
                         <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
                             <span>Total</span>
-                            <span class="text-[#E8B888]" id="cart-total">$<%= cartItems.total.toFixed(2) %></span>
+                            <span class="text-[#E8B888]" id="cart-total">₹<%= cartItems.total.toFixed(2) %></span>
                         </div>
                     </div>
                     <a href="/checkout" id="checkoutBtn" class="block bg-[#E8B888] hover:bg-[#D9A76A] text-black font-medium py-3 px-4 rounded-md text-center transition shadow-md hover:shadow-lg 
@@ -268,8 +268,8 @@
                 </div>
                 <% } %>
         </div>
-    </div>
-
+        </div>
+        
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-[#252525] p-6 rounded-lg shadow-xl flex flex-col items-center">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E8B888] mb-4"></div>
@@ -280,6 +280,117 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Helper functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        
+        // Toast notification function
+        function showToast(message, type = 'success', duration = 3000) {
+            // Create toast container if it doesn't exist
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.position = 'fixed';
+                container.style.top = '20px';
+                container.style.right = '20px';
+                container.style.zIndex = '9999';
+                document.body.appendChild(container);
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.style.minWidth = '250px';
+            toast.style.margin = '0 0 10px 0';
+            toast.style.padding = '12px 20px';
+            toast.style.color = 'white';
+            toast.style.borderRadius = '4px';
+            toast.style.boxShadow = '0 4px 8px rgba(0,0,0,0.2)';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.style.justifyContent = 'space-between';
+            toast.style.transform = 'translateX(120%)';
+            toast.style.transition = 'transform 0.3s ease';
+            
+            // Set background color based on type
+            if (type === 'success') {
+                toast.style.backgroundColor = '#10b981';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = '#ef4444';
+            } else {
+                toast.style.backgroundColor = '#f59e0b';
+            }
+            
+            // Set content
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'exclamation-circle'}" style="margin-right: 10px;"></i>
+                    <span>${message}</span>
+                </div>
+                <button style="background: none; border: none; color: white; cursor: pointer; margin-left: 10px;">
+                    &times;
+                </button>
+            `;
+            
+            // Add to container
+            container.appendChild(toast);
+            
+            // Show toast with animation
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 10);
+            
+            // Add click event to close button
+            toast.querySelector('button').addEventListener('click', () => {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => {
+                    if (container.contains(toast)) {
+                        container.removeChild(toast);
+                    }
+                }, 300);
+            });
+            
+            // Auto-remove after duration
+            setTimeout(() => {
+                if (document.body.contains(toast)) {
+                    toast.style.transform = 'translateX(120%)';
+                    setTimeout(() => {
+                        if (container.contains(toast)) {
+                            container.removeChild(toast);
+                        }
+                    }, 300);
+                }
+            }, duration);
+        }
+
+        function updateCartSummary(summary) {
+            if (!summary) {
+                console.error('No cart summary provided');
+                return;
+            }
+
+            const subtotal = parseFloat(summary.subtotal || 0);
+            const discountAmount = parseFloat(summary.discountAmount || 0); 
+            const shippingCharge = parseFloat(summary.shippingCharge || 0);
+            const total = parseFloat(summary.total || 0);
+
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const discountEl = document.getElementById('cart-discount');
+            const shippingEl = document.getElementById('cart-shipping');
+            const totalEl = document.getElementById('cart-total');
+
+            if (subtotalEl) subtotalEl.textContent = `₹${subtotal.toFixed(2)}`;
+            if (discountEl) discountEl.textContent = `-₹${discountAmount.toFixed(2)}`;
+            if (shippingEl) shippingEl.textContent = `₹${shippingCharge.toFixed(2)}`;
+            if (totalEl) totalEl.textContent = `₹${total.toFixed(2)}`;
+        }
+        
+        // Event handlers
         document.querySelectorAll('.quantity-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 if (this.disabled) return;
@@ -300,51 +411,40 @@
         document.querySelectorAll('.delete-item-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const itemId = this.dataset.itemId;
-                Swal.fire({
-                    title: 'Remove Item?',
-                    text: "This will remove the item from your cart",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#E8B888',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, remove it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        showLoading();
-                        fetch(`/deleteCartProduct?id=${itemId}`, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/json'
-                            }
-                        })
-                            .then(response => {
-                                if (!response.ok) {
-                                    return response.json().then(err => { throw err; });
-                                }
-                                return response.json();
-                            })
-                            .then(data => {
-                                hideLoading();
-                                if (data && data.success) {
-                                    const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-                                    if (itemElement) {
-                                        itemElement.remove();
-                                    }
-                                    updateCartSummary(data.cartSummary || {});
-                                    if (data.itemCount === 0) {
-                                        location.reload();
-                                    }
-                                    Swal.fire('Removed!', data.message, 'success');
-                                } else {
-                                    throw new Error(data?.message || 'Unknown error occurred');
-                                }
-                            })
-                            .catch(err => {
-                                hideLoading();
-                                console.error('Delete error:', err);
-                                Swal.fire('Error!', err.message || 'Unable to remove item', 'error');
-                            });
+                showLoading();
+                fetch(`/deleteCartProduct?id=${itemId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
                     }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading();
+                    if (data && data.success) {
+                        const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                        if (itemElement) {
+                            itemElement.remove();
+                        }
+                        updateCartSummary(data.cartSummary || {});
+                        if (data.itemCount === 0) {
+                            location.reload();
+                        }
+                        // Show toast notification instead of SweetAlert
+                        showToast(data.message || 'Item removed successfully', 'success');
+                    } else {
+                        throw new Error(data?.message || 'Unknown error occurred');
+                    }
+                })
+                .catch(err => {
+                    hideLoading();
+                    console.error('Delete error:', err);
+                    showToast(err.message || 'Unable to remove item', 'error');
                 });
             });
         });
@@ -367,43 +467,44 @@
                     quantities: items.map(i => i.quantity)
                 })
             })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw err; });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    hideLoading();
-                    if (data.success) {
-                        items.forEach((item, index) => {
-                            const priceElement = document.querySelector(`[data-item-id="${item.id}"] [data-price]`);
-                            if (priceElement) {
-                                const price = parseFloat(priceElement.dataset.price);
-                                const quantity = parseInt(item.quantity);
-                                const itemTotalElement = document.querySelector(`[data-item-id="${item.id}"] .item-total`);
-                                if (itemTotalElement) {
-                                    itemTotalElement.textContent = `$${(price * quantity).toFixed(2)}`;
-                                }
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    items.forEach((item, index) => {
+                        const priceElement = document.querySelector(`[data-item-id="${item.id}"] [data-price]`);
+                        if (priceElement) {
+                            const price = parseFloat(priceElement.dataset.price);
+                            const quantity = parseInt(item.quantity);
+                            const itemTotalElement = document.querySelector(`[data-item-id="${item.id}"] .item-total`);
+                            if (itemTotalElement) {
+                                itemTotalElement.textContent = `₹${(price * quantity).toFixed(2)}`;
                             }
-                        });
-
-                        updateCartSummary(data.cartSummary || {});
-
-                        Swal.fire('Updated!', data.message, 'success');
-
-                        if (data.stockUpdated) {
-                            setTimeout(() => location.reload(), 1000);
                         }
-                    } else {
-                        Swal.fire('Error!', data.message, 'error');
+                    });
+
+                    updateCartSummary(data.cartSummary || {});
+
+                    // Show toast notification instead of SweetAlert
+                    showToast(data.message || 'Cart updated successfully', 'success');
+
+                    if (data.stockUpdated) {
+                        setTimeout(() => location.reload(), 1000);
                     }
-                })
-                .catch(err => {
-                    hideLoading();
-                    console.error("Update error:", err);
-                    Swal.fire('Error!', err.message || 'Unable to update cart', 'error');
-                });
+                } else {
+                    showToast(data.message || 'Failed to update cart', 'error');
+                }
+            })
+            .catch(err => {
+                hideLoading();
+                console.error("Update error:", err);
+                showToast(err.message || 'Unable to update cart', 'error');
+            });
         });
 
         document.getElementById('checkoutBtn')?.addEventListener('click', function (e) {
@@ -429,36 +530,6 @@
                 });
             }
         });
-
-        function updateCartSummary(summary) {
-            if (!summary) {
-                console.error('No cart summary provided');
-                return;
-            }
-
-            const subtotal = parseFloat(summary.subtotal || 0);
-            const discountAmount = parseFloat(summary.discountAmount || 0); 
-            const shippingCharge = parseFloat(summary.shippingCharge || 0);
-            const total = parseFloat(summary.total || 0);
-
-            const subtotalEl = document.getElementById('cart-subtotal');
-            const discountEl = document.getElementById('cart-discount');
-            const shippingEl = document.getElementById('cart-shipping');
-            const totalEl = document.getElementById('cart-total');
-
-            if (subtotalEl) subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
-            if (discountEl) discountEl.textContent = `-$${discountAmount.toFixed(2)}`;
-            if (shippingEl) shippingEl.textContent = `$${shippingCharge.toFixed(2)}`;
-            if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
-        }
-
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.add('hidden');
-        }
     });
 </script>
 

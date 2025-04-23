@@ -52,25 +52,27 @@
                                 <%= watch.productName %>
                             </h3>
                             
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between mb-2">
                                 <p class="text-[#E8B888] text-xl font-bold">
-                                    $<%= watch.regularPrice %>
+                                    ₹<%= watch.salesPrice %>
                                 </p>
                                 
-                                <% if (watch.discountPrice) { %>
-                                    <p class="text-gray-400 text-sm line-through">
-                                        $<%= watch.discountPrice %>
-                                    </p>
-                                <% } %>
+                                <p class="text-gray-400 text-sm line-through">
+                                    ₹<%= watch.regularPrice %>
+                                </p>
+                                
+                                <span class="bg-green-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                                    <%= watch.newOffer %>% off
+                                </span>
                             </div>
                             
                             <div class="mt-6">
-                                <a href="/addtoCart?id=<%= watch._id %>" 
+                                <button onclick="addToCart('<%= watch._id %>')" 
                                    class="block w-full bg-gradient-to-r from-[#3A3A3A] to-[#2A2A2A] text-white py-3 rounded-lg text-center font-medium 
                                           transition-all duration-300 hover:from-[#E8B888] hover:to-amber-600 hover:text-black hover:shadow-lg
                                           transform hover:-translate-y-0.5">
                                     ADD TO CART
-                                </a>
+                                </button>
                             </div>
                         </div>
                         
