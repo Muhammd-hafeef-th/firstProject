@@ -20,8 +20,30 @@
                             <span class="font-medium">#<%=newOrder.orderId%></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600">Total Amount:</span>
-                            <span class="font-medium">₹<%=newOrder.finalAmount%>.00</span>
+                            <span class="text-gray-600">Subtotal:</span>
+                            <span class="font-medium">₹<%=subtotal.toFixed(2)%></span>
+                        </div>
+                        <% if (discountAmount > 0) { %>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Product Savings:</span>
+                            <span class="font-medium text-green-600">-₹<%=discountAmount.toFixed(2)%></span>
+                        </div>
+                        <% } %>
+                        <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Coupon Discount:</span>
+                            <span class="font-medium text-green-600">-₹<%=couponDiscount.toFixed(2)%></span>
+                        </div>
+                        <% } %>
+                        <% if (shippingCharge > 0) { %>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Shipping:</span>
+                            <span class="font-medium">₹<%=shippingCharge.toFixed(2)%></span>
+                        </div>
+                        <% } %>
+                        <div class="flex justify-between pt-2 border-t border-gray-200">
+                            <span class="text-gray-800 font-semibold">Total Amount:</span>
+                            <span class="font-semibold">₹<%=newOrder.finalAmount.toFixed(2)%></span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Payment Method:</span>

@@ -131,15 +131,15 @@
               
               <div class="flex items-center justify-between mb-5">
                 <div class="flex flex-col">
-                  <span class="text-[#E8B888] text-2xl font-bold">₹<%= watch.regularPrice %></span>
-                  <% if (watch.discountPrice) { %>
-                    <span class="text-gray-400 text-sm line-through">₹<%= watch.discountPrice %></span>
+                  <span class="text-[#E8B888] text-2xl font-bold">₹<%= watch.salesPrice %></span>
+                  <% if (watch.newOffer > 0) { %>
+                    <span class="text-gray-400 text-sm line-through">₹<%= watch.regularPrice %></span>
                   <% } %>
                 </div>
                 
-                <% if (watch.discount && watch.discount > 0) { %>
+                <% if (watch.newOffer && watch.newOffer > 0) { %>
                 <div class="bg-black border border-[#E8B888]/50 text-[#E8B888] px-3 py-1.5 rounded shadow-md relative overflow-hidden group-hover:bg-[#E8B888] group-hover:text-white transition-all duration-500">
-                  <span class="relative z-10 font-bold text-sm"><%= watch.discount %>% OFF</span>
+                  <span class="relative z-10 font-bold text-sm"><%= watch.newOffer %>% OFF</span>
                   <div class="absolute inset-0 bg-gradient-to-r from-[#E8B888]/0 to-[#E8B888]/20 transform -skew-x-12 group-hover:skew-x-12 transition-all duration-700"></div>
                 </div>
                 <% } %>

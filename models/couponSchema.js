@@ -7,6 +7,10 @@ const couponSchema=new Schema({
         reqired:true,
         unique:true
     },
+    description:{
+        type:String,
+        default: '',
+    },
     createdOn:{
         type:Date,
         default:Date.now,
@@ -20,9 +24,23 @@ const couponSchema=new Schema({
         type:Number,
         required:true,
     },
+    discountType:{
+        type:String,
+        enum: ['percentage', 'amount'],
+        default: 'amount',
+        required:true
+    },
     minimumPrice:{
         type:Number,
         required:true
+    },
+    usageLimit:{
+        type:Number,
+        default: 0 // 0 means unlimited usage
+    },
+    usageCount:{
+        type:Number,
+        default: 0
     },
     isList:{
         type:Boolean,

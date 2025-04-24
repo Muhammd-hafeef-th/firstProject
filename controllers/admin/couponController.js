@@ -2,7 +2,13 @@ const Coupon = require('../../models/couponSchema');
 
 const getCoupon = async (req, res) => {
     try {
-        const coupons = await Coupon.find().sort({ createdOn: -1 });
+        const coupons = await Coupon.find()
+            .populate({
+                path: 'userId',
+                select: 'firstname lastname email phNumber',
+                model: 'User'
+            })
+            .sort({ createdOn: -1 });
         res.render('coupons', { coupons });
     } catch (error) {
         console.error('Error fetching coupons:', error);
@@ -15,20 +21,29 @@ const getCoupon = async (req, res) => {
 
 const addCoupon = async (req, res) => {
     try {
-        const { name, offerPrice, minimumPrice, expireOn } = req.body;
+        const { name, offerPrice, minimumPrice, expireOn, discountType, description, usageLimit } = req.body;
 
-        if (!name || !offerPrice || !minimumPrice || !expireOn) {
+        if (!name || !offerPrice || !minimumPrice || !expireOn || !discountType) {
             return res.status(400).json({
                 success: false,
-                message: 'All fields are required'
+                message: 'All required fields must be filled'
             });
         }
 
-        if (Number(offerPrice) >= Number(minimumPrice)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Discount amount must be less than minimum purchase amount'
-            });
+        if (discountType === 'percentage') {
+            if (Number(offerPrice) <= 0 || Number(offerPrice) > 100) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Percentage discount must be between 1 and 100'
+                });
+            }
+        } else {
+            if (Number(offerPrice) >= Number(minimumPrice)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Discount amount must be less than minimum purchase amount'
+                });
+            }
         }
 
         const existingCoupon = await Coupon.findOne({ name });
@@ -41,10 +56,14 @@ const addCoupon = async (req, res) => {
 
         const newCoupon = new Coupon({
             name: name.toUpperCase(),
+            description: description || '',
             offerPrice: Number(offerPrice),
             minimumPrice: Number(minimumPrice),
+            discountType,
             expireOn: new Date(expireOn),
             createdOn: new Date(),
+            usageLimit: Number(usageLimit) || 0,
+            usageCount: 0,
             isList: true
         });
 
@@ -65,20 +84,29 @@ const addCoupon = async (req, res) => {
 
 const editCoupon = async (req, res) => {
     try {
-        const { couponId, name, offerPrice, minimumPrice, expireOn } = req.body;
+        const { couponId, name, offerPrice, minimumPrice, expireOn, discountType, description, usageLimit } = req.body;
 
-        if (!couponId || !name || !offerPrice || !minimumPrice || !expireOn) {
+        if (!couponId || !name || !offerPrice || !minimumPrice || !expireOn || !discountType) {
             return res.status(400).json({
                 success: false,
-                message: 'All fields are required'
+                message: 'All required fields must be filled'
             });
         }
 
-        if (Number(offerPrice) >= Number(minimumPrice)) {
-            return res.status(400).json({
-                success: false,
-                message: 'Discount amount must be less than minimum purchase amount'
-            });
+        if (discountType === 'percentage') {
+            if (Number(offerPrice) <= 0 || Number(offerPrice) > 100) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Percentage discount must be between 1 and 100'
+                });
+            }
+        } else {
+            if (Number(offerPrice) >= Number(minimumPrice)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Discount amount must be less than minimum purchase amount'
+                });
+            }
         }
 
         const coupon = await Coupon.findById(couponId);
@@ -100,9 +128,12 @@ const editCoupon = async (req, res) => {
         }
 
         coupon.name = name.toUpperCase();
+        coupon.description = description || '';
         coupon.offerPrice = Number(offerPrice);
         coupon.minimumPrice = Number(minimumPrice);
+        coupon.discountType = discountType;
         coupon.expireOn = new Date(expireOn);
+        coupon.usageLimit = Number(usageLimit) || 0;
 
         await coupon.save();
         
@@ -139,6 +170,13 @@ const toggleCoupon = async (req, res) => {
             });
         }
 
+        if (status && coupon.usageLimit > 0 && coupon.usageCount >= coupon.usageLimit) {
+            return res.status(400).json({
+                success: false,
+                message: 'This coupon has reached its usage limit and cannot be enabled'
+            });
+        }
+
         coupon.isList = Boolean(status);
         await coupon.save();
         
@@ -155,11 +193,38 @@ const toggleCoupon = async (req, res) => {
     }
 };
 
+const incrementCouponUsage = async (couponId) => {
+    try {
+        const coupon = await Coupon.findById(couponId);
+        if (!coupon) {
+            return { success: false, message: 'Coupon not found' };
+        }
+
+        coupon.usageCount += 1;
+        
+        if (coupon.usageLimit > 0 && coupon.usageCount >= coupon.usageLimit) {
+            coupon.isList = false;
+        }
+        
+        await coupon.save();
+        return { success: true };
+    } catch (error) {
+        console.error('Error incrementing coupon usage:', error);
+        return { success: false, message: error.message || 'Failed to update coupon usage' };
+    }
+};
+
 const getCouponById = async (req, res) => {
     try {
         const { couponId } = req.params;
         
-        const coupon = await Coupon.findById(couponId);
+        const coupon = await Coupon.findById(couponId)
+            .populate({
+                path: 'userId',
+                select: 'firstname lastname email phNumber',
+                model: 'User'
+            });
+            
         if (!coupon) {
             return res.status(404).json({
                 success: false,
@@ -182,5 +247,6 @@ module.exports = {
     addCoupon,
     editCoupon,
     toggleCoupon,
-    getCouponById
+    getCouponById,
+    incrementCouponUsage,
 };

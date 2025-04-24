@@ -7,6 +7,8 @@ const Cart = require('../../models/cartSchema')
 const Brand = require("../../models/brandSchema");
 const { trace } = require('../../routes/userRouter');
 const multer = require("multer");
+const Coupon = require('../../models/couponSchema');
+
 
 
 const storage = multer.diskStorage({
@@ -35,16 +37,16 @@ const loadHomepage = async (req, res, next) => {
 
         newArrivalsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         newArrivalsData = newArrivalsData.slice(0, 4);
-        
+
         // Calculate sales price and offer percentage for each product
         const processProducts = (products) => {
             return products.map(product => {
                 const brandOffer = product.brand?.brandOffer || 0;
                 const productOffer = product.discount || 0;
-                
+
                 const newOffer = Math.max(productOffer, brandOffer);
                 const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
-                
+
                 return {
                     ...product._doc,
                     newOffer,
@@ -52,7 +54,7 @@ const loadHomepage = async (req, res, next) => {
                 };
             });
         };
-        
+
         const productsWithPrices = processProducts(productsData);
         const featuredWithPrices = processProducts(featuredData);
         const newArrivalsWithPrices = processProducts(newArrivalsData);
@@ -306,22 +308,21 @@ const featuredProducts = async (req, res, next) => {
             .limit(limit)
             .populate('brand')
             .exec();
-            
-        // Calculate sales price and offer percentage for each product
+
         const featuredWithPrices = await Promise.all(featuredData.map(async (product) => {
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
-            
+
             const newOffer = Math.max(productOffer, brandOffer);
             const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
-            
+
             return {
                 ...product._doc,
                 newOffer,
                 salesPrice
             };
         }));
-        
+
         const totalProducts = await Product.countDocuments(baseQuery);
         const totalPages = Math.ceil(totalProducts / limit);
         res.render("featured-products", {
@@ -378,15 +379,14 @@ const products = async (req, res, next) => {
             .limit(limit)
             .populate('brand')
             .exec();
-            
-        // Calculate sales price and offer percentage for each product
+
         const productsWithPrices = await Promise.all(productsData.map(async (product) => {
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
-            
+
             const newOffer = Math.max(productOffer, brandOffer);
             const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
-            
+
             return {
                 ...product._doc,
                 newOffer,
@@ -430,15 +430,14 @@ const newArrivals = async (req, res, next) => {
             .limit(limit)
             .populate('brand')
             .exec();
-            
-        // Calculate sales price and offer percentage for each product
+
         const newArrivalsWithPrices = await Promise.all(newArrivalData.map(async (product) => {
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
-            
+
             const newOffer = Math.max(productOffer, brandOffer);
             const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
-            
+
             return {
                 ...product._doc,
                 newOffer,
@@ -449,7 +448,7 @@ const newArrivals = async (req, res, next) => {
         const totalProducts = await Product.countDocuments(baseQuery);
         const totalPages = Math.ceil(totalProducts / limit);
 
-        res.render("new-arrivals", { 
+        res.render("new-arrivals", {
             newArrivals: newArrivalsWithPrices,
             currentPage: page,
             totalPages: totalPages,
@@ -472,13 +471,28 @@ const mensWatch = async (req, res, next) => {
         let mensWatch = await Product.find({ category: gentsMatch, isListed: true })
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec()
+
+        const mensWatchWithPrices = await Promise.all(mensWatch.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
 
         const totalProducts = await Product.countDocuments({ category: gentsMatch });
         const totalPages = Math.ceil(totalProducts / limit);
 
         res.render("mens-watch", {
-            gents: mensWatch,
+            gents: mensWatchWithPrices,
             brands: brands,
             currentPage: page,
             totalPages: totalPages,
@@ -500,14 +514,29 @@ const ladiesWatch = async (req, res, next) => {
         const ladiesProducts = await Product.find({ category: ladiesMatch, isListed: true })
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec()
+
+        const ladiesWithPrices = await Promise.all(ladiesProducts.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
 
         const totalProducts = await Product.countDocuments({ category: ladiesMatch });
         const totalPages = Math.ceil(totalProducts / limit);
 
 
         res.render("ladies-watch", {
-            ladies: ladiesProducts,
+            ladies: ladiesWithPrices,
             brands: brands,
             query: req.query,
             selectedBrand: '',
@@ -529,13 +558,28 @@ const couplesWatch = async (req, res, next) => {
         let couplesWatch = await Product.find({ category: couplesMatch, isListed: true })
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec()
+
+        const couplesWithPrices = await Promise.all(couplesWatch.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
 
         const totalProducts = await Product.countDocuments({ category: couplesMatch });
         const totalPages = Math.ceil(totalProducts / limit);
 
         res.render("couples-watch", {
-            couples: couplesWatch,
+            couples: couplesWithPrices,
             brands: brands,
             query: req.query,
             selectedBrand: "",
@@ -555,7 +599,7 @@ const productDetails = async (req, res, next) => {
         let brand = await Brand.findOne({ _id: brandId });
 
         let brandOffer = brand?.brandOffer || 0;
-        let productOffer = productDe.discount 
+        let productOffer = productDe.discount
 
 
         let newOffer = productOffer;
@@ -666,12 +710,28 @@ const ladiesBrandFilter = async (req, res, next) => {
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+
+        const productsWithPrices = await Promise.all(filteredProducts.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
+
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
         res.render("ladies-watch", {
-            ladies: filteredProducts,
+            ladies: productsWithPrices,
             brands: brands,
             selectedBrand: selectedBrand,
             currentPage: page,
@@ -700,12 +760,28 @@ const gentsBrandFilter = async (req, res, next) => {
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+
+        const productsWithPrices = await Promise.all(filteredProducts.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
+            
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
         res.render("mens-watch", {
-            gents: filteredProducts,
+            gents: productsWithPrices,
             brands: brands,
             selectedBrand: selectedBrand,
             currentPage: page,
@@ -730,12 +806,28 @@ const couplesBrandFilter = async (req, res, next) => {
         const filteredProducts = await Product.find(filter)
             .skip(skip)
             .limit(limit)
+            .populate('brand')
             .exec();
+            
+        const productsWithPrices = await Promise.all(filteredProducts.map(async (product) => {
+            const brandOffer = product.brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
+            
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
         res.render("couples-watch", {
-            couples: filteredProducts,
+            couples: productsWithPrices,
             brands: brands,
             selectedBrand: selectedBrand,
             currentPage: page,
@@ -762,7 +854,6 @@ const brandButton = async (req, res, next) => {
         const brand = await Brand.findOne({ _id: brandId });
         if (!brand) {
             return res.redirect("/pageNotFound");
-
         }
 
         let query = { brand: brand._id, isListed: true };
@@ -776,13 +867,27 @@ const brandButton = async (req, res, next) => {
             .limit(limit)
             .exec();
 
+        const productsWithPrices = await Promise.all(products.map(async (product) => {
+            const brandOffer = brand?.brandOffer || 0;
+            const productOffer = product.discount || 0;
+
+            const newOffer = Math.max(productOffer, brandOffer);
+            const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+
+            return {
+                ...product._doc,
+                newOffer,
+                salesPrice
+            };
+        }));
+
         const totalProducts = await Product.countDocuments(query);
         const totalPages = Math.ceil(totalProducts / limit);
 
         const brandItem = await Brand.find({});
 
         res.render("brands-details", {
-            products: products,
+            products: productsWithPrices,
             brands: brand,
             brandItems: brandItem,
             selectedCategory: selectedCategory,
@@ -1094,31 +1199,31 @@ const verifyProfileOtp = async (req, res, next) => {
 }
 const profileNewPassword = async (req, res, next) => {
     try {
-        let userData = null
+        let userData = null;
         if (req.session.user) {
-            userData = await User.findOne({ _id: req.session.user._id })
+            userData = await User.findOne({ _id: req.session.user._id });
         }
-        res.render('profileNewPassword', { userDatas: userData })
+        res.render('profileNewPassword', { userDatas: userData });
     } catch (error) {
         next(error);
     }
-}
+};
 const resendProfileOtp = async (req, res, next) => {
     try {
         const otp = generateOtp();
         req.session.userOtp = otp;
         const email = req.session.email;
-        console.log("resending otp to email:", email)
-        const emailSent = await sendVerificationEmail(email, otp)
+        console.log("resending otp to email:", email);
+        const emailSent = await sendVerificationEmail(email, otp);
         if (emailSent) {
-            console.log("resend otp is:", otp)
-            res.status(200).json({ success: true, message: "Resend OTP successful" })
+            console.log("resend otp is:", otp);
+            res.status(200).json({ success: true, message: "Resend OTP successful" });
         }
     } catch (error) {
         error.message = 'Error in resend otp: ' + error.message;
         next(error);
     }
-}
+};
 
 const profilePasswordSaving = async (req, res, next) => {
     try {
@@ -1254,7 +1359,7 @@ const cart = async (req, res, next) => {
         let cartItems = {
             items: itemsWithStatusInfo,
             subtotal: 0,
-            discountAmount: 0, // This will now be the actual savings amount
+            discountAmount: 0,
             shippingCharge: 0,
             total: 0,
             hasOutOfStockItems: false,
@@ -1272,14 +1377,13 @@ const cart = async (req, res, next) => {
                     const itemPrice = product.regularPrice * quantity;
                     const brandOffer = product.brand?.brandOffer || 0;
                     const productOffer = product.discount || 0;
-                    
-                    // Apply the same discount logic as product details
+
                     const effectiveDiscount = Math.max(brandOffer, productOffer);
                     const itemSavings = itemPrice * (effectiveDiscount / 100);
                     const itemShipping = (product.shipingCharge || 0) * quantity;
 
                     acc.subtotal += itemPrice;
-                    acc.discountAmount += itemSavings; // Accumulate actual savings
+                    acc.discountAmount += itemSavings;
                     acc.shippingCharge += itemShipping;
                 }
 
@@ -1306,10 +1410,42 @@ const cart = async (req, res, next) => {
             cartItems.total = cartItems.subtotal - cartItems.discountAmount + cartItems.shippingCharge;
         }
 
+        const currentDate = new Date();
+
+        let applicableCoupons = [];
+        if (cartItems.subtotal > 0) {
+            applicableCoupons = await Coupon.find({
+                minimumPrice: { $lte: cartItems.subtotal },
+                expireOn: { $gt: currentDate },
+                isList: true,
+                $or: [
+                    { usageLimit: 0 },
+                    { $expr: { $lt: ["$usageCount", "$usageLimit"] } }
+                ],
+                userId: { $ne: userId }
+            }).sort({ offerPrice: -1 }).limit(5);
+        }
+
+        const appliedCoupon = req.session.appliedCoupon || null;
+        let couponDiscount = 0;
+
+        if (appliedCoupon && !cartItems.hasOutOfStockItems && !cartItems.hasUnlistedItems) {
+            if (appliedCoupon.discountType === 'percentage') {
+                couponDiscount = (cartItems.subtotal * appliedCoupon.offerPrice) / 100;
+            } else {
+                couponDiscount = appliedCoupon.offerPrice;
+            }
+            cartItems.couponDiscount = couponDiscount;
+            cartItems.total = cartItems.total - couponDiscount;
+        }
+
         res.render('addToCart', {
             cartItems,
             regularPriceTotal: cartItems.subtotal,
             discountedPriceTotal: cartItems.total,
+            applicableCoupons,
+            appliedCoupon,
+            couponDiscount,
             messages: {
                 hasUnlistedItems: cartItems.hasUnlistedItems,
                 hasOutOfStockItems: cartItems.hasOutOfStockItems
@@ -1346,7 +1482,7 @@ const deleteCartProduct = async (req, res, next) => {
         ).populate({
             path: 'items.productId',
             model: 'Product',
-            populate: { 
+            populate: {
                 path: 'brand',
                 model: 'Brand'
             },
@@ -1369,14 +1505,14 @@ const deleteCartProduct = async (req, res, next) => {
             if (!product) return acc;
 
             const itemPrice = product.regularPrice * quantity;
-            
+
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
             const effectiveDiscount = Math.max(brandOffer, productOffer);
             const itemSavings = itemPrice * (effectiveDiscount / 100);
 
             acc.subtotal += itemPrice;
-            acc.discountAmount += itemSavings; 
+            acc.discountAmount += itemSavings;
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
         }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
@@ -1487,14 +1623,14 @@ const updateCartQuantity = async (req, res) => {
             const product = item.productId;
             const quantity = item.quantity;
             const itemPrice = product.regularPrice * quantity;
-            
+
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
             const effectiveDiscount = Math.max(brandOffer, productOffer);
             const itemSavings = itemPrice * (effectiveDiscount / 100);
 
             acc.subtotal += itemPrice;
-            acc.discountAmount += itemSavings; 
+            acc.discountAmount += itemSavings;
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
         }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
@@ -1506,7 +1642,7 @@ const updateCartQuantity = async (req, res) => {
             message: 'Cart updated successfully',
             cartSummary: {
                 subtotal: parseFloat(calculations.subtotal.toFixed(2)),
-                discountAmount: parseFloat(calculations.discountAmount.toFixed(2)), 
+                discountAmount: parseFloat(calculations.discountAmount.toFixed(2)),
                 shippingCharge: parseFloat(calculations.shippingCharge.toFixed(2)),
                 total: parseFloat(total.toFixed(2))
             },
@@ -1522,7 +1658,6 @@ const updateCartQuantity = async (req, res) => {
     }
 };
 
-// Add API endpoint for adding to cart
 const addToCartAPI = async (req, res) => {
     try {
         const productId = req.body.productId;
@@ -1548,9 +1683,9 @@ const addToCartAPI = async (req, res) => {
         }
 
         if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+            return res.status(400).json({
+                success: false,
+                message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`
             });
         }
 
@@ -1568,9 +1703,9 @@ const addToCartAPI = async (req, res) => {
             }
 
             if (newTotalQuantity > MAX_QUANTITY_PER_PRODUCT) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+                return res.status(400).json({
+                    success: false,
+                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`
                 });
             }
 
@@ -1582,9 +1717,9 @@ const addToCartAPI = async (req, res) => {
             }
 
             if (requestedQuantity > MAX_QUANTITY_PER_PRODUCT) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product` 
+                return res.status(400).json({
+                    success: false,
+                    message: `Maximum ${MAX_QUANTITY_PER_PRODUCT} items allowed per product`
                 });
             }
 
@@ -1599,13 +1734,12 @@ const addToCartAPI = async (req, res) => {
         }
 
         await cart.save();
-        
-        // Update cart count in session
+
         const cartCount = cart.items.reduce((sum, item) => sum + item.quantity, 0);
         req.session.cartCount = cartCount;
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             message: 'Product added to cart successfully',
             cartCount: cartCount
         });
@@ -1645,7 +1779,6 @@ module.exports = {
     changePassword,
     profileEmailOtp,
     verifyProfileOtp,
-    profileNewPassword,
     resendProfileOtp,
     profilePasswordSaving,
     addtoCart,
@@ -1654,7 +1787,6 @@ module.exports = {
     updateCartQuantity,
     verifyProfileUpdateOtp,
     resendProfileUpdateOtp,
-    addToCartAPI
+    addToCartAPI,
+    profileNewPassword
 };
-
-

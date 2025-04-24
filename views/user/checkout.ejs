@@ -189,15 +189,21 @@
                         <span class="text-white">₹0</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-400">Savings</span>
+                        <span class="text-gray-400">Product Savings</span>
                         <span class="text-green-400">-₹<%= discountAmount.toFixed(2) %></span>
                     </div>
+                    <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Coupon Discount</span>
+                        <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
+                    </div>
+                    <% } %>
 
                     <hr class="border-gray-700 my-4" />
 
                     <div class="flex justify-between text-lg font-bold mb-6">
                         <span>Total</span>
-                        <span>₹<%= (subtotal - discountAmount + shipingCharge).toFixed(2) %></span>
+                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %></span>
                     </div>
                     <form action="/proceed-payment" method="get">
                         <button type="submit"

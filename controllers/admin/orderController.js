@@ -76,7 +76,7 @@ const returnAction = async (req, res) => {
     try {
         const { action, orderId } = req.body;
         
-        const order = await Order.findOne({ orderId }).populate('user').populate('orderItems.product')
+        const order = await Order.findOne({ orderId }).populate('user').populate('orderItems.product');
         if (!order) {
             return res.status(404).json({ 
                 success: false, 
@@ -86,60 +86,136 @@ const returnAction = async (req, res) => {
 
         if (action === 'accept') {
             order.status = 'Returned';
-            const refundAmount = order.finalAmount;
-
-            const wallet = await Wallet.findOneAndUpdate(
-                { 'user.email': order.user.email },
-                {
-                    $inc: { balance: refundAmount },
-                    $setOnInsert: { 
-                        user: {
-                            username: order.user.firstname,
-                            email: order.user.email,
-                            password: order.user.password
-                        },
-                        currency: 'RUPEES',
-                        status: 'active',
-                        transactions: []
+            
+            // If the order was paid using wallet, refund to wallet
+            if (order.paymentMethod && order.paymentMethod.type === 'wallet') {
+                try {
+                    const refundAmount = order.finalAmount;
+                    
+                    // Find the user's wallet
+                    const wallet = await Wallet.findOne({ 'user.email': order.user.email });
+                    
+                    if (wallet) {
+                        // Add refund transaction to wallet
+                        wallet.transactions.push({
+                            amount: refundAmount,
+                            type: 'refund',
+                            description: `Refund for returned order #${order.orderId}`,
+                            status: 'completed',
+                            referenceId: `RETURN-${orderId}-${Date.now()}`,
+                            date: new Date()
+                        });
+                        
+                        // Update wallet balance
+                        wallet.balance += refundAmount;
+                        await wallet.save();
+                        
+                        // Update order refund status
+                        order.refundDetails = {
+                            amount: refundAmount,
+                            paymentMethod: 'wallet',
+                            status: 'completed',
+                            processedAt: new Date()
+                        };
+                        
+                        console.log(`Wallet refund processed for returned order ${orderId}. Amount: ${refundAmount}`);
+                    } else {
+                        // Create a new wallet for the user if one doesn't exist
+                        const newWallet = new Wallet({
+                            user: {
+                                username: order.user.firstname,
+                                email: order.user.email,
+                                password: order.user.password
+                            },
+                            balance: refundAmount,
+                            transactions: [{
+                                amount: refundAmount,
+                                type: 'refund',
+                                description: `Refund for returned order #${order.orderId}`,
+                                status: 'completed',
+                                referenceId: `RETURN-${orderId}-${Date.now()}`,
+                                date: new Date()
+                            }]
+                        });
+                        
+                        await newWallet.save();
+                        
+                        // Update order refund status
+                        order.refundDetails = {
+                            amount: refundAmount,
+                            paymentMethod: 'wallet',
+                            status: 'completed',
+                            processedAt: new Date()
+                        };
+                        
+                        console.log(`New wallet created with refund for returned order ${orderId}. Amount: ${refundAmount}`);
                     }
-                },
-                {
-                    upsert: true,
-                    new: true,
-                    setDefaultsOnInsert: true
+                } catch (walletError) {
+                    console.error('Error processing wallet refund for return:', walletError);
+                    // Continue with return approval even if wallet refund fails
                 }
-            );
+            } else {
+                // For other payment methods, use the existing refund logic
+                const refundAmount = order.finalAmount;
 
-           
-            await Wallet.findByIdAndUpdate(wallet._id, {
-                $push: {
-                    transactions: {
-                        amount: refundAmount,
-                        type: 'refund',
-                        description: `Order Return #${orderId}`,
-                        status: 'completed',
-                        date: new Date(),
-                        counterparty: order.merchantName || 'System',
-                        referenceId: orderId
+                const wallet = await Wallet.findOneAndUpdate(
+                    { 'user.email': order.user.email },
+                    {
+                        $inc: { balance: refundAmount },
+                        $setOnInsert: { 
+                            user: {
+                                username: order.user.firstname,
+                                email: order.user.email,
+                                password: order.user.password
+                            },
+                            currency: 'RUPEES',
+                            status: 'active',
+                            transactions: []
+                        }
+                    },
+                    {
+                        upsert: true,
+                        new: true,
+                        setDefaultsOnInsert: true
                     }
-                }
-            });
+                );
 
+                await Wallet.findByIdAndUpdate(wallet._id, {
+                    $push: {
+                        transactions: {
+                            amount: refundAmount,
+                            type: 'refund',
+                            description: `Order Return #${orderId}`,
+                            status: 'completed',
+                            date: new Date(),
+                            counterparty: order.merchantName || 'System',
+                            referenceId: orderId
+                        }
+                    }
+                });
+            }
         } else {
             order.status = 'Return Rejected';
+            // Clear any pending refund details
+            if (order.refundDetails) {
+                order.refundDetails.status = 'rejected';
+                order.refundDetails.processedAt = new Date();
+            }
         }
+        
+        // Return items to inventory regardless of return approval/rejection
         for (const item of order.orderItems) {
             const product = item.product;
             product.quantity += item.quantity;
             await product.save();
         }
 
-    
         await order.save();
 
         res.status(200).json({
             success: true,
             message: `Return request ${action}ed successfully`,
+            refunded: action === 'accept',
             order
         });
 

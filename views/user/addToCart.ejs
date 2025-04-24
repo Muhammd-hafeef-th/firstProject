@@ -226,8 +226,82 @@
                             <span class="text-gray-400">Savings</span>
                             <span class="text-green-500" id="cart-discount">-₹<%= cartItems.discountAmount.toFixed(2) %>
                             </span>
-                    </div>
-                    
+                        </div>
+                        
+                        <!-- Add coupon section -->
+                        <div class="border-t border-[#333] pt-4 mt-2">
+                            <div class="mb-4">
+                                <label for="coupon-code" class="text-gray-300 text-sm mb-1 block">Apply Coupon</label>
+                                <div class="flex items-center">
+                                    <input type="text" id="coupon-code" placeholder="Enter coupon code" 
+                                        class="bg-[#1F1F1F] text-white px-3 py-2 rounded-l-md border border-[#444] w-full focus:outline-none focus:border-[#E8B888]"
+                                        <%= appliedCoupon ? 'disabled' : '' %>>
+                                    <button id="apply-coupon-btn" 
+                                        class="bg-[#E8B888] hover:bg-[#D9A76A] text-black px-3 py-2 rounded-r-md transition"
+                                        <%= appliedCoupon ? 'disabled style="opacity: 0.5;"' : '' %>>
+                                        Apply
+                                    </button>
+                                </div>
+                                <div id="coupon-message" class="text-xs mt-1 hidden"></div>
+                            </div>
+                            
+                            <% if (appliedCoupon) { %>
+                            <div class="flex items-center justify-between bg-[#2A2A2A] p-2 rounded-md mb-3">
+                                <div>
+                                    <div class="flex items-center">
+                                        <span class="text-[#E8B888] font-medium"><%= appliedCoupon.name %></span>
+                                        <% if (appliedCoupon.discountType === 'percentage') { %>
+                                            <span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5"><%= appliedCoupon.offerPrice %>% OFF</span>
+                                        <% } else { %>
+                                            <span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹<%= appliedCoupon.offerPrice %> OFF</span>
+                                        <% } %>
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1"><%= appliedCoupon.description || 'Coupon applied successfully' %></p>
+                                </div>
+                                <button id="remove-coupon-btn" class="text-red-400 hover:text-red-300 text-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="flex justify-between items-center text-sm mb-3">
+                                <span class="text-gray-400">Coupon Discount</span>
+                                <span class="text-green-500" id="coupon-discount">-₹<%= couponDiscount.toFixed(2) %></span>
+                            </div>
+                            <% } %>
+                            
+                            <% if (applicableCoupons && applicableCoupons.length > 0 && !appliedCoupon) { %>
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm text-gray-300 mb-2">Available Coupons</h4>
+                                    <button id="toggle-coupons-btn" class="text-[#E8B888] text-xs hover:underline">Show All</button>
+                                </div>
+                                <div id="available-coupons" class="space-y-2 hidden">
+                                    <% applicableCoupons.forEach(coupon => { %>
+                                        <div class="bg-[#2A2A2A] p-2 rounded-md border border-[#444] hover:border-[#E8B888] transition cursor-pointer coupon-item" data-coupon-id="<%= coupon._id %>" data-coupon-code="<%= coupon.name %>">
+                                            <div class="flex items-center justify-between">
+                                                <div>
+                                                    <div class="flex items-center">
+                                                        <span class="text-white font-medium"><%= coupon.name %></span>
+                                                        <% if (coupon.discountType === 'percentage') { %>
+                                                            <span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5"><%= coupon.offerPrice %>% OFF</span>
+                                                        <% } else { %>
+                                                            <span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹<%= coupon.offerPrice %> OFF</span>
+                                                        <% } %>
+                                                    </div>
+                                                    <p class="text-xs text-gray-400 mt-1"><%= coupon.description || `Min order: ₹${coupon.minimumPrice}` %></p>
+                                                </div>
+                                                <button class="text-[#E8B888] hover:text-[#D9A76A] text-xs apply-coupon-from-list">
+                                                    APPLY
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                        
                         <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
                             <span>Total</span>
                             <span class="text-[#E8B888]" id="cart-total">₹<%= cartItems.total.toFixed(2) %></span>
@@ -529,6 +603,158 @@
                     confirmButtonColor: '#E8B888'
                 });
             }
+        });
+
+        // Coupon handling
+        function showCouponMessage(message, type) {
+            const messageElement = document.getElementById('coupon-message');
+            messageElement.textContent = message;
+            messageElement.className = `text-xs mt-1 ${type === 'error' ? 'text-red-400' : 'text-green-500'}`;
+            messageElement.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Toggle available coupons
+        document.getElementById('toggle-coupons-btn')?.addEventListener('click', function() {
+            const couponsContainer = document.getElementById('available-coupons');
+            if (couponsContainer.classList.contains('hidden')) {
+                couponsContainer.classList.remove('hidden');
+                this.textContent = 'Hide';
+            } else {
+                couponsContainer.classList.add('hidden');
+                this.textContent = 'Show All';
+            }
+        });
+
+        // Apply coupon from input
+        document.getElementById('apply-coupon-btn')?.addEventListener('click', function() {
+            const couponCode = document.getElementById('coupon-code').value.trim();
+            if (!couponCode) {
+                showCouponMessage('Please enter a coupon code', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            fetch('/validate-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: couponCode })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Apply the coupon
+                    return fetch('/apply-coupon', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ couponId: data.coupon.id })
+                    });
+                } else {
+                    hideLoading();
+                    showCouponMessage(data.message || 'Invalid coupon code', 'error');
+                    throw new Error(data.message || 'Invalid coupon code');
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    // Reload page to show applied coupon
+                    showToast('Coupon applied successfully', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showCouponMessage(data.message || 'Failed to apply coupon', 'error');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Coupon application error:', error);
+            });
+        });
+
+        // Apply coupon from list
+        document.querySelectorAll('.apply-coupon-from-list').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const couponItem = this.closest('.coupon-item');
+                const couponId = couponItem.dataset.couponId;
+                
+                showLoading();
+                
+                fetch('/apply-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ couponId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoading();
+                    if (data.success) {
+                        showToast('Coupon applied successfully', 'success');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        showCouponMessage(data.message || 'Failed to apply coupon', 'error');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    console.error('Coupon application error:', error);
+                    showCouponMessage('Failed to apply coupon', 'error');
+                });
+            });
+        });
+
+        // Click on coupon item to fill code
+        document.querySelectorAll('.coupon-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('apply-coupon-from-list')) {
+                    const couponCode = this.dataset.couponCode;
+                    document.getElementById('coupon-code').value = couponCode;
+                }
+            });
+        });
+
+        // Remove applied coupon
+        document.getElementById('remove-coupon-btn')?.addEventListener('click', function() {
+            showLoading();
+            
+            fetch('/remove-coupon', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    showToast('Coupon removed successfully', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showToast(data.message || 'Failed to remove coupon', 'error');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Coupon removal error:', error);
+                showToast('Failed to remove coupon', 'error');
+            });
         });
     });
 </script>

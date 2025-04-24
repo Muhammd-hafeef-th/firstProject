@@ -10,6 +10,7 @@ const path=require('path')
 const orderController=require('../controllers/user/orderController')
 const walletController=require('../controllers/user/walletController')
 const wishlistController=require('../controllers/user/wishlishtController')
+const couponController=require('../controllers/user/couponController')
 const cartCount=require('../middlewares/cartCount')
 const wishlistCount=require('../middlewares/wishlistCount')
 
@@ -145,6 +146,11 @@ router.post('/setDefaultAddress/:id',checkoutController.setDefaultAddress);
 router.get('/proceed-payment',checkoutController.proceedPayment)
 router.post('/choose-payment',checkoutController.choosePayment)
 
+//coupon management
+router.post('/validate-coupon', couponController.validateCoupon)
+router.post('/apply-coupon', couponController.applyCoupon)
+router.post('/remove-coupon', couponController.removeCoupon)
+
 //order management
 
 router.get('/orders',orderController.GetOrder)
@@ -156,6 +162,7 @@ router.post('/submit-return',orderController.returnOrder)
 //wallet management
 
 router.get('/wallet',walletController.getWallet)
+router.get('/wallet/all-transactions', walletController.getAllTransactions)
 
 //wishlist management
 

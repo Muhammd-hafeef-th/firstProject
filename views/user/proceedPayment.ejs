@@ -44,13 +44,20 @@
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
                                 <input type="radio" name="payment" value="wallet" class="accent-yellow-400" 
-                                    onchange="togglePaymentDetails()" />
+                                    onchange="togglePaymentDetails()" <%= !canUseWallet ? 'disabled' : '' %> />
                                 <span class="font-medium">Wallet</span>
                                 <span class="ml-auto">💰</span>
                             </label>
-                            <p class="text-sm text-gray-400 mt-2 pl-7">
-                                Available balance: 
-                            </p>
+                            <div class="mt-2 pl-7">
+                                <p class="text-sm <%= walletBalance >= total ? 'text-green-400' : 'text-yellow-400' %>">
+                                    Available balance: ₹<%= walletBalance.toFixed(2) %>
+                                </p>
+                                <% if (walletBalance < total) { %>
+                                    <p class="text-sm text-red-400 mt-1">
+                                        Insufficient balance (₹<%= (total - walletBalance).toFixed(2) %> more needed)
+                                    </p>
+                                <% } %>
+                            </div>
                         </div>
 
                         <div class="pt-6 text-center">
@@ -82,15 +89,21 @@
                         <span class="text-white">₹<%= shipingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-400">Savings</span>
+                        <span class="text-gray-400">Product Savings</span>
                         <span class="text-green-400">-₹<%= discountAmount.toFixed(2) %></span>
                     </div>
+                    <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Coupon Discount</span>
+                        <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
+                    </div>
+                    <% } %>
                 </div>
                 
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
-                        <span>₹<%= (subtotal - discountAmount).toFixed(2) %></span>
+                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %></span>
                     </div>
                 </div>
             </div>
@@ -104,7 +117,19 @@
             
             codNote.style.display = selectedMethod === 'cod' ? 'block' : 'none';
             
+            const payBtn = document.getElementById('payBtn');
+            if (selectedMethod === 'wallet') {
+                payBtn.innerText = 'Pay with Wallet';
+            } else if (selectedMethod === 'paypal') {
+                payBtn.innerText = 'Continue to PayPal';
+            } else {
+                payBtn.innerText = 'Place Order';
+            }
         }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            togglePaymentDetails();
+        });
     </script>
 </body>
 

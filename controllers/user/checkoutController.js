@@ -3,6 +3,13 @@ const Address = require('../../models/adressSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
 const Order = require('../../models/orderSchema')
+const Wallet = require('../../models/walletSchema');
+const { nanoid } = require('nanoid');
+const Coupon = require('../../models/couponSchema');
+const mongoose = require('mongoose');
+const { incrementCouponUsage } = require('../admin/couponController');
+
+
 
 
 const checkout = async (req, res, next) => {
@@ -13,7 +20,7 @@ const checkout = async (req, res, next) => {
             .populate({
                 path: 'items.productId',
                 model: 'Product',
-                populate: {  // Add brand population
+                populate: {  
                     path: 'brand',
                     model: 'Brand'
                 },
@@ -51,31 +58,41 @@ const checkout = async (req, res, next) => {
             return a.createdAt - b.createdAt;
         });
 
-        // Updated calculations with the same discount logic
         const calculations = validItems.reduce((acc, item) => {
             const product = item.productId;
             const quantity = item.quantity;
             const itemPrice = product.regularPrice * quantity;
 
-            // Apply the same discount logic as other controllers
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
             const effectiveDiscount = Math.max(brandOffer, productOffer);
             const itemSavings = itemPrice * (effectiveDiscount / 100);
 
             acc.subtotal += itemPrice;
-            acc.discountAmount += itemSavings; // Actual savings amount
+            acc.discountAmount += itemSavings; 
             acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
         }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
+        let couponDiscount = 0;
+        if (req.session.appliedCoupon) {
+            const couponData = req.session.appliedCoupon;
+            
+            if (couponData.discountType === 'percentage') {
+                couponDiscount = (calculations.subtotal * couponData.offerPrice) / 100;
+            } else {
+                couponDiscount = couponData.offerPrice;
+            }
+        }
+        
         res.render('checkout', {
             cartItems: validItems,
-            discountAmount: calculations.discountAmount, // Changed from discount to discountAmount
+            discountAmount: calculations.discountAmount,
             shipingCharge: calculations.shippingCharge,
             addresses: allAddresses,
             subtotal: calculations.subtotal,
-            total: calculations.subtotal - calculations.discountAmount + calculations.shippingCharge,
+            couponDiscount: couponDiscount,
+            total: calculations.subtotal - calculations.discountAmount - couponDiscount + calculations.shippingCharge,
             messages: req.flash()
         });
 
@@ -250,6 +267,15 @@ const setDefaultAddress = async (req, res) => {
 const proceedPayment = async (req, res, next) => {
     try {
         const id = req.session.user?._id || req.session.user;
+        const userData = await User.findOne({
+            $or: [
+                { _id: id },
+                { _id: id }
+            ]
+        });
+
+        const wallet = await Wallet.findOne({ 'user.email': userData.email });
+        const walletBalance = wallet ? wallet.balance : 0;
 
         const userCart = await Cart.findOne({ userId: id })
             .populate({
@@ -296,13 +322,28 @@ const proceedPayment = async (req, res, next) => {
             return a.createdAt - b.createdAt;
         });
 
+        let couponDiscount = 0;
+        if (req.session.appliedCoupon) {
+            const couponData = req.session.appliedCoupon;
+            
+            if (calculations.subtotal >= couponData.minimumPrice) {
+                couponDiscount = (calculations.subtotal * couponData.offerPrice) / 100;
+            }
+        }
+
+        const totalAmount = calculations.subtotal - calculations.discountAmount - couponDiscount + calculations.shippingCharge;
+        const canUseWallet = walletBalance >= totalAmount;
+        
         res.render('proceedPayment', {
             cartItems,
             discountAmount: calculations.discountAmount, 
             shipingCharge: calculations.shippingCharge,
             subtotal: calculations.subtotal,
-            total: calculations.subtotal - calculations.discountAmount,
-            addresses: allAddresses
+            couponDiscount: couponDiscount,
+            total: totalAmount,
+            addresses: allAddresses,
+            walletBalance: walletBalance,
+            canUseWallet: canUseWallet
         });
     } catch (error) {
         next(error);
@@ -313,6 +354,12 @@ const choosePayment = async (req, res, next) => {
     try {
         const paymentMethod = req.body.payment;
         const userId = req.session.user?._id || req.session.user;
+        const userData = await User.findOne({
+            $or: [
+                { _id: userId },
+                { _id: userId }
+            ]
+        });
 
         if (!['cod', 'paypal', 'wallet'].includes(paymentMethod)) {
             return res.status(400).redirect('/cart?error=Invalid payment method');
@@ -349,7 +396,26 @@ const choosePayment = async (req, res, next) => {
             return acc;
         }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
 
-        const finalAmount = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
+        let finalAmount = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
+        
+        let appliedCoupon = null;
+        let couponDiscount = 0;
+        
+        if (req.session.appliedCoupon) {
+            const couponData = req.session.appliedCoupon;
+            
+            if (calculations.subtotal >= couponData.minimumPrice) {
+                appliedCoupon = couponData;
+                
+                if (couponData.discountType === 'percentage') {
+                    couponDiscount = (calculations.subtotal * couponData.offerPrice) / 100;
+                } else {
+                    couponDiscount = couponData.offerPrice;
+                }
+                
+                finalAmount -= couponDiscount;
+            }
+        }
 
         const addressDoc = await Address.findOne({ userId });
         const selectedAddress = addressDoc?.address?.[0];
@@ -369,7 +435,8 @@ const choosePayment = async (req, res, next) => {
             user: userId,
             orderItems,
             totalPrice: calculations.subtotal,
-            discountAmount: calculations.discountAmount, 
+            discountAmount: calculations.discountAmount,
+            couponDiscount: couponDiscount,
             finalAmount,
             address: selectedAddress._id,
             paymentMethod: {
@@ -379,10 +446,27 @@ const choosePayment = async (req, res, next) => {
             paymentStatus: 'pending',
             status: 'Pending'
         });
+        
+        if (appliedCoupon) {
+            newOrder.coupon = {
+                id: appliedCoupon.id,
+                code: appliedCoupon.name,
+                discountType: appliedCoupon.discountType,
+                discountValue: appliedCoupon.offerPrice
+            };
+            
+            await incrementCouponUsage(appliedCoupon.id);
+            
+            await Coupon.findByIdAndUpdate(appliedCoupon.id, {
+                $addToSet: { userId: userId }
+            });
+            
+            delete req.session.appliedCoupon;
+        }
 
         switch (paymentMethod) {
             case 'cod':
-                newOrder.paymentStatus = 'completed';
+                newOrder.paymentStatus = 'pending';
                 await newOrder.save();
                 break;
 
@@ -398,51 +482,100 @@ const choosePayment = async (req, res, next) => {
                 return res.redirect(paypalPayment.links.find(l => l.rel === 'approval_url').href);
 
             case 'wallet':
-                const userWallet = await Wallet.findOne({ user: userId });
+                try {
+                    const wallet = await Wallet.findOne({ 'user.email': userData.email });
 
-                if (!userWallet || userWallet.balance < finalAmount) {
-                    return res.redirect('/checkout?error=Insufficient wallet balance');
+                    if (!wallet) {
+                        return res.redirect('/checkout?error=Wallet not found');
+                    }
+
+                    if (wallet.balance < finalAmount) {
+                        return res.redirect('/checkout?error=Insufficient wallet balance');
+                    }
+
+                    const transactionRef = `ORDER-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+                    const previousBalance = wallet.balance;
+
+                    newOrder.paymentMethod.details = {
+                        walletTransaction: transactionRef,
+                        previousBalance: previousBalance,
+                        newBalance: wallet.balance - finalAmount
+                    };
+                    await newOrder.save();
+
+                    for (const item of orderItems) {
+                        await Product.findByIdAndUpdate(
+                            item.product, 
+                            { $inc: { quantity: -item.quantity } }
+                        );
+                    }
+
+                    wallet.balance -= finalAmount;
+                    wallet.transactions.push({
+                        amount: finalAmount,
+                        type: 'payment',
+                        description: `Payment for order #${newOrder._id}`,
+                        status: 'completed',
+                        referenceId: transactionRef,
+                        date: new Date()
+                    });
+                    await wallet.save();
+
+                    newOrder.paymentStatus = 'completed';
+                    await newOrder.save();
+
+                    await Cart.deleteOne({ userId });
+                    
+                } catch (error) {
+                    console.error('Wallet payment failed:', error);
+                    
+                    if (newOrder._id) {
+                        try {
+                            newOrder.paymentStatus = 'failed';
+                            newOrder.status = 'Failed';
+                            await newOrder.save();
+                            
+                            for (const item of orderItems) {
+                                await Product.findByIdAndUpdate(
+                                    item.product, 
+                                    { $inc: { quantity: item.quantity } }
+                                );
+                            }
+                        } catch (err) {
+                            console.error('Error while handling payment failure:', err);
+                        }
+                    }
+                    
+                    return res.redirect('/checkout?error=Payment failed. Please try again.');
                 }
-
-                userWallet.balance -= finalAmount;
-                await userWallet.save();
-
-                newOrder.paymentStatus = 'completed';
-                newOrder.paymentMethod.details = {
-                    walletTransaction: `WALLET-${nanoid()}`,
-                    previousBalance: userWallet.balance + finalAmount,
-                    newBalance: userWallet.balance
-                };
-                await newOrder.save();
                 break;
 
             default:
                 throw new Error('Invalid payment method');
         }
 
-        await Promise.all(orderItems.map(item =>
-            Product.findByIdAndUpdate(item.product, {
-                $inc: { quantity: -item.quantity }
-            })
-        ));
-
-        await Cart.deleteOne({ userId });
+        if (paymentMethod !== 'wallet') {
+            await Promise.all(orderItems.map(item =>
+                Product.findByIdAndUpdate(item.product, {
+                    $inc: { quantity: -item.quantity }
+                })
+            ));
+            
+            await Cart.deleteOne({ userId });
+        }
 
         res.render('paymentSuccess', {
             newOrder,
             selectedAddress,
             paymentMethod,
-            discountAmount: calculations.discountAmount, // Pass discountAmount to view
+            discountAmount: calculations.discountAmount,
+            couponDiscount: couponDiscount,
             subtotal: calculations.subtotal,
             shippingCharge: calculations.shippingCharge
         });
 
     } catch (error) {
-        if (error.message.includes('PAYPAL')) {
-            await Order.deleteOne({ _id: newOrder._id });
-            return res.redirect('/checkout?error=Payment processing failed');
-        }
-
+        console.error('Payment processing error:', error);
         next(error);
     }
 };

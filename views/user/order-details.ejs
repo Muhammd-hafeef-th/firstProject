@@ -231,8 +231,7 @@
                                                 <% } else if (order.status==='Cancelled' ) { %>
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
                                                         fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-11a1 1 0 10-2 0v2H9a1 1 0 000 
-                                            2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-11a1 1 0 10-2 0v2H9a1 1 0 000 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
                                                     </svg>
                                                     Cancelled
 
@@ -295,10 +294,21 @@
                         <span class="text-white">Tax</span>
                         <span class="font-medium text-white">₹0.00</span>
                     </div>
-                        <div class="flex justify-between">
-                            <span class="text-white">Savings</span>
-                            <span class="font-medium text-green-600">-₹<%= order.discountAmount.toFixed(2) %></span>
-                        </div>
+                    <div class="flex justify-between">
+                        <span class="text-white">Product Savings</span>
+                        <span class="font-medium text-green-600">-₹<%= order.discountAmount.toFixed(2) %></span>
+                    </div>
+                    <% if (order.couponDiscount && order.couponDiscount > 0) { %>
+                    <div class="flex justify-between">
+                        <span class="text-white">Coupon Discount</span>
+                        <span class="font-medium text-green-600">-₹<%= order.couponDiscount.toFixed(2) %></span>
+                    </div>
+                    <% if (order.coupon && order.coupon.code) { %>
+                    <div class="text-xs text-gray-400 text-right">
+                        Applied coupon: <%= order.coupon.code %>
+                    </div>
+                    <% } %>
+                    <% } %>
                     <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
                         <span class="text-rose-gold font-semibold">Total</span>
                         <span class="font-bold text-rose-gold-dark text-lg">₹<%= order.finalAmount.toFixed(2) %></span>
@@ -372,40 +382,54 @@
                             </p>
                         </div>
                     </div>
-                    <% } else if (order.paymentMethod.type==='paypal' ) { %>
-                        <div class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" viewBox="0 0 24 24">
-                                <path
-                                    d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.08c3.476 0 5.09.404 5.09 2.395 0 .375-.046.785-.116 1.198l-.793 4.825c-.066.414-.115.795-.115 1.146 0 1.275 1.084 2.555 3.586 2.555h2.07c.473 0 .878.336.953.8a.95.95 0 0 1-.079.528l-6.558 14.029c-.129.328-.477.656-.893.656H8.7c-.751 0-1.399-.562-1.523-1.308-.025-.118-.035-.242-.035-.348l.933-16.6z"
-                                    fill="currentColor" />
-                            </svg>
-                            <div>
-                                <p class="text-white">
-                                    PayPal - 
-                                </p>
-                                <p class="text-gray-400 text-sm">
-                                    Transaction ID: 
-                                </p>
-                            </div>
+                <% } else if (order.paymentMethod.type==='paypal' ) { %>
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" viewBox="0 0 24 24">
+                            <path
+                                d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.08c3.476 0 5.09.404 5.09 2.395 0 .375-.046.785-.116 1.198l-.793 4.825c-.066.414-.115.795-.115 1.146 0 1.275 1.084 2.555 3.586 2.555h2.07c.473 0 .878.336.953.8a.95.95 0 0 1-.079.528l-6.558 14.029c-.129.328-.477.656-.893.656H8.7c-.751 0-1.399-.562-1.523-1.308-.025-.118-.035-.242-.035-.348l.933-16.6z"
+                                fill="currentColor" />
+                        </svg>
+                        <div>
+                            <p class="text-white">
+                                PayPal - <%= order.paymentMethod.email || '' %>
+                            </p>
+                            <p class="text-gray-400 text-sm">
+                                Transaction ID: <%= order.paymentMethod.transactionId || '' %>
+                            </p>
                         </div>
-                        <% } else if (order.paymentMethod.type==='cod' ) { %>
-                            <div class="flex items-center gap-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400"
-                                    viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
-                                        clip-rule="evenodd"></path>
-                                </svg>
-                                <div>
-                                    <p class="text-white">
-                                        Cash on Delivery
-                                    </p>
-                                    <p class="text-gray-400 text-sm">
-                                        Pay when you receive the order
-                                    </p>
-                                </div>
-                            </div>
-                            <% } %>
+                    </div>
+                <% } else if (order.paymentMethod.type==='cod' ) { %>
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                                clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="text-white">
+                                Cash on Delivery
+                            </p>
+                            <p class="text-gray-400 text-sm">
+                                Pay when you receive the order
+                            </p>
+                        </div>
+                    </div>
+                <% } else if (order.paymentMethod.type==='wallet' ) { %>
+                    <div class="flex items-center gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                            <path d="M14 7a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1V8a1 1 0 011-1z" />
+                        </svg>
+                        <div>
+                            <p class="text-white">
+                                Wallet Payment
+                            </p>
+                            
+                        </div>
+                    </div>
+                <% } %>
             </div>
 
             <p class="text-gray-400 text-sm mt-4">
@@ -524,7 +548,7 @@
             </button>
             <button onclick="submitReturn()"
                 class="px-5 py-2 bg-rose-gold text-white rounded-lg hover:bg-rose-700 transition-colors duration-300">
-                Confirm Cancellation
+                Confirm Return
             </button>
         </div>
     </div>
@@ -777,6 +801,7 @@
     function submitReturn() {
         const reason = document.getElementById('returnReason').value;
         const otherReason = document.getElementById('otherReturnReason').value.trim();
+        const orderId = '<%= order.orderId %>';
 
         if (!reason) {
             alert('Please select a reason for return.');
@@ -788,10 +813,51 @@
             return;
         }
 
-        console.log('Return reason:', reason);
-        if (reason === 'other') {
-            console.log('Other reason:', otherReason);
-        }
+        const payload = {
+            orderId: orderId,
+            reason: reason,
+            otherReason: otherReason
+        };
+
+        fetch('/submit-return', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            Swal.fire({
+                title: 'Return Request Submitted',
+                text: 'Your order return request has been received.',
+                icon: 'success',
+                background: '#1F1F1F',
+                color: '#FFFFFF',
+                confirmButtonColor: '#B76E79'
+            });
+            
+            // Reload the page to show updated status
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error',
+                text: 'There was a problem submitting your return request. Please try again.',
+                icon: 'error',
+                background: '#1F1F1F',
+                color: '#FFFFFF',
+                confirmButtonColor: '#B76E79'
+            });
+            console.error('Fetch error:', error);
+        });
 
         closeReturnModal();
     }

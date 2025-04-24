@@ -15,7 +15,18 @@ const getWishlist = async (req, res) => {
         if (wishlist && wishlist.products.length > 0) {
             wishlistItems = await Promise.all(
                 wishlist.products.map(async (item) => {
-                    const product = await Product.findById(item.productId);
+                    const product = await Product.findById(item.productId).populate('brand');
+                    
+                    if (product) {
+                        const brandOffer = product.brand?.brandOffer || 0;
+                        const productOffer = product.discount || 0;
+                        const newOffer = Math.max(productOffer, brandOffer);
+                        const salesPrice = Math.round(product.regularPrice * (1 - newOffer / 100));
+                        
+                        product.newOffer = newOffer;
+                        product.salesPrice = salesPrice;
+                    }
+                    
                     return {
                         _id: item._id,
                         productId: product,

@@ -2,6 +2,7 @@ const Order = require('../../models/orderSchema');
 const User = require('../../models/userSchema');
 const Address = require('../../models/adressSchema');
 const Product = require('../../models/productSchema');
+const Wallet = require('../../models/walletSchema');
 const { trace } = require('../../routes/userRouter');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
@@ -140,26 +141,68 @@ const cancelOrder = async (req, res, next) => {
     try {
         const { orderId, reason, otherReason } = req.body;
         const finalReason = reason === 'other' ? otherReason : reason;
-        const order = await Order.findOne({ orderId }).populate('orderItems.product');
+        
+        const order = await Order.findOne({ orderId })
+            .populate('orderItems.product')
+            .populate('user');
+            
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
+        
         if (['Cancelled', 'Returned'].includes(order.status)) {
             return res.status(400).json({ message: 'Order already cancelled or returned' });
         }
+        
         for (const item of order.orderItems) {
             const product = item.product;
             product.quantity += item.quantity;
             await product.save();
         }
+        
+        if (order.paymentMethod && order.paymentMethod.type === 'wallet' && order.paymentStatus === 'completed') {
+            try {
+                const userData = await User.findById(order.user);
+                if (!userData) {
+                    throw new Error('User not found');
+                }
+                
+                const wallet = await Wallet.findOne({ 'user.email': userData.email });
+                if (!wallet) {
+                    throw new Error('Wallet not found');
+                }
+                
+                const refundRef = `REFUND-${orderId}-${Date.now()}`;
+                
+                wallet.transactions.push({
+                    amount: order.finalAmount,
+                    type: 'refund',
+                    description: `Refund for cancelled order #${order.orderId}`,
+                    status: 'completed',
+                    referenceId: refundRef,
+                    date: new Date()
+                });
+                
+                wallet.balance += order.finalAmount;
+                await wallet.save();
+                
+            } catch (walletError) {
+                console.error('Error processing wallet refund:', walletError);
+            }
+        }
+        
         order.status = 'Cancelled';
         order.cancelReason = finalReason;
+        order.cancelledAt = new Date();
         await order.save();
+        
         res.status(200).json({
-            message: 'Order cancelled and product stock updated successfully',
+            message: 'Order cancelled successfully',
+            walletRefunded: order.paymentMethod && order.paymentMethod.type === 'wallet',
             order
         });
     } catch (error) {
+        console.error('Error cancelling order:', error);
         next(error);
     }
 };
@@ -245,15 +288,39 @@ const downloadInvoice = async (req, res, next) => {
             y += 20;
         });
 
+        doc.fontSize(10).font('Helvetica');
 
-        y += 10;
-        doc.moveTo(50, y).lineTo(560, y).stroke();
-        y += 10;
+        const subTotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const productDiscount = order.discountAmount || 0;
+        const couponDiscount = order.couponDiscount || 0;
+        const shippingCharge = order.shippingCharge || 0;
+        const finalAmount = order.finalAmount || subTotal - productDiscount - couponDiscount + shippingCharge;
+
+        y += 15;
         doc.font('Helvetica-Bold');
-        doc.text('Grand Total', 400, y, { width: 100, align: 'right' });
-        doc.text(` ${order.finalAmount.toFixed(2)}`, 510, y, { width: 50, align: 'right' });
+        doc.text('Order Summary', 50, y);
         doc.font('Helvetica');
+        y += 15;
 
+        doc.text(`Subtotal: ₹${subTotal.toFixed(2)}`, 50, y);
+        y += 15;
+        doc.text(`Product Discount: -₹${productDiscount.toFixed(2)}`, 50, y);
+        y += 15;
+        
+        if (couponDiscount > 0) {
+            doc.text(`Coupon Discount: -₹${couponDiscount.toFixed(2)}`, 50, y);
+            if (order.coupon && order.coupon.code) {
+                doc.fontSize(8).text(`(Applied coupon: ${order.coupon.code})`, 180, y);
+                doc.fontSize(10);
+            }
+            y += 15;
+        }
+        
+        doc.text(`Shipping Charges: ₹${shippingCharge.toFixed(2)}`, 50, y);
+        y += 15;
+        doc.font('Helvetica-Bold');
+        doc.text(`Total Amount: ₹${finalAmount.toFixed(2)}`, 50, y);
+        doc.font('Helvetica');
 
         y += 50;
         doc.fontSize(10).text('LB Internet Private Limited', 50, y);
@@ -280,28 +347,48 @@ const returnOrder = async (req, res, next) => {
             });
         }
         const finalReason = reason === 'other' ? otherReason : reason;
-        const order = await Order.findOne({ orderId });
+        
+        const order = await Order.findOne({ orderId }).populate('user');
+        
         if (!order) {
             return res.status(404).json({
                 message: 'Order not found'
             });
         }
-        if (order.status === 'Return-Requested') {
+        
+        if (order.status === 'Return Request') {
             return res.status(400).json({
                 message: 'Return request already submitted for this order'
             });
         }
+        
         if (!['Delivered', 'Shipped'].includes(order.status)) {
             return res.status(400).json({
                 message: 'Order cannot be returned in its current status'
             });
         }
+        
         order.status = 'Return Request';
         order.returnReason = finalReason;
+        order.returnRequestedAt = new Date();
         await order.save();
+
+
+        if (order.paymentMethod && order.paymentMethod.type === 'wallet') {
+            order.refundDetails = {
+                amount: order.finalAmount,
+                paymentMethod: 'wallet',
+                status: 'pending',
+                requestedAt: new Date()
+            };
+            
+            await order.save();
+        }
+        
         res.status(200).json({
             success: true,
             message: 'Return request submitted successfully',
+            pendingRefund: order.paymentMethod && order.paymentMethod.type === 'wallet',
             order
         });
 
@@ -311,7 +398,7 @@ const returnOrder = async (req, res, next) => {
             success: false,
             message: 'An error occurred while processing your return request'
         });
-        next(error)
+        next(error);
     }
 };
 

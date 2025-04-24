@@ -24,7 +24,7 @@ const walletSchema = new mongoose.Schema({
   },
   currency: {
     type: String,
-    default: 'USD'
+    default: 'RUPEES'
   },
   transactions: [{
     amount: {
@@ -33,7 +33,7 @@ const walletSchema = new mongoose.Schema({
     },
     type: {
       type: String,
-      enum: ['deposit', 'withdrawal', 'transfer', 'payment'],
+      enum: ['deposit', 'withdrawal', 'transfer', 'payment', 'refund'],
       required: true
     },
     description: {
