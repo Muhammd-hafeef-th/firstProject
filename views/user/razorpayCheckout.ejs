@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Payment - Watch Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="bg-[#1F1F1F] text-white flex items-center justify-center min-h-screen">
+    <div class="max-w-md w-full bg-[#2A2A2A] p-8 rounded-xl shadow-lg text-center">
+        <div class="animate-pulse mb-6">
+            <div class="w-16 h-16 mx-auto bg-yellow-500 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-2xl font-bold mb-2">Processing Your Payment</h1>
+        <p class="text-gray-400 mb-6">Please wait while we redirect you to Razorpay...</p>
+        <div class="flex justify-center">
+            <div class="w-12 h-1 bg-yellow-500 rounded-full animate-bounce"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const options = {
+                key: '<%= razorpayKeyId %>',
+                amount: '<%= amount %>',
+                currency: '<%= currency %>',
+                name: 'Watch Store',
+                description: 'Order #<%= orderId %>',
+                order_id: '<%= razorpayOrderId %>',
+                prefill: {
+                    name: '<%= userName %>',
+                    email: '<%= userEmail %>',
+                    contact: '<%= userPhone %>'
+                },
+                handler: function(response) {
+                    verifyPayment(response);
+                },
+                modal: {
+                    ondismiss: function() {
+                        window.location.href = '/checkout?error=Payment cancelled';
+                    }
+                },
+                theme: {
+                    color: '#B76E79'
+                }
+            };
+
+            try {
+                const rzp = new Razorpay(options);
+                setTimeout(() => rzp.open(), 1500); 
+            } catch (error) {
+                console.error('Razorpay initialization error:', error);
+                window.location.href = '/checkout?error=Payment gateway initialization failed';
+            }
+        });
+
+        function verifyPayment(response) {
+            document.querySelector('h1').innerText = 'Verifying Payment...';
+            document.querySelector('p').innerText = 'Please wait while we confirm your payment...';
+            
+            fetch('/razorpay/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/razorpay/success/${data.orderId}`;
+                } else {
+                    window.location.href = '/checkout?error=' + encodeURIComponent(data.message || 'Payment verification failed');
+                }
+            })
+            .catch(error => {
+                console.error('Payment verification error:', error);
+                window.location.href = '/checkout?error=Payment verification failed';
+            });
+        }
+    </script>
+</body>
+</html> 

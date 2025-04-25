@@ -33,10 +33,10 @@
 
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="paypal" class="accent-yellow-400" 
+                                <input type="radio" name="payment" value="razorpay" class="accent-yellow-400" 
                                     onchange="togglePaymentDetails()" />
-                                <span class="font-medium">PayPal</span>
-                                <img src="https://img.icons8.com/color/48/000000/paypal.png" 
+                                <span class="font-medium">Razor Pay</span>
+                                <img src="https://razorpay.com/assets/razorpay-logo.svg" 
                                     class="w-8 h-8 ml-auto filter brightness-0 invert-[0.8]" />
                             </label>
                         </div>
@@ -120,8 +120,8 @@
             const payBtn = document.getElementById('payBtn');
             if (selectedMethod === 'wallet') {
                 payBtn.innerText = 'Pay with Wallet';
-            } else if (selectedMethod === 'paypal') {
-                payBtn.innerText = 'Continue to PayPal';
+            } else if (selectedMethod === 'razorpay') {
+                payBtn.innerText = 'Continue to Razorpay';
             } else {
                 payBtn.innerText = 'Place Order';
             }
@@ -129,8 +129,114 @@
         
         document.addEventListener('DOMContentLoaded', function() {
             togglePaymentDetails();
+            
+            // Handle payment form submission
+            document.getElementById('paymentForm').addEventListener('submit', function(event) {
+                const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
+                
+                if (selectedMethod === 'razorpay') {
+                    event.preventDefault();
+                    
+                    // Show loading indicator
+                    const payBtn = document.getElementById('payBtn');
+                    const originalText = payBtn.innerText;
+                    payBtn.innerText = 'Processing...';
+                    payBtn.disabled = true;
+                    
+                    // Send AJAX request to create order
+                    fetch('/choose-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            payment: 'razorpay'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Initialize Razorpay
+                            const options = data.razorpay;
+                            const rzp = new Razorpay(options);
+                            
+                            rzp.on('payment.success', function(response) {
+                                // Handle successful payment
+                                verifyPayment(response, data.orderId);
+                            });
+                            
+                            rzp.on('payment.error', function(response) {
+                                // Handle payment failure
+                                alert('Payment failed. Please try again.');
+                                payBtn.innerText = originalText;
+                                payBtn.disabled = false;
+                            });
+                            
+                            // Open Razorpay checkout
+                            rzp.open();
+                        } else {
+                            alert('Failed to initialize payment. Please try again.');
+                            payBtn.innerText = originalText;
+                            payBtn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Something went wrong. Please try again.');
+                        payBtn.innerText = originalText;
+                        payBtn.disabled = false;
+                    });
+                }
+            });
         });
+        
+        function verifyPayment(response, orderId) {
+            // Show processing state
+            const payBtn = document.getElementById('payBtn');
+            payBtn.innerText = 'Verifying Payment...';
+            
+            fetch('/razorpay/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/razorpay/success/${orderId}`;
+                } else {
+                    alert('Payment verification failed. Please contact support.');
+                    payBtn.innerText = 'Try Again';
+                    payBtn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Verification error:', error);
+                alert('Payment verification failed. Redirecting to order success page...');
+                
+                // If API call fails, still try to redirect to success page as fallback
+                setTimeout(() => {
+                    window.location.href = `/razorpay/success/${orderId}`;
+                }, 2000);
+            });
+            
+            // Add a fallback in case the fetch request hangs
+            setTimeout(() => {
+                if (document.getElementById('payBtn').innerText === 'Verifying Payment...') {
+                    window.location.href = `/razorpay/success/${orderId}`;
+                }
+            }, 8000);
+        }
     </script>
+    
+    <!-- Include Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 
 <%- include('../../views/partials/user/footer') %>

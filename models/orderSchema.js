@@ -60,7 +60,7 @@ const orderSchema=new Schema({
     paymentMethod: {
         type: {
             type: String,
-            enum: ['cod', 'paypal', 'wallet'],
+            enum: ['cod', 'razorpay', 'wallet'],
             required: true
         },
         details: {
@@ -72,8 +72,8 @@ const orderSchema=new Schema({
                 default: 'pending'
             },
             
-            paypalPayerId: String,
-            paypalPayerEmail: String,
+            razorpayOrderId: String,
+            razorpayPaymentId: String,
             
             walletId: {
                 type: Schema.Types.ObjectId,

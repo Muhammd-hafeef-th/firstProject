@@ -24,7 +24,7 @@ const getWallet=async(req,res,next)=>{
                 user: {
                   username: userData.firstname,
                   email: userData.email,
-                  password: userData.password 
+                  password: userData.password || ''
                 },
                 balance: 0.00
             });

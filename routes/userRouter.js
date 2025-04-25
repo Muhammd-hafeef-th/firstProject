@@ -11,6 +11,7 @@ const orderController=require('../controllers/user/orderController')
 const walletController=require('../controllers/user/walletController')
 const wishlistController=require('../controllers/user/wishlishtController')
 const couponController=require('../controllers/user/couponController')
+const referralController=require('../controllers/user/referralController')
 const cartCount=require('../middlewares/cartCount')
 const wishlistCount=require('../middlewares/wishlistCount')
 
@@ -42,18 +43,32 @@ router.get(
         if (req.session.user) {
             return res.redirect("/"); 
         }
+        // Store referral code from query parameter if present
+        if (req.query.referralCode) {
+            req.session.referralCode = req.query.referralCode;
+        }
         next();
     },
     passport.authenticate("google-signup", { scope: ["profile", "email"] })
 );
 
-
 router.get(
     "/auth/google/signup/callback",
-    passport.authenticate("google-signup", { failureRedirect: "/login", failureFlash: true }),
+    (req, res, next) => {
+        // If there's an error in the OAuth process
+        if (req.query.error) {
+            console.error("Google OAuth error:", req.query.error);
+            return res.redirect("/signup?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
+        }
+        next();
+    },
+    passport.authenticate("google-signup", { 
+        failureRedirect: "/signup?error=authentication_failed",
+        failureFlash: true 
+    }),
     (req, res) => {
         req.session.user = req.user; 
-        res.redirect(302, "/"); 
+        res.redirect("/"); 
     }
 );
 
@@ -65,7 +80,18 @@ router.get(
 
 router.get(
     "/auth/google/login/callback",
-    passport.authenticate("google-login", { failureRedirect: "/login", failureFlash: true }),
+    (req, res, next) => {
+        // If there's an error in the OAuth process
+        if (req.query.error) {
+            console.error("Google OAuth error:", req.query.error);
+            return res.redirect("/login?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
+        }
+        next();
+    },
+    passport.authenticate("google-login", { 
+        failureRedirect: "/login?error=authentication_failed",
+        failureFlash: true 
+    }),
     (req, res) => {
         req.session.user = req.user; 
         res.redirect("/");
@@ -145,6 +171,8 @@ router.delete('/address-checkout/:id',checkoutController.deleteAddress)
 router.post('/setDefaultAddress/:id',checkoutController.setDefaultAddress);
 router.get('/proceed-payment',checkoutController.proceedPayment)
 router.post('/choose-payment',checkoutController.choosePayment)
+router.post('/razorpay/verify', checkoutController.verifyRazorpayPayment)
+router.get('/razorpay/success/:orderId', checkoutController.razorpaySuccess)
 
 //coupon management
 router.post('/validate-coupon', couponController.validateCoupon)
@@ -163,6 +191,9 @@ router.post('/submit-return',orderController.returnOrder)
 
 router.get('/wallet',walletController.getWallet)
 router.get('/wallet/all-transactions', walletController.getAllTransactions)
+
+//referral management
+router.get('/referrals', referralController.getUserReferralDetails)
 
 //wishlist management
 

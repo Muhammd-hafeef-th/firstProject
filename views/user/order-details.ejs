@@ -382,7 +382,7 @@
                             </p>
                         </div>
                     </div>
-                <% } else if (order.paymentMethod.type==='paypal' ) { %>
+                <% } else if (order.paymentMethod.type==='razorpay' ) { %>
                     <div class="flex items-center gap-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-400" viewBox="0 0 24 24">
                             <path
@@ -391,10 +391,10 @@
                         </svg>
                         <div>
                             <p class="text-white">
-                                PayPal - <%= order.paymentMethod.email || '' %>
+                                Razorpay - <%= order.paymentMethod.details?.razorpayOrderId || '' %>
                             </p>
                             <p class="text-gray-400 text-sm">
-                                Transaction ID: <%= order.paymentMethod.transactionId || '' %>
+                                Transaction ID: <%= order.paymentMethod.details?.razorpayPaymentId || '' %>
                             </p>
                         </div>
                     </div>

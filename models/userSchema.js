@@ -32,7 +32,8 @@
                 sparse: true
             },
             password: {
-                type: String
+                type: String,
+                required:false,
             },
             isBlocked: {
                 type: Boolean,

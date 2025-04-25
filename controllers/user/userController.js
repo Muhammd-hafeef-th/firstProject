@@ -151,7 +151,7 @@ const sendVerificationEmail = async (email, otp) => {
 
 const signup = async (req, res, next) => {
     try {
-        const { firstname, email, password, confirmPassword } = req.body;
+        const { firstname, email, password, confirmPassword, referralCode } = req.body;
 
         if (password !== confirmPassword) {
             return res.render('register', { message: 'Passwords do not match' });
@@ -170,7 +170,7 @@ const signup = async (req, res, next) => {
         }
         console.log("Otp is:", otp)
         req.session.userOtp = otp;
-        req.session.userData = { firstname, email, password };
+        req.session.userData = { firstname, email, password, referralCode };
 
         res.render('verify-otp');
     } catch (error) {
@@ -193,14 +193,51 @@ const verifyOtp = async (req, res, next) => {
         if (otp === req.session.userOtp) {
             const user = req.session.userData;
             const hashedPassword = await securePassword(user.password);
-
+            
+            // Generate a unique referral code for the new user
+            const referralController = require('./referralController');
+            const newReferralCode = referralController.generateReferralCode(user.firstname);
+            
             const newUser = new User({
                 firstname: user.firstname,
                 email: user.email,
-                password: hashedPassword
+                password: hashedPassword,
+                referalCode: newReferralCode,
+                redeemed: false,
+                redeemedUsers: []
             });
 
-            await newUser.save();
+            // Save the new user
+            const savedUser = await newUser.save();
+            
+            // Process referral code if provided
+            if (user.referralCode && user.referralCode.trim() !== '') {
+                // Check if the referral code is valid
+                const referrer = await User.findOne({ referalCode: user.referralCode });
+                
+                if (referrer) {
+                    // Add referral bonus to referrer
+                    await referralController.addReferralBonus(
+                        referrer._id, 
+                        100, 
+                        `Referral bonus for inviting ${savedUser.firstname}`
+                    );
+                    
+                    // Add bonus to new user
+                    await referralController.addReferralBonus(
+                        savedUser._id, 
+                        50, 
+                        'Welcome bonus for using a referral code'
+                    );
+                    
+                    // Add this user to referrer's redeemedUsers array
+                    await User.findByIdAndUpdate(
+                        referrer._id, 
+                        { $push: { redeemedUsers: savedUser._id } }
+                    );
+                }
+            }
+            
             res.json({ success: true, redirectUrl: "/login" });
         } else {
             res.status(400).json({ success: false, message: "Invalid OTP, Please try again" });
@@ -209,7 +246,6 @@ const verifyOtp = async (req, res, next) => {
         error.message = 'An error occurred' + error.message;
         next(error);
     }
-
 };
 
 const resendOtp = async (req, res) => {
