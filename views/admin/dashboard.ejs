@@ -3,32 +3,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-900 text-white">
+    <title>Admin Dashboard - Luxury Watches</title>
     
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6d28d9',
+                        dark: '#111827',
+                        darker: '#0d1321',
+                        light: '#f3f4f6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Styles -->
+    <style>
+        .error-message {
+            color: #f87171;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            min-height: 300px;
+            max-height: 400px;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, rgba(13,19,33,0.9) 0%, rgba(42,42,42,0.9) 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-darker text-gray-100 min-h-screen font-['Inter']">
     <!-- Navbar -->
-     
     <%- include('../../views/partials/admin/navbar')%>
 
     <div class="flex">
         <!-- Sidebar -->
         <%- include('../../views/partials/admin/sidebar')%>
 
-        <!-- Content -->
-        <div class="flex-1 p-5 md:ml-10">
-            <h1 class="text-white text-2xl">Dashboard</h1>
+        <!-- Main Content -->
+        <div class="flex-1 p-6 ml-0 transition-all duration-300">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header rounded-xl p-6 shadow-lg mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">Dashboard Overview</h1>
+                        <p class="text-gray-400 mt-2">Welcome back, Admin. Here's your store performance at a glance.</p>
+                    </div>
+                   
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Products Card -->
+                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-purple-600">
+                    <div class="flex items-center justify-between">
+                       <a href="/admin/products"> <div>
+                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Products</h3>
+                            <p class="text-3xl font-bold text-white"><%= totalProducts %></p>
+                            <p class="text-sm text-purple-400 mt-2 flex items-center gap-1">
+                            </p>
+                        </div>
+                    </a>
+                        <div class="p-3 bg-purple-600/20 rounded-lg">
+                            <i class="ph ph-package text-2xl text-purple-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Orders Card -->
+                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-blue-500">
+                    <div class="flex items-center justify-between">
+                       <a href="/admin/orders"> <div>
+                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Orders</h3>
+                            <p class="text-3xl font-bold text-white"><%= totalOrders %></p>
+                            <p class="text-sm text-blue-400 mt-2 flex items-center gap-1">
+                            </p>
+                        </div></a>
+                        <div class="p-3 bg-blue-500/20 rounded-lg">
+                            <i class="ph ph-shopping-cart text-2xl text-blue-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Users Card -->
+                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-green-500">
+                    <div class="flex items-center justify-between">
+                        <a href="/admin/users"><div>
+                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Users</h3>
+                            <p class="text-3xl font-bold text-white"><%= totalUsers %></p>
+                            <p class="text-sm text-green-400 mt-2 flex items-center gap-1">
+                            </p>
+                        </div></a>
+                        <div class="p-3 bg-green-500/20 rounded-lg">
+                            <i class="ph ph-users text-2xl text-green-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Report Card -->
+                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-indigo-500">
+                    <div class="h-full flex flex-col justify-between">
+                        <h3 class="text-lg font-semibold text-gray-300 mb-4">Sales Analytics</h3>
+                        <a href="/admin/sales-report" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center gap-2">
+                            <i class="ph ph-chart-line-up"></i>
+                            View Full Report
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Status Chart -->
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <h3 class="text-xl font-semibold text-white">Order Status Distribution</h3>
+                    <div class="flex items-center gap-2 mt-2 md:mt-0">
+                        <span class="text-sm text-gray-400">Real-time data</span>
+                        <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                    <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="/admin/add-product" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
+                            <i class="ph ph-plus-circle text-2xl text-purple-400 mb-1"></i>
+                            <span class="text-xs">Add Product</span>
+                        </a>
+                        <a href="/admin/orders" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
+                            <i class="ph ph-list-checks text-2xl text-blue-400 mb-1"></i>
+                            <span class="text-xs">View Orders</span>
+                        </a>
+                        <a href="/admin/users" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
+                            <i class="ph ph-users text-2xl text-green-400 mb-1"></i>
+                            <span class="text-xs">Customers</span>
+                        </a>
+                        <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
+                            <i class="ph ph-gear text-2xl text-yellow-400 mb-1"></i>
+                            <span class="text-xs">Settings</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Menu Toggle
         const menuBtn = document.getElementById('menu-btn');
         const sidebar = document.getElementById('sidebar');
 
         menuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
-        }); 
-    </script>
+        });
 
+        // Order Status Chart
+        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+        const statusData = <%- JSON.stringify(orderStatusData || []) %>;
+        
+        const statusLabels = statusData.map(item => item._id);
+        const statusCounts = statusData.map(item => item.count);
+        
+        new Chart(orderStatusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusCounts,
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.8)',
+                        'rgba(139, 92, 246, 0.8)',
+                        'rgba(249, 115, 22, 0.8)',
+                        'rgba(239, 68, 68, 0.8)',
+                    ],
+                    borderColor: '#1f2937',
+                    borderWidth: 2,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#e5e7eb',
+                            font: { size: 12 },
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1f2937',
+                        titleColor: '#f3f4f6',
+                        bodyColor: '#e5e7eb',
+                        borderColor: '#4b5563',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Responsive adjustments
+        function handleResize() {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove('-translate-x-full');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize();
+    </script>
 </body>
 </html>

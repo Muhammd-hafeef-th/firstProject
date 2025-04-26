@@ -15,6 +15,7 @@ const referralController=require('../controllers/user/referralController')
 const cartCount=require('../middlewares/cartCount')
 const wishlistCount=require('../middlewares/wishlistCount')
 
+
 router.use(cartCount)
 router.use(wishlistCount)
 
@@ -43,7 +44,6 @@ router.get(
         if (req.session.user) {
             return res.redirect("/"); 
         }
-        // Store referral code from query parameter if present
         if (req.query.referralCode) {
             req.session.referralCode = req.query.referralCode;
         }
@@ -55,7 +55,6 @@ router.get(
 router.get(
     "/auth/google/signup/callback",
     (req, res, next) => {
-        // If there's an error in the OAuth process
         if (req.query.error) {
             console.error("Google OAuth error:", req.query.error);
             return res.redirect("/signup?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
@@ -81,7 +80,6 @@ router.get(
 router.get(
     "/auth/google/login/callback",
     (req, res, next) => {
-        // If there's an error in the OAuth process
         if (req.query.error) {
             console.error("Google OAuth error:", req.query.error);
             return res.redirect("/login?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
@@ -172,7 +170,8 @@ router.post('/setDefaultAddress/:id',checkoutController.setDefaultAddress);
 router.get('/proceed-payment',checkoutController.proceedPayment)
 router.post('/choose-payment',checkoutController.choosePayment)
 router.post('/razorpay/verify', checkoutController.verifyRazorpayPayment)
-router.get('/razorpay/success/:orderId', checkoutController.razorpaySuccess)
+router.get('/paymentSuccess/:orderId',checkoutController.paymentSuccess)
+
 
 //coupon management
 router.post('/validate-coupon', couponController.validateCoupon)
@@ -186,6 +185,7 @@ router.get('/order-details',orderController.orderDetails)
 router.post('/cancel-order',orderController.cancelOrder)
 router.get('/download-invoice/:orderId',orderController.downloadInvoice)
 router.post('/submit-return',orderController.returnOrder)
+
 
 //wallet management
 

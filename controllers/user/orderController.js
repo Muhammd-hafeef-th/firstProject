@@ -7,6 +7,7 @@ const { trace } = require('../../routes/userRouter');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const { createRefund } = require('../../utils/razorpay');
 
 const GetOrder = async (req, res, next) => {
     try {
@@ -160,34 +161,91 @@ const cancelOrder = async (req, res, next) => {
             await product.save();
         }
         
-        if (order.paymentMethod && order.paymentMethod.type === 'wallet' && order.paymentStatus === 'completed') {
+        let refundProcessed = false;
+
+        if (order.paymentStatus === 'completed') {
             try {
-                const userData = await User.findById(order.user);
-                if (!userData) {
-                    throw new Error('User not found');
+                if (order.paymentMethod.type === 'wallet') {
+                    const userData = await User.findById(order.user);
+                    if (!userData) {
+                        throw new Error('User not found');
+                    }
+                    
+                    const wallet = await Wallet.findOne({ 'user.email': userData.email });
+                    if (!wallet) {
+                        throw new Error('Wallet not found');
+                    }
+                    
+                    const refundRef = `REFUND-${orderId}-${Date.now()}`;
+                    
+                    wallet.transactions.push({
+                        amount: order.finalAmount,
+                        type: 'refund',
+                        description: `Refund for cancelled order #${order.orderId}`,
+                        status: 'completed',
+                        referenceId: refundRef,
+                        date: new Date()
+                    });
+                    
+                    wallet.balance += order.finalAmount;
+                    await wallet.save();
+                    refundProcessed = true;
+                    
+                } else if (order.paymentMethod.type === 'razorpay') {
+                    const paymentId = order.paymentMethod.details.razorpayPaymentId;
+                    if (!paymentId) {
+                        throw new Error('Razorpay payment ID not found');
+                    }
+
+                    const refund = await createRefund({
+                        paymentId: paymentId,
+                        amount: Math.round(order.finalAmount * 100),
+                        notes: {
+                            orderId: order.orderId,
+                            reason: finalReason
+                        }
+                    });
+
+                    order.paymentMethod.details.refund = {
+                        id: refund.id,
+                        amount: refund.amount / 100,
+                        status: refund.status,
+                        createdAt: new Date()
+                    };
+
+                    const userData = await User.findById(order.user);
+                    if (!userData) {
+                        throw new Error('User not found');
+                    }
+
+                    let wallet = await Wallet.findOne({ 'user.email': userData.email });
+                    if (!wallet) {
+                        wallet = new Wallet({
+                            user: {
+                                userId: userData._id,
+                                email: userData.email
+                            },
+                            balance: 0,
+                            transactions: []
+                        });
+                    }
+
+                    wallet.balance += order.finalAmount;
+                    wallet.transactions.push({
+                        amount: order.finalAmount,
+                        type: 'refund',
+                        description: `Refund for cancelled order #${order.orderId} (Razorpay payment)`,
+                        status: 'completed',
+                        referenceId: `REFUND-${refund.id}`,
+                        date: new Date()
+                    });
+                    await wallet.save();
+                    
+                    refundProcessed = true;
                 }
-                
-                const wallet = await Wallet.findOne({ 'user.email': userData.email });
-                if (!wallet) {
-                    throw new Error('Wallet not found');
-                }
-                
-                const refundRef = `REFUND-${orderId}-${Date.now()}`;
-                
-                wallet.transactions.push({
-                    amount: order.finalAmount,
-                    type: 'refund',
-                    description: `Refund for cancelled order #${order.orderId}`,
-                    status: 'completed',
-                    referenceId: refundRef,
-                    date: new Date()
-                });
-                
-                wallet.balance += order.finalAmount;
-                await wallet.save();
-                
-            } catch (walletError) {
-                console.error('Error processing wallet refund:', walletError);
+            } catch (refundError) {
+                console.error('Error processing refund:', refundError);
+               
             }
         }
         
@@ -198,7 +256,8 @@ const cancelOrder = async (req, res, next) => {
         
         res.status(200).json({
             message: 'Order cancelled successfully',
-            walletRefunded: order.paymentMethod && order.paymentMethod.type === 'wallet',
+            refundProcessed,
+            refundMethod: refundProcessed ? order.paymentMethod.type : null,
             order
         });
     } catch (error) {

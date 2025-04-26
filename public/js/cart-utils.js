@@ -128,6 +128,11 @@ function addToCart(productId, quantity = 1) {
             }
             
             showToast(data.message, 'success');
+
+            // Dispatch custom event for UI updates
+            document.dispatchEvent(new CustomEvent('cartUpdated', { 
+                detail: { success: true, data: data }
+            }));
         } else {
             throw new Error(data.message);
         }
@@ -135,7 +140,11 @@ function addToCart(productId, quantity = 1) {
     .catch(err => {
         hideLoading();
         showToast(err.message || 'Unable to add to cart', 'error');
+        // Dispatch custom event for error case
+        document.dispatchEvent(new CustomEvent('cartUpdated', { 
+            detail: { success: false, error: err.message }
+        }));
     });
     
     return false; // Prevent default link behavior
-} 
+}

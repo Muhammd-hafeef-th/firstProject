@@ -19,31 +19,31 @@
                             <span class="text-gray-600">Order ID:</span>
                             <span class="font-medium">#<%=newOrder.orderId%></span>
                         </div>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between" id="subtotal-container">
                             <span class="text-gray-600">Subtotal:</span>
-                            <span class="font-medium">₹<%=subtotal.toFixed(2)%></span>
+                            <span class="font-medium" id="subtotal">₹<%=subtotal.toFixed(2)%></span>
                         </div>
                         <% if (discountAmount > 0) { %>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between" id="discount-container">
                             <span class="text-gray-600">Product Savings:</span>
-                            <span class="font-medium text-green-600">-₹<%=discountAmount.toFixed(2)%></span>
+                            <span class="font-medium text-green-600" id="discount">-₹<%=discountAmount.toFixed(2)%></span>
                         </div>
                         <% } %>
                         <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between" id="coupon-discount-container">
                             <span class="text-gray-600">Coupon Discount:</span>
-                            <span class="font-medium text-green-600">-₹<%=couponDiscount.toFixed(2)%></span>
+                            <span class="font-medium text-green-600" id="coupon-discount">-₹<%=couponDiscount.toFixed(2)%></span>
                         </div>
                         <% } %>
                         <% if (shippingCharge > 0) { %>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between" id="shipping-container">
                             <span class="text-gray-600">Shipping:</span>
-                            <span class="font-medium">₹<%=shippingCharge.toFixed(2)%></span>
+                            <span class="font-medium" id="shipping">₹<%=shippingCharge.toFixed(2)%></span>
                         </div>
                         <% } %>
-                        <div class="flex justify-between pt-2 border-t border-gray-200">
+                        <div class="flex justify-between pt-2 border-t border-gray-200" id="total-container">
                             <span class="text-gray-800 font-semibold">Total Amount:</span>
-                            <span class="font-semibold">₹<%=newOrder.finalAmount.toFixed(2)%></span>
+                            <span class="font-semibold" id="total">₹<%=newOrder.finalAmount.toFixed(2)%></span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600">Payment Method:</span>
@@ -88,6 +88,21 @@
         </div>
     </body>
     
-
-
-    
+    <script>
+        const storedOrderDetails = sessionStorage.getItem('orderDetails');
+        if (storedOrderDetails) {
+            const orderDetails = JSON.parse(storedOrderDetails);
+            document.getElementById('subtotal').textContent = '₹' + orderDetails.totalPrice.toFixed(2);
+            document.getElementById('discount').textContent = '₹' + orderDetails.discountAmount.toFixed(2);
+            document.getElementById('coupon-discount').textContent = '₹' + orderDetails.couponDiscount.toFixed(2);
+            document.getElementById('shipping').textContent = '₹' + orderDetails.shippingCharge.toFixed(2);
+            document.getElementById('total').textContent = '₹' + (
+                orderDetails.totalPrice - 
+                orderDetails.discountAmount - 
+                orderDetails.couponDiscount + 
+                orderDetails.shippingCharge
+            ).toFixed(2);
+            
+            sessionStorage.removeItem('orderDetails');
+        }
+    </script>

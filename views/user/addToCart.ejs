@@ -354,7 +354,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Helper functions
         function showLoading() {
             document.getElementById('loadingOverlay').classList.remove('hidden');
         }
@@ -363,9 +362,7 @@
             document.getElementById('loadingOverlay').classList.add('hidden');
         }
         
-        // Toast notification function
         function showToast(message, type = 'success', duration = 3000) {
-            // Create toast container if it doesn't exist
             let container = document.getElementById('toastContainer');
             if (!container) {
                 container = document.createElement('div');
@@ -377,7 +374,6 @@
                 document.body.appendChild(container);
             }
             
-            // Create toast element
             const toast = document.createElement('div');
             toast.style.minWidth = '250px';
             toast.style.margin = '0 0 10px 0';
@@ -391,7 +387,6 @@
             toast.style.transform = 'translateX(120%)';
             toast.style.transition = 'transform 0.3s ease';
             
-            // Set background color based on type
             if (type === 'success') {
                 toast.style.backgroundColor = '#10b981';
             } else if (type === 'error') {
@@ -400,7 +395,6 @@
                 toast.style.backgroundColor = '#f59e0b';
             }
             
-            // Set content
             toast.innerHTML = `
                 <div style="display: flex; align-items: center;">
                     <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'exclamation-circle'}" style="margin-right: 10px;"></i>
@@ -411,15 +405,12 @@
                 </button>
             `;
             
-            // Add to container
             container.appendChild(toast);
             
-            // Show toast with animation
             setTimeout(() => {
                 toast.style.transform = 'translateX(0)';
             }, 10);
             
-            // Add click event to close button
             toast.querySelector('button').addEventListener('click', () => {
                 toast.style.transform = 'translateX(120%)';
                 setTimeout(() => {
@@ -429,7 +420,6 @@
                 }, 300);
             });
             
-            // Auto-remove after duration
             setTimeout(() => {
                 if (document.body.contains(toast)) {
                     toast.style.transform = 'translateX(120%)';
@@ -464,7 +454,6 @@
             if (totalEl) totalEl.textContent = `₹${total.toFixed(2)}`;
         }
         
-        // Event handlers
         document.querySelectorAll('.quantity-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 if (this.disabled) return;
@@ -509,7 +498,6 @@
                         if (data.itemCount === 0) {
                             location.reload();
                         }
-                        // Show toast notification instead of SweetAlert
                         showToast(data.message || 'Item removed successfully', 'success');
                     } else {
                         throw new Error(data?.message || 'Unknown error occurred');
@@ -564,7 +552,6 @@
 
                     updateCartSummary(data.cartSummary || {});
 
-                    // Show toast notification instead of SweetAlert
                     showToast(data.message || 'Cart updated successfully', 'success');
 
                     if (data.stockUpdated) {
@@ -605,7 +592,6 @@
             }
         });
 
-        // Coupon handling
         function showCouponMessage(message, type) {
             const messageElement = document.getElementById('coupon-message');
             messageElement.textContent = message;
@@ -617,7 +603,6 @@
             }, 5000);
         }
 
-        // Toggle available coupons
         document.getElementById('toggle-coupons-btn')?.addEventListener('click', function() {
             const couponsContainer = document.getElementById('available-coupons');
             if (couponsContainer.classList.contains('hidden')) {
@@ -629,7 +614,6 @@
             }
         });
 
-        // Apply coupon from input
         document.getElementById('apply-coupon-btn')?.addEventListener('click', function() {
             const couponCode = document.getElementById('coupon-code').value.trim();
             if (!couponCode) {
@@ -649,7 +633,6 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Apply the coupon
                     return fetch('/apply-coupon', {
                         method: 'POST',
                         headers: {
@@ -667,7 +650,6 @@
             .then(data => {
                 hideLoading();
                 if (data.success) {
-                    // Reload page to show applied coupon
                     showToast('Coupon applied successfully', 'success');
                     setTimeout(() => {
                         window.location.reload();
@@ -682,7 +664,6 @@
             });
         });
 
-        // Apply coupon from list
         document.querySelectorAll('.apply-coupon-from-list').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.stopPropagation();
@@ -718,7 +699,6 @@
             });
         });
 
-        // Click on coupon item to fill code
         document.querySelectorAll('.coupon-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 if (!e.target.classList.contains('apply-coupon-from-list')) {
@@ -728,7 +708,6 @@
             });
         });
 
-        // Remove applied coupon
         document.getElementById('remove-coupon-btn')?.addEventListener('click', function() {
             showLoading();
             

@@ -6,21 +6,14 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-/**
- * @param {Object} options - Order options
- * @param {number} options.amount - Amount in smallest currency unit (paise for INR)
- * @param {string} options.currency - Currency code (default: INR)
- * @param {string} options.receipt - Receipt ID for your reference
- * @param {Object} options.notes - Additional notes for the order (optional)
- * @returns {Promise<Object>} - Razorpay order object
- */
-const createOrder = async (options) => {
+
+const createOrder = async ({ amount, currency = 'INR', receipt, notes = {} }) => {
     try {
         const order = await razorpay.orders.create({
-            amount: options.amount,
-            currency: options.currency || 'INR',
-            receipt: options.receipt,
-            notes: options.notes || {}
+            amount,
+            currency,
+            receipt,
+            notes
         });
         return order;
     } catch (error) {
@@ -29,31 +22,39 @@ const createOrder = async (options) => {
     }
 };
 
-/**
- * Verify Razorpay payment signature
- * @param {Object} options - Verification options
- * @param {string} options.order_id - Razorpay order ID
- * @param {string} options.payment_id - Razorpay payment ID
- * @param {string} options.signature - Razorpay signature
- * @returns {boolean} - True if signature is valid
- */
-const verifyPaymentSignature = (options) => {
+
+const verifyPaymentSignature = ({ order_id, payment_id, signature }) => {
     try {
         const crypto = require('crypto');
-        const generatedSignature = crypto
-            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-            .update(options.order_id + '|' + options.payment_id)
+        const secret = process.env.RAZORPAY_KEY_SECRET;
+        const generated_signature = crypto
+            .createHmac('sha256', secret)
+            .update(`${order_id}|${payment_id}`)
             .digest('hex');
-        
-        return generatedSignature === options.signature;
+        return generated_signature === signature;
     } catch (error) {
         console.error('Razorpay signature verification error:', error);
         return false;
     }
 };
 
+
+const createRefund = async ({ paymentId, amount, notes = {} }) => {
+    try {
+        const refund = await razorpay.payments.refund(paymentId, {
+            amount,
+            notes
+        });
+        return refund;
+    } catch (error) {
+        console.error('Razorpay refund creation error:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     razorpay,
     createOrder,
-    verifyPaymentSignature
+    verifyPaymentSignature,
+    createRefund
 }; 

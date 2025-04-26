@@ -237,7 +237,6 @@
         }
         
         function addToWishlist(productId) {
-            // Create a loading overlay
             const loadingOverlay = document.createElement('div');
             loadingOverlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             loadingOverlay.innerHTML = `
@@ -248,7 +247,6 @@
             `;
             document.body.appendChild(loadingOverlay);
             
-            // Make request to add to wishlist
             fetch(`/addToWishlist?id=${productId}`, {
                 method: 'GET',
                 headers: {
@@ -257,24 +255,19 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Remove loading overlay
                 document.body.removeChild(loadingOverlay);
                 
-                // Show toast notification
                 showToast(data.message, data.success ? 'success' : 'error');
             })
             .catch(error => {
                 console.error('Error adding to wishlist:', error);
                 document.body.removeChild(loadingOverlay);
                 
-                // Show error toast
                 showToast('Failed to add to wishlist. Please try again.', 'error');
             });
         }
         
-        // Toast notification function
         function showToast(message, type = 'success', duration = 3000) {
-            // Create toast container if it doesn't exist
             let container = document.getElementById('toastContainer');
             if (!container) {
                 container = document.createElement('div');
@@ -282,11 +275,9 @@
                 document.body.appendChild(container);
             }
             
-            // Create toast element
             const toast = document.createElement('div');
             toast.className = `fixed top-20 right-5 p-3 rounded-md flex items-center gap-3 text-white max-w-md shadow-lg z-[9999] transform transition-transform duration-300 translate-x-full`;
             
-            // Set background color based on type
             if (type === 'success') {
                 toast.classList.add('bg-green-500');
             } else if (type === 'error') {
@@ -295,7 +286,6 @@
                 toast.classList.add('bg-yellow-500');
             }
             
-            // Set icon based on type
             let icon = '';
             if (type === 'success') {
                 icon = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
@@ -305,7 +295,6 @@
                 icon = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>';
             }
             
-            // Set content
             toast.innerHTML = `
                 ${icon}
                 <span>${message}</span>
@@ -316,15 +305,12 @@
                 </button>
             `;
             
-            // Add to container
             container.appendChild(toast);
             
-            // Show toast with animation
             setTimeout(() => {
                 toast.classList.remove('translate-x-full');
             }, 10);
             
-            // Add click event to close button
             toast.querySelector('button').addEventListener('click', () => {
                 toast.classList.add('translate-x-full');
                 setTimeout(() => {
@@ -332,7 +318,6 @@
                 }, 300);
             });
             
-            // Auto-remove after duration
             setTimeout(() => {
                 toast.classList.add('translate-x-full');
                 setTimeout(() => {

@@ -54,7 +54,6 @@
                     </a>
                 </div>
 
-                <!-- Search and Filter Section -->
                 <div class="bg-dark rounded-xl p-4 mb-6 shadow-lg">
                     <div class="flex flex-col md:flex-row gap-4">
                         <form action="/admin/brands" method="get" class="flex-1 relative">
@@ -136,7 +135,6 @@
                                                 <i class="fas fa-pencil-alt"></i>
                                             </a>
                                             
-                                            <!-- Toggle Status Button -->
                                             <button onclick="toggleBrandStatus('<%= brands[i]._id %>', <%= brands[i].isListed %>)"
                                                class="<%= brands[i].isListed ? 'text-yellow-400 hover:text-yellow-300 hover:bg-yellow-900/30' : 'text-green-400 hover:text-green-300 hover:bg-green-900/30' %> p-2 rounded-full transition-colors duration-200"
                                                title="<%= brands[i].isListed ? 'Unlist' : 'List' %>">

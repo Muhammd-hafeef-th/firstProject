@@ -38,7 +38,6 @@ const loadHomepage = async (req, res, next) => {
         newArrivalsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         newArrivalsData = newArrivalsData.slice(0, 4);
 
-        // Calculate sales price and offer percentage for each product
         const processProducts = (products) => {
             return products.map(product => {
                 const brandOffer = product.brand?.brandOffer || 0;
@@ -194,7 +193,6 @@ const verifyOtp = async (req, res, next) => {
             const user = req.session.userData;
             const hashedPassword = await securePassword(user.password);
             
-            // Generate a unique referral code for the new user
             const referralController = require('./referralController');
             const newReferralCode = referralController.generateReferralCode(user.firstname);
             
@@ -207,30 +205,24 @@ const verifyOtp = async (req, res, next) => {
                 redeemedUsers: []
             });
 
-            // Save the new user
             const savedUser = await newUser.save();
             
-            // Process referral code if provided
             if (user.referralCode && user.referralCode.trim() !== '') {
-                // Check if the referral code is valid
                 const referrer = await User.findOne({ referalCode: user.referralCode });
                 
                 if (referrer) {
-                    // Add referral bonus to referrer
                     await referralController.addReferralBonus(
                         referrer._id, 
                         100, 
                         `Referral bonus for inviting ${savedUser.firstname}`
                     );
                     
-                    // Add bonus to new user
                     await referralController.addReferralBonus(
                         savedUser._id, 
                         50, 
                         'Welcome bonus for using a referral code'
                     );
                     
-                    // Add this user to referrer's redeemedUsers array
                     await User.findByIdAndUpdate(
                         referrer._id, 
                         { $push: { redeemedUsers: savedUser._id } }

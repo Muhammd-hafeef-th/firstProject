@@ -21,8 +21,8 @@
                     <form action="/choose-payment" method="post" id="paymentForm">
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="cod" class="accent-yellow-400" 
-                                    checked onchange="togglePaymentDetails()" />
+                                <input type="radio" name="payment" value="cod" class="accent-yellow-400" checked
+                                    onchange="togglePaymentDetails()" />
                                 <span class="font-medium">Cash on Delivery</span>
                                 <span class="ml-auto">💵</span>
                             </label>
@@ -33,18 +33,18 @@
 
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="razorpay" class="accent-yellow-400" 
+                                <input type="radio" name="payment" value="razorpay" class="accent-yellow-400"
                                     onchange="togglePaymentDetails()" />
                                 <span class="font-medium">Razor Pay</span>
-                                <img src="https://razorpay.com/assets/razorpay-logo.svg" 
+                                <img src="https://razorpay.com/assets/razorpay-logo.svg"
                                     class="w-8 h-8 ml-auto filter brightness-0 invert-[0.8]" />
                             </label>
                         </div>
 
                         <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                             <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="wallet" class="accent-yellow-400" 
-                                    onchange="togglePaymentDetails()" <%= !canUseWallet ? 'disabled' : '' %> />
+                                <input type="radio" name="payment" value="wallet" class="accent-yellow-400"
+                                    onchange="togglePaymentDetails()" <%=!canUseWallet ? 'disabled' : '' %> />
                                 <span class="font-medium">Wallet</span>
                                 <span class="ml-auto">💰</span>
                             </label>
@@ -56,13 +56,12 @@
                                     <p class="text-sm text-red-400 mt-1">
                                         Insufficient balance (₹<%= (total - walletBalance).toFixed(2) %> more needed)
                                     </p>
-                                <% } %>
+                                    <% } %>
                             </div>
                         </div>
 
                         <div class="pt-6 text-center">
-                            <button type="submit" id="payBtn"
-                                class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
+                            <button type="submit" id="payBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
                                 font-semibold transition-colors">
                                 Continue to Payment
                             </button>
@@ -72,7 +71,7 @@
             </div>
 
             <div class="bg-[#2A2A2A] rounded-xl p-8 shadow-lg h-fit sticky top-8">
-                
+
 
                 <h2 class="text-lg font-bold tracking-wider mt-6 mb-4 flex items-center">
                     <span class="w-4 h-4 bg-yellow-400 rounded-full mr-3"></span>
@@ -92,18 +91,19 @@
                         <span class="text-gray-400">Product Savings</span>
                         <span class="text-green-400">-₹<%= discountAmount.toFixed(2) %></span>
                     </div>
-                    <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Coupon Discount</span>
-                        <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
-                    </div>
-                    <% } %>
+                    <% if (typeof couponDiscount !=='undefined' && couponDiscount> 0) { %>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Coupon Discount</span>
+                            <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
+                        </div>
+                        <% } %>
                 </div>
-                
+
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
-                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %></span>
+                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %>
+                                </span>
                     </div>
                 </div>
             </div>
@@ -114,9 +114,9 @@
         function togglePaymentDetails() {
             const codNote = document.getElementById('codNote');
             const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
-            
+
             codNote.style.display = selectedMethod === 'cod' ? 'block' : 'none';
-            
+
             const payBtn = document.getElementById('payBtn');
             if (selectedMethod === 'wallet') {
                 payBtn.innerText = 'Pay with Wallet';
@@ -126,24 +126,21 @@
                 payBtn.innerText = 'Place Order';
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             togglePaymentDetails();
-            
-            // Handle payment form submission
-            document.getElementById('paymentForm').addEventListener('submit', function(event) {
+
+            document.getElementById('paymentForm').addEventListener('submit', function (event) {
                 const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
-                
+
                 if (selectedMethod === 'razorpay') {
                     event.preventDefault();
-                    
-                    // Show loading indicator
+
                     const payBtn = document.getElementById('payBtn');
                     const originalText = payBtn.innerText;
                     payBtn.innerText = 'Processing...';
                     payBtn.disabled = true;
-                    
-                    // Send AJAX request to create order
+
                     fetch('/choose-payment', {
                         method: 'POST',
                         headers: {
@@ -153,48 +150,46 @@
                             payment: 'razorpay'
                         })
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Initialize Razorpay
-                            const options = data.razorpay;
-                            const rzp = new Razorpay(options);
-                            
-                            rzp.on('payment.success', function(response) {
-                                // Handle successful payment
-                                verifyPayment(response, data.orderId);
-                            });
-                            
-                            rzp.on('payment.error', function(response) {
-                                // Handle payment failure
-                                alert('Payment failed. Please try again.');
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const options = data.razorpay;
+
+                                options.handler = function (response) {
+                                    console.log(response); 
+                                    verifyPayment(response, data.orderId);
+                                };
+
+                                const rzp = new Razorpay(options);
+
+                                rzp.on('payment.error', function (response) {
+                                    alert('Payment failed. Please try again.');
+                                    payBtn.innerText = originalText;
+                                    payBtn.disabled = false;
+                                });
+
+                                rzp.open();
+                            }
+                            else {
+                                alert('Failed to initialize payment. Please try again.');
                                 payBtn.innerText = originalText;
                                 payBtn.disabled = false;
-                            });
-                            
-                            // Open Razorpay checkout
-                            rzp.open();
-                        } else {
-                            alert('Failed to initialize payment. Please try again.');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Something went wrong. Please try again.');
                             payBtn.innerText = originalText;
                             payBtn.disabled = false;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Something went wrong. Please try again.');
-                        payBtn.innerText = originalText;
-                        payBtn.disabled = false;
-                    });
+                        });
                 }
             });
         });
-        
+
         function verifyPayment(response, orderId) {
-            // Show processing state
             const payBtn = document.getElementById('payBtn');
             payBtn.innerText = 'Verifying Payment...';
-            
+
             fetch('/razorpay/verify', {
                 method: 'POST',
                 headers: {
@@ -206,27 +201,25 @@
                     razorpay_signature: response.razorpay_signature
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = `/razorpay/success/${orderId}`;
-                } else {
-                    alert('Payment verification failed. Please contact support.');
-                    payBtn.innerText = 'Try Again';
-                    payBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Verification error:', error);
-                alert('Payment verification failed. Redirecting to order success page...');
-                
-                // If API call fails, still try to redirect to success page as fallback
-                setTimeout(() => {
-                    window.location.href = `/razorpay/success/${orderId}`;
-                }, 2000);
-            });
-            
-            // Add a fallback in case the fetch request hangs
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = `/paymentSuccess/${data.orderId}`;
+                    } else {
+                        alert('Payment verification failed. Please contact support.');
+                        payBtn.innerText = 'Try Again';
+                        payBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Verification error:', error);
+                    alert('Payment verification failed. Redirecting to order success page...');
+
+                    setTimeout(() => {
+                        window.location.href = `/razorpay/success/${orderId}`;
+                    }, 2000);
+                });
+
             setTimeout(() => {
                 if (document.getElementById('payBtn').innerText === 'Verifying Payment...') {
                     window.location.href = `/razorpay/success/${orderId}`;
@@ -234,8 +227,7 @@
             }, 8000);
         }
     </script>
-    
-    <!-- Include Razorpay SDK -->
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 

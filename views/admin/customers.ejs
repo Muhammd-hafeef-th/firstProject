@@ -185,7 +185,6 @@
             });
         }
 
-        // Delete Modal Functions
         function openDeleteModal(userId) {
             const modal = document.getElementById('deleteModal');
             const modalContent = document.getElementById('modalContent');
@@ -194,7 +193,6 @@
             deleteForm.action = `/admin/delete-user?id=${userId}`;
             modal.classList.remove('hidden');
             
-            // Trigger animation
             setTimeout(() => {
                 modalContent.classList.remove('scale-95', 'opacity-0');
                 modalContent.classList.add('scale-100', 'opacity-100');
