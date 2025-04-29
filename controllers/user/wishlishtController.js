@@ -124,7 +124,8 @@ const removeFromWishlist = async (req, res) => {
 
 const moveToCart = async (req, res) => {
     try {
-        if (!req.session.user) {
+        const userId = req.session.user?._id || req.session.user;
+        if (!userId) {
             return res.status(401).json({ success: false, message: 'Please login to add items to cart' });
         }
         const { productId, wishlistItemId } = req.body;
@@ -136,7 +137,6 @@ const moveToCart = async (req, res) => {
         if (!product) {
             return res.status(404).json({ success: false, message: 'Product not found' });
         }
-        const userId = req.session.user?._id || req.session.user;
 
         let cart = await Cart.findOne({ userId: userId });
         if (!cart) {

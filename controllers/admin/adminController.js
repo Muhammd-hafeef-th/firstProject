@@ -40,7 +40,9 @@ const login = async (req, res, next) => {
 const loadDashboard = async (req, res) => {
     try {
         const totalProducts = await Product.countDocuments({ isListed: true });
-        const totalOrders = await Order.countDocuments();
+        const totalOrders = await Order.countDocuments({
+            status: { $nin: ['Cancelled', 'Returned'] }
+        });
         const totalUsers = await User.countDocuments({ isBlocked: false, isAdmin: false });
 
         const orderStatusData = await Order.aggregate([
@@ -226,13 +228,13 @@ const downloadReport = async (req, res) => {
             const worksheet = workbook.addWorksheet('Sales Report');
 
             worksheet.columns = [
-                { width: 15 }, 
+                { width: 15 },
                 { width: 15 },
                 { width: 20 },
                 { width: 20 },
                 { width: 15 },
                 { width: 15 },
-                { width: 15 } 
+                { width: 15 }
             ];
 
             worksheet.mergeCells('A1:G1');
@@ -350,6 +352,9 @@ const downloadReport = async (req, res) => {
             const fs = require('fs');
             const path = require('path');
             const doc = new PDFDocument({ margin: 40, size: 'A4', layout: 'portrait' });
+            const fontPath = path.join(__dirname, '../../public/fonts/Roboto-Regular.ttf');
+            doc.font(fontPath);
+
 
             res.setHeader('Content-Type', 'application/pdf');
             res.setHeader('Content-Disposition', 'attachment; filename=lb-sales-report.pdf');
@@ -405,7 +410,7 @@ const downloadReport = async (req, res) => {
             const summaryCol4 = 480;
             const summaryY = yPosition + 20;
 
-            
+
             doc.fontSize(10)
                 .fillColor('#64748b')
                 .text('Metric', summaryCol1, summaryY)
@@ -521,19 +526,15 @@ const pageError = async (req, res) => {
     res.render("admin-error")
 }
 
-const logout = async (req, res, next) => {
+const logout = (req, res, next) => {
     try {
-        req.session.destroy(err => {
-            if (err) {
-                console.log("Error occured destroy session", err);
-                return res.redirect("/pageError")
-            }
-            res.redirect('/admin/login')
-        })
+        delete req.session.admin;
+        res.redirect('/admin/login');
     } catch (error) {
-        next(error)
+        next(error);
     }
-}
+};
+
 
 module.exports = {
     loadLogin,

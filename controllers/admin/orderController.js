@@ -87,16 +87,13 @@ const returnAction = async (req, res) => {
         if (action === 'accept') {
             order.status = 'Returned';
             
-            // If the order was paid using wallet, refund to wallet
             if (order.paymentMethod && order.paymentMethod.type === 'wallet') {
                 try {
                     const refundAmount = order.finalAmount;
                     
-                    // Find the user's wallet
                     const wallet = await Wallet.findOne({ 'user.email': order.user.email });
                     
                     if (wallet) {
-                        // Add refund transaction to wallet
                         wallet.transactions.push({
                             amount: refundAmount,
                             type: 'refund',
@@ -106,11 +103,9 @@ const returnAction = async (req, res) => {
                             date: new Date()
                         });
                         
-                        // Update wallet balance
                         wallet.balance += refundAmount;
                         await wallet.save();
                         
-                        // Update order refund status
                         order.refundDetails = {
                             amount: refundAmount,
                             paymentMethod: 'wallet',
@@ -120,7 +115,6 @@ const returnAction = async (req, res) => {
                         
                         console.log(`Wallet refund processed for returned order ${orderId}. Amount: ${refundAmount}`);
                     } else {
-                        // Create a new wallet for the user if one doesn't exist
                         const newWallet = new Wallet({
                             user: {
                                 username: order.user.firstname,
@@ -140,7 +134,6 @@ const returnAction = async (req, res) => {
                         
                         await newWallet.save();
                         
-                        // Update order refund status
                         order.refundDetails = {
                             amount: refundAmount,
                             paymentMethod: 'wallet',
@@ -152,10 +145,8 @@ const returnAction = async (req, res) => {
                     }
                 } catch (walletError) {
                     console.error('Error processing wallet refund for return:', walletError);
-                    // Continue with return approval even if wallet refund fails
                 }
             } else {
-                // For other payment methods, use the existing refund logic
                 const refundAmount = order.finalAmount;
 
                 const wallet = await Wallet.findOneAndUpdate(
@@ -196,14 +187,12 @@ const returnAction = async (req, res) => {
             }
         } else {
             order.status = 'Return Rejected';
-            // Clear any pending refund details
             if (order.refundDetails) {
                 order.refundDetails.status = 'rejected';
                 order.refundDetails.processedAt = new Date();
             }
         }
         
-        // Return items to inventory regardless of return approval/rejection
         for (const item of order.orderItems) {
             const product = item.product;
             product.quantity += item.quantity;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Luxury Watches</title>
+    <title>Admin Dashboard - LB</title>
     
     <!-- External Resources -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,7 +12,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <!-- Tailwind Configuration -->
     <script>
         tailwind.config = {
             theme: {
@@ -28,7 +27,6 @@
         }
     </script>
 
-    <!-- Custom Styles -->
     <style>
         .error-message {
             color: #f87171;
@@ -72,7 +70,6 @@
 
         <!-- Main Content -->
         <div class="flex-1 p-6 ml-0 transition-all duration-300">
-            <!-- Dashboard Header -->
             <div class="dashboard-header rounded-xl p-6 shadow-lg mb-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -83,9 +80,7 @@
                 </div>
             </div>
 
-            <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Products Card -->
                 <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-purple-600">
                     <div class="flex items-center justify-between">
                        <a href="/admin/products"> <div>
@@ -101,7 +96,6 @@
                     </div>
                 </div>
 
-                <!-- Total Orders Card -->
                 <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-blue-500">
                     <div class="flex items-center justify-between">
                        <a href="/admin/orders"> <div>
@@ -116,7 +110,6 @@
                     </div>
                 </div>
 
-                <!-- Total Users Card -->
                 <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-green-500">
                     <div class="flex items-center justify-between">
                         <a href="/admin/users"><div>
@@ -131,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- Sales Report Card -->
                 <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-indigo-500">
                     <div class="h-full flex flex-col justify-between">
                         <h3 class="text-lg font-semibold text-gray-300 mb-4">Sales Analytics</h3>
@@ -143,7 +135,6 @@
                 </div>
             </div>
 
-            <!-- Order Status Chart -->
             <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                     <h3 class="text-xl font-semibold text-white">Order Status Distribution</h3>
@@ -157,7 +148,6 @@
                 </div>
             </div>
 
-                <!-- Quick Actions -->
                 <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
                     <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
                     <div class="grid grid-cols-2 gap-3">
@@ -184,7 +174,6 @@
     </div>
 
     <script>
-        // Menu Toggle
         const menuBtn = document.getElementById('menu-btn');
         const sidebar = document.getElementById('sidebar');
 
@@ -192,7 +181,6 @@
             sidebar.classList.toggle('-translate-x-full');
         });
 
-        // Order Status Chart
         const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
         const statusData = <%- JSON.stringify(orderStatusData || []) %>;
         
@@ -249,7 +237,6 @@
             }
         });
 
-        // Responsive adjustments
         function handleResize() {
             if (window.innerWidth >= 768) {
                 sidebar.classList.remove('-translate-x-full');

@@ -263,7 +263,8 @@
                                 <input type="text" name="name" id="name"
                                     class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                                     required>
-                                <p class="mt-1 text-xs text-gray-400">Code should be uppercase without spaces (e.g.,
+                                <p id="nameHelpText" class="mt-1 text-xs text-gray-400">Code should be uppercase without
+                                    spaces (e.g.,
                                     SUMMER25)</p>
                             </div>
                             <div>
@@ -405,8 +406,17 @@
                 couponForm.reset();
                 couponForm.action = '/admin/add-coupon';
                 document.getElementById('couponId').value = '';
+
+                const nameInput = document.getElementById('name');
+                nameInput.readOnly = false; 
+
+                const nameHelpText = document.getElementById('nameHelpText');
+                nameHelpText.textContent = 'Code should be uppercase without spaces (e.g., SUMMER25)';
+                nameHelpText.classList.remove('hidden');
+
                 addModal.classList.remove('hidden');
             });
+
 
             function closeModal() {
                 addModal.classList.add('hidden');
@@ -429,7 +439,11 @@
                 fetch('/admin/get-coupon/' + couponId)
                     .then(function (response) { return response.json(); })
                     .then(function (coupon) {
+                        const nameHelpText = document.getElementById('nameHelpText');
+                        nameHelpText.textContent = 'Coupon name cannot be changed after creation';
+                        nameHelpText.classList.remove('hidden');
                         document.getElementById('name').value = coupon.name;
+                        document.getElementById('name').readOnly = true;
                         document.getElementById('description').value = coupon.description || '';
                         document.getElementById('offerPrice').value = coupon.offerPrice;
                         document.getElementById('minimumPrice').value = coupon.minimumPrice;
@@ -556,7 +570,7 @@
                 }
             }
 
-            
+
         </script>
 </body>
 

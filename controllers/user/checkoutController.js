@@ -486,37 +486,51 @@ const choosePayment = async (req, res, next) => {
 
             case 'razorpay':
                 try {
+                    req.session.pendingOrderData = {
+                        user: userId,
+                        orderItems,
+                        totalPrice: calculations.subtotal,
+                        discountAmount: calculations.discountAmount,
+                        couponDiscount: couponDiscount,
+                        finalAmount,
+                        address: selectedAddress._id,
+                        paymentMethod: {
+                            type: paymentMethod,
+                            details: {}
+                        }
+                    };
+
+                    if (appliedCoupon) {
+                        req.session.pendingOrderData.coupon = {
+                            id: appliedCoupon.id,
+                            code: appliedCoupon.name,
+                            discountType: appliedCoupon.discountType,
+                            discountValue: appliedCoupon.offerPrice
+                        };
+                    }
+
                     const razorpayOrder = await createRazorpayOrder({
                         amount: Math.round(finalAmount * 100), 
                         currency: 'INR',
                         receipt: `order_${nanoid(8)}`,
                         notes: {
                             userId: userId.toString(),
-                            orderId: newOrder._id.toString()
+                            cartItems: JSON.stringify(orderItems)
                         }
                     });
-                    
-                    newOrder.paymentMethod.details = {
-                        razorpayOrderId: razorpayOrder.id,
-                        amount: razorpayOrder.amount / 100 
-                    };
-                    
-                    await newOrder.save();
-                    
-                    req.session.pendingOrderId = newOrder._id;
+
                     req.session.razorpayOrderId = razorpayOrder.id;
-                    console.log('kkk');
+
                     if (isJsonRequest) {
                         return res.json({
                             success: true,
-                            orderId: newOrder._id,
                             razorpay: {
                                 key: process.env.RAZORPAY_KEY_ID,
                                 order_id: razorpayOrder.id,
                                 amount: razorpayOrder.amount,
                                 currency: razorpayOrder.currency,
                                 name: 'LB Watch Store',
-                                description: `Order #${newOrder._id}`,
+                                description: 'Order Payment',
                                 prefill: {
                                     name: userData?.firstname || '',
                                     email: userData?.email || '',
@@ -525,10 +539,8 @@ const choosePayment = async (req, res, next) => {
                             }
                         });
                     }
-                    
 
                     return res.render('razorpayCheckout', {
-                        orderId: newOrder._id,
                         razorpayKeyId: process.env.RAZORPAY_KEY_ID,
                         razorpayOrderId: razorpayOrder.id,
                         amount: razorpayOrder.amount,
@@ -628,16 +640,12 @@ const choosePayment = async (req, res, next) => {
 
 const verifyRazorpayPayment = async (req, res, next) => {
     try {
-        console.log(req.body)
-        const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
         
-        const orderId = req.session.pendingOrderId;
-        
-        if (!orderId || !razorpay_order_id || razorpay_order_id !== req.session.razorpayOrderId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid order information'
-            });
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || 
+            !req.session.pendingOrderData || razorpay_order_id !== req.session.razorpayOrderId) {
+            req.flash('error', 'Payment failed: Invalid payment information');
+            return res.redirect('/checkout');
         }
         
         const isValid = verifyPaymentSignature({
@@ -647,57 +655,49 @@ const verifyRazorpayPayment = async (req, res, next) => {
         });
         
         if (!isValid) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid payment signature'
-            });
+            req.flash('error', 'Payment failed: Invalid payment signature');
+            return res.redirect('/checkout');
         }
         
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.status(404).json({
-                success: false,
-                message: 'Order not found'
+        const newOrder = new Order(req.session.pendingOrderData);
+        newOrder.paymentMethod.details.razorpayPaymentId = razorpay_payment_id;
+        newOrder.paymentMethod.details.signature = razorpay_signature;
+        newOrder.paymentMethod.details.razorpayOrderId = razorpay_order_id;
+        newOrder.paymentStatus = 'completed';
+        newOrder.status = 'Processing';
+        
+        await newOrder.save();
+
+        if (req.session.appliedCoupon) {
+            await incrementCouponUsage(req.session.appliedCoupon.id);
+            await Coupon.findByIdAndUpdate(req.session.appliedCoupon.id, {
+                $addToSet: { userId: newOrder.user }
             });
+            delete req.session.appliedCoupon;
         }
-        
-        order.paymentMethod.details.razorpayPaymentId = razorpay_payment_id;
-        order.paymentMethod.details.signature = razorpay_signature;
-        order.paymentStatus = 'completed';
-        order.status = 'Processing';
-        
-        await order.save();
-
-
-        console.log('1')
-        console.log(order)
         
         await Promise.all([
-            ...order.orderItems.map(item =>
+            ...newOrder.orderItems.map(item =>
                 Product.findByIdAndUpdate(item.product, {
                     $inc: { quantity: -item.quantity }
                 })
             ),
-            Cart.deleteOne({ userId: order.user })
+            Cart.deleteOne({ userId: newOrder.user })
         ]);
-        console.log('2')
         
-        req.session.pendingOrderId = null
-        req.session.razorpayOrderId = null
+        delete req.session.pendingOrderData;
+        delete req.session.razorpayOrderId;
         
-        console.log('3')
         return res.json({
             success: true,
-            orderId: order._id,
+            orderId: newOrder._id,
             message: 'Payment successful'
         });
         
     } catch (error) {
         console.error('Razorpay verification error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Payment verification failed'
-        });
+        req.flash('error', 'Payment failed: Please try again');
+        return res.redirect('/checkout');
     }
 };
 

@@ -307,15 +307,16 @@ const login = async (req, res) => {
         res.render("login", { message: "Login failed. Please try again" });
     }
 };
-const logout = (req, res) => {
-    req.logout((err) => {
-        if (err) return res.redirect("/");
-        req.session.destroy(() => {
-            res.clearCookie("connect.sid");
-            res.redirect("/login");
-        });
-    });
+const logout = async (req, res, next) => {
+    try {
+        delete req.session.user;
+        res.redirect("/login");
+    } catch (error) {
+        next(error);
+    }
 };
+
+
 
 
 

@@ -103,14 +103,55 @@
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
                         <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %>
-                                </span>
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        function showToast(message, type = 'error') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .toast {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                border-radius: 5px;
+                color: white;
+                z-index: 1000;
+                animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+            }
+            .toast.error {
+                background-color: #ff4444;
+            }
+            .toast.success {
+                background-color: #00C851;
+            }
+            @keyframes slideIn {
+                from { transform: translateX(100%); }
+                to { transform: translateX(0); }
+            }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+
         function togglePaymentDetails() {
             const codNote = document.getElementById('codNote');
             const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
@@ -156,14 +197,19 @@
                                 const options = data.razorpay;
 
                                 options.handler = function (response) {
-                                    console.log(response); 
+                                    console.log(response);
                                     verifyPayment(response, data.orderId);
                                 };
 
                                 const rzp = new Razorpay(options);
-
                                 rzp.on('payment.error', function (response) {
-                                    alert('Payment failed. Please try again.');
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Payment Failed',
+                                        text: 'Something went wrong. Please try again.',
+                                        confirmButtonColor: '#d33'
+                                    });
+
                                     payBtn.innerText = originalText;
                                     payBtn.disabled = false;
                                 });
@@ -171,14 +217,14 @@
                                 rzp.open();
                             }
                             else {
-                                alert('Failed to initialize payment. Please try again.');
+                                showToast('Failed to initialize payment. Please try again.');
                                 payBtn.innerText = originalText;
                                 payBtn.disabled = false;
                             }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            alert('Something went wrong. Please try again.');
+                            showToast('Something went wrong. Please try again.');
                             payBtn.innerText = originalText;
                             payBtn.disabled = false;
                         });
@@ -198,7 +244,8 @@
                 body: JSON.stringify({
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature
+                    razorpay_signature: response.razorpay_signature,
+                    orderId: orderId
                 })
             })
                 .then(response => response.json())
@@ -206,25 +253,15 @@
                     if (data.success) {
                         window.location.href = `/paymentSuccess/${data.orderId}`;
                     } else {
-                        alert('Payment verification failed. Please contact support.');
-                        payBtn.innerText = 'Try Again';
-                        payBtn.disabled = false;
+                        showToast('Payment verification failed. Please try again.');
+                        payBtn.innerText = 'Continue to Razorpay';
                     }
                 })
                 .catch(error => {
-                    console.error('Verification error:', error);
-                    alert('Payment verification failed. Redirecting to order success page...');
-
-                    setTimeout(() => {
-                        window.location.href = `/razorpay/success/${orderId}`;
-                    }, 2000);
+                    console.error('Error:', error);
+                    showToast('Error verifying payment. Please contact support.');
+                    payBtn.innerText = 'Continue to Razorpay';
                 });
-
-            setTimeout(() => {
-                if (document.getElementById('payBtn').innerText === 'Verifying Payment...') {
-                    window.location.href = `/razorpay/success/${orderId}`;
-                }
-            }, 8000);
         }
     </script>
 

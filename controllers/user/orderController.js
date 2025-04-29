@@ -104,14 +104,17 @@ const orderDetails = async (req, res, next) => {
             case 'Delivered': progress = 100; break;
         }
         let totalSavings = 0;
+        const invoiceDate = order.invoiceDate ? new Date(order.invoiceDate) : new Date();
 
         const orderWithDiscountDetails = {
             ...order.toObject(),
+            invoiceDate: invoiceDate, 
             orderItems: order.orderItems.map(item => {
                 const product = item.product;
                 const brandOffer = product.brand?.brandOffer || 0;
                 const productOffer = product.discount || 0;
                 const effectiveDiscount = Math.max(brandOffer, productOffer);
+                
 
                 const savings = (item.price * item.quantity * effectiveDiscount / 100);
                 totalSavings += savings;
@@ -123,8 +126,9 @@ const orderDetails = async (req, res, next) => {
                 };
             }),
             discountAmount: totalSavings
-        };
 
+        };
+        console.log('Invoice Date:', invoiceDate);
         console.log(`Total Savings: ${totalSavings}`);
 
 
