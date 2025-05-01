@@ -327,12 +327,14 @@ const proceedPayment = async (req, res, next) => {
             return a.createdAt - b.createdAt;
         });
 
-        let couponDiscount = 0;
+         let couponDiscount = 0;
         if (req.session.appliedCoupon) {
             const couponData = req.session.appliedCoupon;
             
-            if (calculations.subtotal >= couponData.minimumPrice) {
+            if (couponData.discountType === 'percentage') {
                 couponDiscount = (calculations.subtotal * couponData.offerPrice) / 100;
+            } else {
+                couponDiscount = couponData.offerPrice;
             }
         }
 

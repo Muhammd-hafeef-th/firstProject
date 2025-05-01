@@ -140,7 +140,6 @@ router.post("/profilePasswordSaving",userController.profilePasswordSaving)
 
 //add to cart
 
-router.get("/addtoCart",userController.addtoCart);
 router.post('/addToCart', userController.addToCartAPI);
 router.get('/cart',userController.cart)
 router.get("/deleteCartProduct",userController.deleteCartProduct);

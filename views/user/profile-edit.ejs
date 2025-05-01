@@ -142,9 +142,9 @@
                     <button type="submit"
                         class="mt-14 bg-[#88903F] w-full py-2 rounded hover:bg-yellow-600 transition">SUBMIT</button>
                 </form>
-                <% if (userDatas && Object.keys(userDatas).length> 0) { %>
+                <% if (userDatas && Object.keys(userDatas).length> 0 && google==null) { %>
 
-                    <p class="text-center text-sm mt-10"><a href="/change-password"
+                    <p class="text-center text-sm mt-10"><a href="/change-password?email=<%=userDatas?.email%>"
                             class="text-yellow-400 hover:underline">Change Password</a></p>
                     <% } %>
 
