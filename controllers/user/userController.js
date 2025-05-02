@@ -192,10 +192,10 @@ const verifyOtp = async (req, res, next) => {
         if (otp === req.session.userOtp) {
             const user = req.session.userData;
             const hashedPassword = await securePassword(user.password);
-            
+
             const referralController = require('./referralController');
             const newReferralCode = referralController.generateReferralCode(user.firstname);
-            
+
             const newUser = new User({
                 firstname: user.firstname,
                 email: user.email,
@@ -206,30 +206,30 @@ const verifyOtp = async (req, res, next) => {
             });
 
             const savedUser = await newUser.save();
-            
+
             if (user.referralCode && user.referralCode.trim() !== '') {
                 const referrer = await User.findOne({ referalCode: user.referralCode });
-                
+
                 if (referrer) {
                     await referralController.addReferralBonus(
-                        referrer._id, 
-                        100, 
+                        referrer._id,
+                        100,
                         `Referral bonus for inviting ${savedUser.firstname}`
                     );
-                    
+
                     await referralController.addReferralBonus(
-                        savedUser._id, 
-                        50, 
+                        savedUser._id,
+                        50,
                         'Welcome bonus for using a referral code'
                     );
-                    
+
                     await User.findByIdAndUpdate(
-                        referrer._id, 
+                        referrer._id,
                         { $push: { redeemedUsers: savedUser._id } }
                     );
                 }
             }
-            
+
             res.json({ success: true, redirectUrl: "/login" });
         } else {
             res.status(400).json({ success: false, message: "Invalid OTP, Please try again" });
@@ -805,7 +805,7 @@ const gentsBrandFilter = async (req, res, next) => {
                 salesPrice
             };
         }));
-            
+
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -837,7 +837,7 @@ const couplesBrandFilter = async (req, res, next) => {
             .limit(limit)
             .populate('brand')
             .exec();
-            
+
         const productsWithPrices = await Promise.all(filteredProducts.map(async (product) => {
             const brandOffer = product.brand?.brandOffer || 0;
             const productOffer = product.discount || 0;
@@ -851,7 +851,7 @@ const couplesBrandFilter = async (req, res, next) => {
                 salesPrice
             };
         }));
-            
+
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
@@ -947,7 +947,7 @@ const profile = async (req, res, next) => {
 }
 const profileEdit = async (req, res, next) => {
     try {
-        let google=req.session.user._id;
+        let google = req.session.user._id;
         let userData = null
         if (req.session.user) {
             userData = await User.findOne({
@@ -957,7 +957,7 @@ const profileEdit = async (req, res, next) => {
                 ]
             });
         }
-        res.render('profile-edit', { userDatas: userData,google})
+        res.render('profile-edit', { userDatas: userData, google })
     } catch (error) {
         next(error);
     }
@@ -1168,12 +1168,12 @@ const resendProfileUpdateOtp = async (req, res, next) => {
 };
 const changePassword = async (req, res, next) => {
     try {
-        let email=req.query.email
+        let email = req.query.email
         let userData = null
         if (req.session.user) {
             userData = await User.findOne({ _id: req.session.user._id })
         }
-        res.render("userChange-password", { userDatas: userData,email})
+        res.render("userChange-password", { userDatas: userData, email })
     } catch (error) {
         next(error);
     }
@@ -1329,11 +1329,9 @@ const cart = async (req, res, next) => {
 
                     const effectiveDiscount = Math.max(brandOffer, productOffer);
                     const itemSavings = itemPrice * (effectiveDiscount / 100);
-                    const itemShipping = (product.shipingCharge || 0) * quantity;
 
                     acc.subtotal += itemPrice;
                     acc.discountAmount += itemSavings;
-                    acc.shippingCharge += itemShipping;
                 }
 
                 if (item.isOutOfStock) {
@@ -1355,8 +1353,15 @@ const cart = async (req, res, next) => {
                 hasOutOfStockItems: false,
                 hasUnlistedItems: false
             });
-
-            cartItems.total = cartItems.subtotal - cartItems.discountAmount + cartItems.shippingCharge;
+            
+            const discountedSubtotal = cartItems.subtotal - cartItems.discountAmount;
+            if (discountedSubtotal < 3000) {
+                cartItems.shippingCharge =40
+            } else {
+                cartItems.shippingCharge = 0;
+            }
+            
+            cartItems.total = discountedSubtotal + cartItems.shippingCharge;
         }
 
         const currentDate = new Date();
@@ -1385,13 +1390,17 @@ const cart = async (req, res, next) => {
                 couponDiscount = appliedCoupon.offerPrice;
             }
             cartItems.couponDiscount = couponDiscount;
-            cartItems.total = cartItems.total - couponDiscount;
+            
+            const discountedTotal = cartItems.subtotal - cartItems.discountAmount - couponDiscount;
+            
+            cartItems.total = discountedTotal + cartItems.shippingCharge;
         }
 
         res.render('addToCart', {
             cartItems,
             regularPriceTotal: cartItems.subtotal,
             discountedPriceTotal: cartItems.total,
+            shippingCharge: cartItems.shippingCharge,
             applicableCoupons,
             appliedCoupon,
             couponDiscount,
@@ -1405,6 +1414,7 @@ const cart = async (req, res, next) => {
         next(error);
     }
 };
+
 const deleteCartProduct = async (req, res, next) => {
     try {
         const productId = req.query.id;
@@ -1469,11 +1479,19 @@ const deleteCartProduct = async (req, res, next) => {
 
             acc.subtotal += itemPrice;
             acc.discountAmount += itemSavings;
-            acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
-        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
+        }, { subtotal: 0, discountAmount: 0 });
 
-        let total = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
+        let total = calculations.subtotal - calculations.discountAmount;
+        let shippingCharge = 0;
+        
+        // Calculate shipping charge
+        if (total < 3000) {
+            shippingCharge = 40;
+        }
+        
+        total += shippingCharge;
+
         let couponDiscount = 0;
         const appliedCoupon = req.session.appliedCoupon || null;
 
@@ -1486,7 +1504,7 @@ const deleteCartProduct = async (req, res, next) => {
                     cartSummary: {
                         subtotal: calculations.subtotal.toFixed(2),
                         discountAmount: calculations.discountAmount.toFixed(2),
-                        shippingCharge: calculations.shippingCharge.toFixed(2),
+                        shippingCharge: shippingCharge.toFixed(2),
                         couponDiscount: 0,
                         total: total.toFixed(2)
                     },
@@ -1503,7 +1521,9 @@ const deleteCartProduct = async (req, res, next) => {
             } else {
                 couponDiscount = appliedCoupon.offerPrice;
             }
-            total -= couponDiscount;
+            
+            total = calculations.subtotal - calculations.discountAmount - couponDiscount;
+            
         }
 
         return res.status(200).json({
@@ -1512,9 +1532,9 @@ const deleteCartProduct = async (req, res, next) => {
             cartSummary: {
                 subtotal: calculations.subtotal.toFixed(2),
                 discountAmount: calculations.discountAmount.toFixed(2),
-                shippingCharge: calculations.shippingCharge.toFixed(2),
                 couponDiscount: couponDiscount.toFixed(2),
-                total: total.toFixed(2)
+                total: total.toFixed(2),
+                shippingCharge: shippingCharge.toFixed(2)
             },
             itemCount: validItems.length,
             removedItemId: productId,
@@ -1536,6 +1556,7 @@ const deleteCartProduct = async (req, res, next) => {
         });
     }
 };
+
 const updateCartQuantity = async (req, res) => {
     try {
         const userId = req.session.user?._id || req.session.user;
@@ -1634,11 +1655,19 @@ const updateCartQuantity = async (req, res) => {
 
             acc.subtotal += itemPrice;
             acc.discountAmount += itemSavings;
-            acc.shippingCharge += (product.shipingCharge || 0) * quantity;
             return acc;
-        }, { subtotal: 0, discountAmount: 0, shippingCharge: 0 });
+        }, { subtotal: 0, discountAmount: 0 });
+         
+        let total = calculations.subtotal - calculations.discountAmount;
+        let shippingCharge = 0;
+        
+        // Calculate shipping charge
+        if (total < 3000) {
+            shippingCharge = 40;
+        }
+        
+        total += shippingCharge;
 
-        let total = calculations.subtotal - calculations.discountAmount + calculations.shippingCharge;
         let couponDiscount = 0;
         const appliedCoupon = req.session.appliedCoupon || null;
 
@@ -1651,7 +1680,7 @@ const updateCartQuantity = async (req, res) => {
                     cartSummary: {
                         subtotal: parseFloat(calculations.subtotal.toFixed(2)),
                         discountAmount: parseFloat(calculations.discountAmount.toFixed(2)),
-                        shippingCharge: parseFloat(calculations.shippingCharge.toFixed(2)),
+                        shippingCharge: parseFloat(shippingCharge.toFixed(2)),
                         couponDiscount: 0,
                         total: parseFloat(total.toFixed(2))
                     },
@@ -1662,13 +1691,14 @@ const updateCartQuantity = async (req, res) => {
                 });
             }
 
-            // If still eligible, apply coupon
             if (appliedCoupon.discountType === 'percentage') {
                 couponDiscount = (calculations.subtotal * appliedCoupon.offerPrice) / 100;
             } else {
                 couponDiscount = appliedCoupon.offerPrice;
             }
-            total -= couponDiscount;
+            
+            // Recalculate shipping after coupon
+            total = calculations.subtotal - calculations.discountAmount - couponDiscount;
         }
 
         return res.status(200).json({
@@ -1677,7 +1707,7 @@ const updateCartQuantity = async (req, res) => {
             cartSummary: {
                 subtotal: parseFloat(calculations.subtotal.toFixed(2)),
                 discountAmount: parseFloat(calculations.discountAmount.toFixed(2)),
-                shippingCharge: parseFloat(calculations.shippingCharge.toFixed(2)),
+                shippingCharge: parseFloat(shippingCharge.toFixed(2)),
                 couponDiscount: parseFloat(couponDiscount.toFixed(2)),
                 total: parseFloat(total.toFixed(2))
             },
@@ -1699,6 +1729,7 @@ const updateCartQuantity = async (req, res) => {
         });
     }
 };
+
 
 const addToCartAPI = async (req, res) => {
     try {

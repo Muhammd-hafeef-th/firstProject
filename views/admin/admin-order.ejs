@@ -5,136 +5,251 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .order-row:hover {
+            background-color: rgba(107, 114, 128, 0.2);
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+        .status-badge {
+            transition: all 0.2s ease;
+        }
+        .pagination-btn:hover:not(.active) {
+            background-color: rgba(107, 114, 128, 0.4);
+        }
+        .search-input:focus {
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-900 text-white">
-
+<body class="bg-gray-900 text-gray-100 min-h-screen">
     <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar')%>
 
-        <div class="flex">
-            <!-- Sidebar -->
-            <%- include('../../views/partials/admin/sidebar')%>
+    <div class="flex">
+        <!-- Sidebar -->
+        <%- include('../../views/partials/admin/sidebar')%>
 
-                <div class="container mx-auto p-4 md:p-6 w-full">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-                        <h1 class="text-2xl font-bold">Orders</h1>
-
-                    </div>
-                    <div class="mb-4 w-2/6 flex gap-4">
-                        <form action="/admin/orders" method="get" class="relative">
-                            <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
-                                class="w-full p-2 pr-10 rounded-md text-black outline-none">
-                            <button type="submit"
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </form>                        
-                        <form action="/admin/orders">
-                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
-                                Clear
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="bg-gray-800 shadow-md rounded-lg overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-800">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            USER NAME</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            ORDER ID</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            AMOUNT</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            ORDER DATE</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            STATUS</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            Payment Method</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">
-                                            ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-gray-700 divide-y divide-gray-200">
-                                    <% orders.forEach(order=> { %>
-                                        <tr class="hover:bg-slate-500">
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                                                <%= order.user.firstname %>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                <%= order.orderId %>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                <%= order.finalAmount %>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                <%= new Date(order.createdOn).toLocaleDateString('en-GB') %>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                  <%= 
-                                                    order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                                    order.status === 'Processing' ? 'bg-indigo-100 text-indigo-800' :
-                                                    order.status === 'Shipped' ? 'bg-blue-100 text-blue-800' :
-                                                    order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
-                                                    order.status === 'Cancelled' ? 'bg-red-100 text-red-800' :
-                                                    order.status === 'Return Rejected' ? 'bg-red-100 text-red-800' :
-                                                    order.status === 'Return Request' ? 'bg-orange-100 text-orange-800' :
-                                                    order.status === 'Returned' ? 'bg-purple-100 text-purple-800' :
-                                                    'bg-gray-100 text-gray-800' // default
-                                                  %>">
-                                                  <%= order.status %>
-                                                </span>
-                                              </td>
-                                              
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                                <% if (order.paymentMethod.type === 'cod') { %>
-                                                    Cash on Delivery
-                                                <% } else if (order.paymentMethod.type === 'razorpay') { %>
-                                                    Razorpay
-                                                <% } else if (order.paymentMethod.type === 'wallet') { %>
-                                                    Wallet
-                                                <% } else { %>
-                                                    Unknown
-                                                <% } %></td>
-
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                               <a href="/admin/order-admin-details?orderId=<%=order.orderId%>"> <button
-                                                    class="bg-blue-600 text-white px-4 py-1 rounded-md hover:bg-blue-700 transition duration-200">
-                                                    View
-                                                </button></a>
-                                            </td>
-                                        </tr>
-                                        <% }); %>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="mt-4">
-                        <div class="flex flex-wrap justify-center gap-2">
-                            <% for (let i = 1; i <= totalPages; i++) { %>
-                                <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
-                                   class="px-3 py-1 rounded-md <%= currentPage === i ? 'bg-purple-500 text-white' : 'bg-gray-700 text-white hover:bg-gray-600' %>">
-                                    <%= i %>
-                                </a>
-                            <% } %>
-                        </div>
-                    </div>                    
-                    
+        <div class="flex-1 p-6  pt-20">
+            <!-- Page Header -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-shopping-bag"></i>
+                        Order Management
+                    </h1>
+                    <p class="text-gray-400 mt-1">View and manage customer orders</p>
                 </div>
+                
+                <!-- Search and Filter Section -->
+                <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                    <form action="/admin/orders" method="get" class="relative w-full sm:w-64">
+                        <div class="relative">
+                            <input type="text" id="search" name="search" value="<%= search %>" 
+                                placeholder="Search orders..."
+                                class="w-full pl-10 pr-4 py-2 rounded-lg bg-gray-700 border border-gray-600 text-white focus:outline-none focus:border-purple-500 search-input">
+                            <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <form action="/admin/orders" class="w-full sm:w-auto">
+                        <button type="submit" 
+                            class="w-full px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                            <i class="fas fa-times"></i>
+                            Clear Filters
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead class="bg-gray-800">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-user text-gray-400"></i>
+                                        Customer
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-hashtag text-gray-400"></i>
+                                        Order ID
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-rupee-sign text-gray-400"></i>
+                                        Amount
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-calendar-day text-gray-400"></i>
+                                        Date
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-info-circle text-gray-400"></i>
+                                        Status
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fas fa-credit-card text-gray-400"></i>
+                                        Payment
+                                    </div>
+                                </th>
+                                <th scope="col" class="px-6 py-4 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-gray-800 divide-y divide-gray-700">
+                            <% orders.forEach(order => { %>
+                                <tr class="order-row">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 font-medium">
+                                                <%= order.user.firstname.charAt(0).toUpperCase() %>
+                                            </div>
+                                            <div class="ml-4">
+                                                <div class="text-sm font-medium text-white">
+                                                    <%= order.user.firstname %>
+                                                </div>
+                                                <div class="text-xs text-gray-400">
+                                                    ID: <%= order.user._id.toString().slice(-6) %>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
+                                        #<%= order.orderId %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
+                                        ₹<%= order.finalAmount.toFixed(2) %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        <%= new Date(order.createdOn).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="status-badge px-3 py-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            <%= 
+                                                order.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                order.status === 'Processing' ? 'bg-blue-500/20 text-blue-400' :
+                                                order.status === 'Shipped' ? 'bg-indigo-500/20 text-indigo-400' :
+                                                order.status === 'Delivered' ? 'bg-green-500/20 text-green-400' :
+                                                order.status === 'Cancelled' ? 'bg-red-500/20 text-red-400' :
+                                                order.status === 'Return Rejected' ? 'bg-red-500/20 text-red-400' :
+                                                order.status === 'Return Request' ? 'bg-orange-500/20 text-orange-400' :
+                                                order.status === 'Returned' ? 'bg-purple-500/20 text-purple-400' :
+                                                'bg-gray-500/20 text-gray-400'
+                                            %>">
+                                            <i class="fas 
+                                                <%= 
+                                                    order.status === 'Pending' ? 'fa-clock' :
+                                                    order.status === 'Processing' ? 'fa-cog' :
+                                                    order.status === 'Shipped' ? 'fa-truck' :
+                                                    order.status === 'Delivered' ? 'fa-check-circle' :
+                                                    order.status === 'Cancelled' ? 'fa-times-circle' :
+                                                    order.status === 'Return Request' ? 'fa-undo' :
+                                                    'fa-info-circle'
+                                                %> mr-1 mt-1">
+                                            </i>
+                                            <%= order.status %>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        <% if (order.paymentMethod.type === 'cod') { %>
+                                            <span class="inline-flex items-center">
+                                                <i class="fas fa-money-bill-wave mr-2 text-green-400"></i>
+                                                Cash on Delivery
+                                            </span>
+                                        <% } else if (order.paymentMethod.type === 'razorpay') { %>
+                                            <span class="inline-flex items-center">
+                                                <i class="fas fa-credit-card mr-2 text-blue-400"></i>
+                                                Razorpay
+                                            </span>
+                                        <% } else if (order.paymentMethod.type === 'wallet') { %>
+                                            <span class="inline-flex items-center">
+                                                <i class="fas fa-wallet mr-2 text-purple-400"></i>
+                                                Wallet
+                                            </span>
+                                        <% } else { %>
+                                            <span class="inline-flex items-center">
+                                                <i class="fas fa-question-circle mr-2 text-gray-400"></i>
+                                                Unknown
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <a href="/admin/order-admin-details?orderId=<%=order.orderId%>" 
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 transition duration-200">
+                                            <i class="fas fa-eye mr-1"></i>
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <div class="mt-6 flex justify-center">
+                    <nav class="flex items-center gap-1">
+                        <% if (currentPage > 1) { %>
+                            <a href="/admin/orders?page=<%= currentPage-1 %>&search=<%= search %>"
+                                class="px-3 py-1 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition duration-200">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        <% } %>
+
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <a href="/admin/orders?page=<%= i %>&search=<%= search %>"
+                                class="px-3 py-1 rounded-md transition duration-200
+                                <%= currentPage === i ? 'bg-purple-600 text-white' : 'bg-gray-700 text-white hover:bg-gray-600 pagination-btn' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
+
+                        <% if (currentPage < totalPages) { %>
+                            <a href="/admin/orders?page=<%= currentPage+1 %>&search=<%= search %>"
+                                class="px-3 py-1 rounded-md bg-gray-700 text-white hover:bg-gray-600 transition duration-200">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        <% } %>
+                    </nav>
+                </div>
+            <% } %>
+
+            <!-- Empty State -->
+            <% if (orders.length === 0) { %>
+                <div class="mt-12 text-center">
+                    <div class="mx-auto w-24 h-24 flex items-center justify-center rounded-full bg-gray-800/50 text-gray-500 mb-4">
+                        <i class="fas fa-box-open text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-300">No orders found</h3>
+                    <p class="mt-1 text-gray-500 max-w-md mx-auto">
+                        <% if (search) { %>
+                            No orders match your search criteria. Try a different search term.
+                        <% } else { %>
+                            There are currently no orders in the system. Check back later.
+                        <% } %>
+                    </p>
+                </div>
+            <% } %>
         </div>
+    </div>
 </body>
 
 </html>

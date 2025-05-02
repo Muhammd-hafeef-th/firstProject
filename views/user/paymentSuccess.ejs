@@ -1,108 +1,115 @@
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <body class="bg-gray-100 min-h-screen">
-        <div class="container mx-auto px-4 py-12 max-w-4xl">
-            <div class="bg-white rounded-xl shadow-md p-8 mb-8 text-center">
-                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Order Placed Successfully!</h1>
-                <p class="text-gray-600 mb-8">Thank you for your purchase! Your order has been successfully placed. You'll receive a confirmation soon.</p>
-                
-                <div class="border-t border-gray-200 pt-6 text-left">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
-                    
-                    <div class="space-y-4">
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Order ID:</span>
-                            <span class="font-medium">#<%=newOrder.orderId%></span>
-                        </div>
-                        <div class="flex justify-between" id="subtotal-container">
-                            <span class="text-gray-600">Subtotal:</span>
-                            <span class="font-medium" id="subtotal">₹<%=subtotal.toFixed(2)%></span>
-                        </div>
-                        <% if (discountAmount > 0) { %>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="bg-white rounded-xl shadow-md p-8 mb-8 text-center">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Order Placed Successfully!</h1>
+            <p class="text-gray-600 mb-8">Thank you for your purchase! Your order has been successfully placed. You'll
+                receive a confirmation soon.</p>
+
+            <div class="border-t border-gray-200 pt-6 text-left">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Summary</h2>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Order ID:</span>
+                        <span class="font-medium">#<%=newOrder.orderId%></span>
+                    </div>
+                    <div class="flex justify-between" id="subtotal-container">
+                        <span class="text-gray-600">Subtotal:</span>
+                        <span class="font-medium" id="subtotal">₹<%=subtotal.toFixed(2)%></span>
+                    </div>
+                    <% if (newOrder.discount> 0) { %>
                         <div class="flex justify-between" id="discount-container">
                             <span class="text-gray-600">Product Savings:</span>
-                            <span class="font-medium text-green-600" id="discount">-₹<%=discountAmount.toFixed(2)%></span>
+                            <span class="font-medium text-green-600" id="discount">-₹<%= newOrder.discount.toFixed(1) %></span>
                         </div>
                         <% } %>
-                        <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
-                        <div class="flex justify-between" id="coupon-discount-container">
-                            <span class="text-gray-600">Coupon Discount:</span>
-                            <span class="font-medium text-green-600" id="coupon-discount">-₹<%=couponDiscount.toFixed(2)%></span>
-                        </div>
-                        <% } %>
-                        <% if (shippingCharge > 0) { %>
-                        <div class="flex justify-between" id="shipping-container">
-                            <span class="text-gray-600">Shipping:</span>
-                            <span class="font-medium" id="shipping">₹<%=shippingCharge.toFixed(2)%></span>
-                        </div>
-                        <% } %>
-                        <div class="flex justify-between pt-2 border-t border-gray-200" id="total-container">
-                            <span class="text-gray-800 font-semibold">Total Amount:</span>
-                            <span class="font-semibold" id="total">₹<%=newOrder.finalAmount.toFixed(2)%></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-600">Payment Method:</span>
-                            <span class="font-medium">
-                                <% if (newOrder.paymentMethod.type === 'cod') { %>
-                                    Cash on Delivery
-                                <% } else if (newOrder.paymentMethod.type === 'razorpay') { %>
-                                    Razorpay
-                                <% } else if (newOrder.paymentMethod.type === 'wallet') { %>
-                                    Wallet
-                                <% } else { %>
-                                    Unknown
+                            <% if (typeof couponDiscount !=='undefined' && couponDiscount> 0) { %>
+                                <div class="flex justify-between" id="coupon-discount-container">
+                                    <span class="text-gray-600">Coupon Discount:</span>
+                                    <span class="font-medium text-green-600" id="coupon-discount">-₹
+                                        <%=couponDiscount.toFixed(2)%></span>
+                                </div>
                                 <% } %>
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Delivery Address:</h3>
-                        <p class="text-gray-600">
-                           <%=selectedAddress.name%>, <%=selectedAddress.landMark%><br>
-                           <%=selectedAddress.city%>, <%=selectedAddress.state%> - <%=selectedAddress.pincode%><br>
-                            Phone: <%=selectedAddress.phone%>
-                        </p>
-                    </div>
-                    
-                    <div class="mt-6">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Estimated Delivery:</h3>
-                        <p class="text-gray-600">7-12 Business Days</p>
-                    </div>
+                                    <% if (newOrder.shippingCharge> 0) { %>
+                                        <div class="flex justify-between" id="shipping-container">
+                                            <span class="text-gray-600">Shipping:</span>
+                                            <span class="font-medium" id="shipping">₹<%=newOrder. shippingCharge%>
+                                                    </span>
+                                        </div>
+                                        <% } %>
+                                            <div class="flex justify-between pt-2 border-t border-gray-200"
+                                                id="total-container">
+                                                <span class="text-gray-800 font-semibold">Total Amount:</span>
+                                                <span class="font-semibold" id="total">₹
+                                                    <%=newOrder.finalAmount.toFixed(2)%></span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-600">Payment Method:</span>
+                                                <span class="font-medium">
+                                                    <% if (newOrder.paymentMethod.type==='cod' ) { %>
+                                                        Cash on Delivery
+                                                        <% } else if (newOrder.paymentMethod.type==='razorpay' ) { %>
+                                                            Razorpay
+                                                            <% } else if (newOrder.paymentMethod.type==='wallet' ) { %>
+                                                                Wallet
+                                                                <% } else { %>
+                                                                    Unknown
+                                                                    <% } %>
+                                                </span>
+                                            </div>
                 </div>
-                
-                <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="/products" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 text-center">
-                        Continue Shopping
-                    </a>
-                    <a href="/orders" class="bg-white hover:bg-gray-100 text-blue-600 font-medium py-3 px-6 border border-blue-600 rounded-lg transition-colors duration-200 text-center">
-                        View Orders
-                    </a>
+
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Delivery Address:</h3>
+                    <p class="text-gray-600">
+                        <%=selectedAddress.name%>, <%=selectedAddress.landMark%><br>
+                                <%=selectedAddress.city%>, <%=selectedAddress.state%> - <%=selectedAddress.pincode%><br>
+                                            Phone: <%=selectedAddress.phone%>
+                    </p>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Estimated Delivery:</h3>
+                    <p class="text-gray-600">7-12 Business Days</p>
                 </div>
             </div>
+
+            <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+                <a href="/products"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 text-center">
+                    Continue Shopping
+                </a>
+                <a href="/orders"
+                    class="bg-white hover:bg-gray-100 text-blue-600 font-medium py-3 px-6 border border-blue-600 rounded-lg transition-colors duration-200 text-center">
+                    View Orders
+                </a>
+            </div>
         </div>
-    </body>
-    
-    <script>
-        const storedOrderDetails = sessionStorage.getItem('orderDetails');
-        if (storedOrderDetails) {
-            const orderDetails = JSON.parse(storedOrderDetails);
-            document.getElementById('subtotal').textContent = '₹' + orderDetails.totalPrice.toFixed(2);
-            document.getElementById('discount').textContent = '₹' + orderDetails.discountAmount.toFixed(2);
-            document.getElementById('coupon-discount').textContent = '₹' + orderDetails.couponDiscount.toFixed(2);
-            document.getElementById('shipping').textContent = '₹' + orderDetails.shippingCharge.toFixed(2);
-            document.getElementById('total').textContent = '₹' + (
-                orderDetails.totalPrice - 
-                orderDetails.discountAmount - 
-                orderDetails.couponDiscount + 
-                orderDetails.shippingCharge
-            ).toFixed(2);
-            
-            sessionStorage.removeItem('orderDetails');
-        }
-    </script>
+    </div>
+</body>
+
+<script>
+    const storedOrderDetails = sessionStorage.getItem('orderDetails');
+    if (storedOrderDetails) {
+        const orderDetails = JSON.parse(storedOrderDetails);
+        document.getElementById('subtotal').textContent = '₹' + orderDetails.totalPrice.toFixed(2);
+        document.getElementById('discount').textContent = '₹' + orderDetails.discountAmount.toFixed(2);
+        document.getElementById('coupon-discount').textContent = '₹' + orderDetails.couponDiscount.toFixed(2);
+        document.getElementById('shipping').textContent = '₹' + orderDetails.shippingCharge.toFixed(2);
+        document.getElementById('total').textContent = '₹' + (
+            orderDetails.totalPrice -
+            orderDetails.discountAmount -
+            orderDetails.couponDiscount +
+            orderDetails.shippingCharge
+        ).toFixed(2);
+
+        sessionStorage.removeItem('orderDetails');
+    }
+</script>

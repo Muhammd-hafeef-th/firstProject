@@ -25,7 +25,7 @@
     <div class="flex">
         <%- include('../../views/partials/admin/sidebar') %>
         
-        <div class="bg-gray-900 text-white p-6 w-full">
+        <div class="bg-gray-900 text-white p-6 w-full pt-20">
             <h1 class="text-2xl font-bold mb-6">Edit Product</h1>
 
             <div class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-5xl mx-auto">
@@ -133,13 +133,6 @@
                             <input type="number" name="saleAmount" id="salesAmount" value="<%= product.salePrice %>"
                                 class="w-full p-2 rounded bg-gray-700 border border-gray-600" step="0.01" min="0">
                             <div id="salesAmount-error" class="error-message"></div>
-                        </div>
-
-                        <div>
-                            <label class="block mb-1">Shipping Charge:</label>
-                            <input type="number" name="shiping" id="shiping" value="<%= product.shipingCharge %>"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600">
-                            <div id="shiping-error" class="error-message"></div>
                         </div>
 
                         <div>

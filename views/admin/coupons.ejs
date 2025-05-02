@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -7,571 +7,865 @@
     <title>Admin - Coupon Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .coupon-badge {
+            position: relative;
+            overflow: hidden;
+        }
+        .coupon-badge::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.1) 100%);
+        }
+        .progress-bar {
+            transition: width 0.6s ease;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .rotate-chevron {
+            transition: transform 0.3s ease;
+        }
+        .rotate-chevron.down {
+            transform: rotate(180deg);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-900 text-gray-100 min-h-screen">
+<body class="bg-gray-900 text-white min-h-screen font-sans antialiased">
 
     <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar') %>
 
-        <div class="flex">
-            <!-- Sidebar -->
-            <%- include('../../views/partials/admin/sidebar') %>
+    <div class="flex">
+        <!-- Sidebar -->
+        <%- include('../../views/partials/admin/sidebar') %>
 
-                <!-- Main Content -->
-                <div class="flex-1 p-6 lg:p-8 ">
-                    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h1 class="text-2xl font-bold text-white">Coupon Management</h1>
-                            <button id="openAddModal"
-                                class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                                Add New Coupon
-                            </button>
+        <!-- Main Content -->
+        <div class="flex-1 p-6 pt-32">
+            <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-600 overflow-hidden">
+                <!-- Header with search and add button -->
+                <div class="px-6 py-4 border-b border-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                            <i class="fas fa-tag text-green-500"></i>
+                            Coupon Management
+                        </h1>
+                        <p class="text-sm text-gray-400 mt-1">Manage discount coupons for your store</p>
+                    </div>
+                    <div class="flex items-center gap-3 w-full sm:w-auto">
+                        
+                        <button id="openAddModal"
+                            class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2 whitespace-nowrap">
+                            <i class="fas fa-plus"></i>
+                            Add Coupon
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-4 border-b border-gray-600">
+                    <div class="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Total Coupons</p>
+                                <h3 class="text-2xl font-bold text-white mt-1"><%= coupons.length %></h3>
+                            </div>
+                            <div class="bg-green-500/20 p-3 rounded-full">
+                                <i class="fas fa-tags text-green-500 text-xl"></i>
+                            </div>
                         </div>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Active Coupons</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">
+                                    <%= coupons.filter(c => c.isList && new Date(c.expireOn) > new Date() && (c.usageLimit === 0 || c.usageCount < c.usageLimit)).length %>
+                                </h3>
+                            </div>
+                            <div class="bg-green-500/20 p-3 rounded-full">
+                                <i class="fas fa-bolt text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Expired Coupons</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">
+                                    <%= coupons.filter(c => new Date(c.expireOn) < new Date()).length %>
+                                </h3>
+                            </div>
+                            <div class="bg-red-500/20 p-3 rounded-full">
+                                <i class="fas fa-clock text-red-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xs">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-400">Total Usage</p>
+                                <h3 class="text-2xl font-bold text-white mt-1">
+                                    <%= coupons.reduce((sum, c) => sum + c.usageCount, 0) %>
+                                </h3>
+                            </div>
+                            <div class="bg-purple-500/20 p-3 rounded-full">
+                                <i class="fas fa-users text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Coupon Table -->
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-700">
-                                <thead class="bg-gray-700">
-                                    <tr>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Coupon Code</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Discount</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Type</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Min Purchase</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Usage</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Created</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Expires</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Status</th>
-                                        <th scope="col"
-                                            class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                            Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-gray-800 divide-y divide-gray-700" id="couponsList">
-                                    <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
-                                        <% coupons.forEach(function(coupon) { %>
-                                            <tr class="group">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                <!-- Coupon Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-600">
+                        <thead class="bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Coupon Code
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Discount
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Min Purchase
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Usage
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Expires
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-400 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-gray-800 divide-y divide-gray-600" id="couponsList">
+                            <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
+                                <% coupons.forEach(function(coupon) { %>
+                                    <tr class="hover:bg-gray-700 transition">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="coupon-badge bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-1 px-3 rounded-md text-sm">
                                                     <%= coupon.name %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    <%= coupon.discountType==='percentage' ? coupon.offerPrice + '%'
-                                                        : '₹' + coupon.offerPrice %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    <%= coupon.discountType==='percentage' ? 'Percentage' : 'Amount' %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹<%=
-                                                        coupon.minimumPrice %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-white">
+                                                <%= coupon.discountType==='percentage' ? coupon.offerPrice + '%' : '₹' + coupon.offerPrice %>
+                                                <span class="text-xs text-gray-400 ml-1">
+                                                    (<%= coupon.discountType==='percentage' ? 'Percentage' : 'Fixed' %>)
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-white">₹<%= coupon.minimumPrice %></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex flex-col gap-1">
+                                                <div class="text-sm text-white">
                                                     <% if (coupon.usageLimit> 0) { %>
                                                         <%= coupon.usageCount %> / <%= coupon.usageLimit %>
-                                                                <% var usagePercent=Math.min(100,
-                                                                    Math.round((coupon.usageCount / coupon.usageLimit) *
-                                                                    100)); %>
-                                                                    <div
-                                                                        class="w-full bg-gray-700 rounded-full h-1.5 my-1">
-                                                                        <div class="bg-blue-600 h-1.5 rounded-full"
-                                                                            style="width: <%= usagePercent %>%"></div>
-                                                                    </div>
-                                                                    <% } else { %>
-                                                                        <%= coupon.usageCount %> / ∞
-                                                                            <% } %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    <%= new Date(coupon.createdOn).toLocaleDateString() %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                    <%= new Date(coupon.expireOn).toLocaleDateString() %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <% var isExpired=new Date(coupon.expireOn) < new Date(); %>
-                                                        <% var usageLimitReached=coupon.usageLimit> 0 &&
-                                                            coupon.usageCount >= coupon.usageLimit; %>
-                                                            <% var isActive=coupon.isList && !isExpired &&
-                                                                !usageLimitReached; %>
-                                                                <span
-                                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full <%= isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
-                                                                    <%= isActive ? 'Active' : 'Inactive' %>
-                                                                </span>
-                                                                <% if (usageLimitReached) { %>
-                                                                    <span
-                                                                        class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                                        Limit Reached
-                                                                    </span>
-                                                                    <% } %>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <button onclick="editCoupon('<%= coupon._id %>')"
-                                                        class="text-indigo-400 hover:text-indigo-300 mr-3">
-                                                        Edit
-                                                    </button>
-                                                    <button
-                                                        onclick="toggleCouponStatus('<%= coupon._id %>', <%= coupon.isList %>)"
-                                                        class="<%= coupon.isList ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300' %>">
-                                                        <%= coupon.isList ? 'Disable' : 'Enable' %>
-                                                    </button>
-                                                    <button onclick="toggleDetails('<%= coupon._id %>')"
-                                                        class="text-blue-400 hover:text-blue-300 ml-3">
-                                                        Details
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr id="details-<%= coupon._id %>" class="bg-gray-900 hidden">
-                                                <td colspan="9" class="px-6 py-4">
-                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                                    <% } else { %>
+                                                        <%= coupon.usageCount %> / ∞
+                                                    <% } %>
+                                                </div>
+                                                <% if (coupon.usageLimit> 0) { %>
+                                                    <% var usagePercent=Math.min(100, Math.round((coupon.usageCount / coupon.usageLimit) * 100)); %>
+                                                    <div class="w-full bg-gray-600 rounded-full h-1.5">
+                                                        <div class="bg-green-500 h-1.5 rounded-full progress-bar" 
+                                                            style="width: <%= usagePercent %>%"></div>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-white">
+                                                <%= new Date(coupon.expireOn).toLocaleDateString() %>
+                                                <% var daysLeft = Math.floor((new Date(coupon.expireOn) - new Date()) / (1000 * 60 * 60 * 24)); %>
+                                                <div class="text-xs <%= daysLeft < 3 ? 'text-red-500' : daysLeft < 7 ? 'text-yellow-500' : 'text-green-500' %>">
+                                                    <% if (daysLeft > 0) { %>
+                                                        <%= daysLeft %> days left
+                                                    <% } else { %>
+                                                        Expired
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <% var isExpired=new Date(coupon.expireOn) < new Date(); %>
+                                            <% var usageLimitReached=coupon.usageLimit> 0 && coupon.usageCount >= coupon.usageLimit; %>
+                                            <% var isActive=coupon.isList && !isExpired && !usageLimitReached; %>
+                                            <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                <%= isActive ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500' %>">
+                                                <%= isActive ? 'Active' : 'Inactive' %>
+                                                <% if (usageLimitReached) { %>
+                                                    <i class="fas fa-exclamation-circle ml-1"></i>
+                                                <% } %>
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div class="flex justify-end items-center gap-2">
+                                                <button onclick="editCoupon('<%= coupon._id %>')" 
+                                                    class="text-green-500 hover:text-green-600 p-2 rounded-full hover:bg-green-500/20 transition"
+                                                    title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button onclick="toggleCouponStatus('<%= coupon._id %>', <%= coupon.isList %>)"
+                                                    class="<%= coupon.isList ? 'text-red-500 hover:text-red-600' : 'text-green-500 hover:text-green-600' %> p-2 rounded-full <%= coupon.isList ? 'hover:bg-red-500/20' : 'hover:bg-green-500/20' %> transition"
+                                                    title="<%= coupon.isList ? 'Disable' : 'Enable' %>">
+                                                    <% if (coupon.isList) { %>
+                                                        <i class="fas fa-toggle-off"></i>
+                                                    <% } else { %>
+                                                        <i class="fas fa-toggle-on"></i>
+                                                    <% } %>
+                                                </button>
+                                                <button onclick="toggleDetails('<%= coupon._id %>')"
+                                                    class="text-gray-400 hover:text-gray-100 p-2 rounded-full hover:bg-gray-700 transition details-toggle"
+                                                    data-coupon="<%= coupon._id %>"
+                                                    title="Details">
+                                                    <i class="fas fa-chevron-down rotate-chevron"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr id="details-<%= coupon._id %>" class="hidden bg-gray-700 fade-in">
+                                        <td colspan="7" class="px-6 py-4">
+                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div class="bg-gray-800 p-4 rounded-lg border border-gray-600 shadow-xs">
+                                                    <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                                        <i class="fas fa-info-circle text-green-500"></i>
+                                                        Coupon Details
+                                                    </h3>
+                                                    <div class="space-y-3">
                                                         <div>
-                                                            <h3 class="text-sm font-medium text-gray-300">Description
-                                                            </h3>
-                                                            <p class="mt-1 text-sm text-gray-400">
+                                                            <p class="text-xs text-gray-400">Description</p>
+                                                            <p class="text-sm text-white mt-1">
                                                                 <%= coupon.description || 'No description provided' %>
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            <h3 class="text-sm font-medium text-gray-300">Usage
-                                                                Statistics</h3>
-                                                            <p class="mt-1 text-sm text-gray-400">
-                                                                This coupon has been used <%= coupon.usageCount %> times
-                                                                    <% if (coupon.usageLimit> 0) { %>
-                                                                        out of a maximum of <%= coupon.usageLimit %>
-                                                                            allowed uses.
-                                                                            <% var remainingUses=Math.max(0,
-                                                                                coupon.usageLimit - coupon.usageCount);
-                                                                                %>
-                                                                                <span
-                                                                                    class="<%= remainingUses > 0 ? 'text-green-400' : 'text-red-400' %>">
-                                                                                    (<%= remainingUses %> uses
-                                                                                        remaining)
-                                                                                </span>
-                                                                                <% } else { %>
-                                                                                    with no usage limit.
-                                                                                    <% } %>
+                                                            <p class="text-xs text-gray-400">Created On</p>
+                                                            <p class="text-sm text-white mt-1">
+                                                                <%= new Date(coupon.createdOn).toLocaleDateString() %>
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-xs text-gray-400">Last Updated</p>
+                                                            <p class="text-sm text-white mt-1">
+                                                                <%= coupon.updatedAt ? new Date(coupon.updatedAt).toLocaleDateString() : 'Never' %>
                                                             </p>
                                                         </div>
                                                     </div>
-
-                                                    <% if (coupon.userId && coupon.userId.length> 0) { %>
+                                                </div>
+                                                <div class="bg-gray-800 p-4 rounded-lg border border-gray-600 shadow-xs">
+                                                    <h3 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                                        <i class="fas fa-chart-pie text-green-500"></i>
+                                                        Usage Statistics
+                                                    </h3>
+                                                    <div class="space-y-3">
                                                         <div>
-                                                            <div
-                                                                class="flex justify-between items-center border-t border-gray-700 pt-4 mb-2">
-                                                                <h3 class="text-sm font-medium text-gray-300">Users Who
-                                                                    Used This Coupon (<%= coupon.userId.length %>)</h3>
-                                                                <% if (coupon.userId.length> 10) { %>
-                                                                    <button
-                                                                        onclick="exportUserData('<%= coupon._id %>', '<%= coupon.name %>')"
-                                                                        class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded">
-                                                                        Export Users
-                                                                    </button>
-                                                                    <% } %>
-                                                            </div>
-                                                            <div class="overflow-x-auto">
-                                                                <table
-                                                                    class="min-w-full divide-y divide-gray-700 text-sm">
-                                                                    <thead class="bg-gray-800">
-                                                                        <tr>
-                                                                            <th
-                                                                                class="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                                Name</th>
-                                                                            <th
-                                                                                class="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                                Email</th>
-                                                                            <th
-                                                                                class="px-3 py-2 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                                                                Phone</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody class="bg-gray-800 divide-y divide-gray-700">
-                                                                        <% coupon.userId.forEach(function(user) { %>
-                                                                            <tr>
-                                                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                                                    <%= user.firstname %>
-                                                                                        <%= user.lastname || '' %>
-                                                                                </td>
-                                                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                                                    <%= user.email %>
-                                                                                </td>
-                                                                                <td class="px-3 py-2 whitespace-nowrap">
-                                                                                    <%= user.phNumber || 'N/A' %>
-                                                                                </td>
-                                                                            </tr>
-                                                                            <% }); %>
-                                                                    </tbody>
-                                                                </table>
+                                                            <p class="text-xs text-gray-400">Total Usage</p>
+                                                            <p class="text-sm text-white mt-1">
+                                                                <%= coupon.usageCount %> times
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-xs text-gray-400">Usage Limit</p>
+                                                            <p class="text-sm text-white mt-1">
+                                                                <%= coupon.usageLimit > 0 ? coupon.usageLimit : 'Unlimited' %>
+                                                            </p>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-xs text-gray-400">Remaining Uses</p>
+                                                            <p class="text-sm <%= coupon.usageLimit > 0 && (coupon.usageLimit - coupon.usageCount) < 5 ? 'text-red-500' : 'text-white' %> mt-1">
+                                                                <%= coupon.usageLimit > 0 ? (coupon.usageLimit - coupon.usageCount) : 'Unlimited' %>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="bg-gray-800 p-4 rounded-lg border border-gray-600 shadow-xs">
+                                                    <div class="flex justify-between items-center mb-3">
+                                                        <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                                                            <i class="fas fa-users text-green-500"></i>
+                                                            Users (<%= coupon.userId ? coupon.userId.length : 0 %>)
+                                                        </h3>
+                                                        
+                                                    </div>
+                                                    <% if (coupon.userId && coupon.userId.length > 0) { %>
+                                                        <div class="overflow-y-auto max-h-40 pr-2">
+                                                            <div class="space-y-2">
+                                                                <% coupon.userId.slice(0, 5).forEach(function(user) { %>
+                                                                    <div class="flex items-center gap-3 p-2 hover:bg-gray-700 rounded">
+                                                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-500">
+                                                                            <%= user.firstname.charAt(0).toUpperCase() %><%= user.lastname ? user.lastname.charAt(0).toUpperCase() : '' %>
+                                                                        </div>
+                                                                        <div class="min-w-0">
+                                                                            <p class="text-sm font-medium text-white truncate">
+                                                                                <%= user.firstname %> <%= user.lastname || '' %>
+                                                                            </p>
+                                                                            <p class="text-xs text-gray-400 truncate">
+                                                                                <%= user.email %>
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                <% }); %>
+                                                                <% if (coupon.userId.length > 5) { %>
+                                                                    <div class="text-center text-xs text-gray-400 mt-2">
+                                                                        +<%= coupon.userId.length - 5 %> more users
+                                                                    </div>
+                                                                <% } %>
                                                             </div>
                                                         </div>
-                                                        <% } else { %>
-                                                            <div class="border-t border-gray-700 pt-4">
-                                                                <h3 class="text-sm font-medium text-gray-300 mb-2">Users
-                                                                    Who Used This Coupon</h3>
-                                                                <p class="text-sm text-gray-400">No users have used this
-                                                                    coupon yet.</p>
-                                                            </div>
-                                                            <% } %>
-                                                </td>
-                                            </tr>
-                                            <% }); %>
-                                                <% } else { %>
-                                                    <tr>
-                                                        <td colspan="9"
-                                                            class="px-6 py-4 whitespace-nowrap text-sm text-gray-400 text-center">
-                                                            No coupons found. Add a new coupon to get started.</td>
-                                                    </tr>
+                                                    <% } else { %>
+                                                        <div class="text-center py-4">
+                                                            <i class="fas fa-user-slash text-gray-400 text-2xl mb-2"></i>
+                                                            <p class="text-sm text-gray-400">No users have used this coupon yet</p>
+                                                        </div>
                                                     <% } %>
-                                </tbody>
-                            </table>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="7" class="px-6 py-8 text-center">
+                                        <div class="flex flex-col items-center justify-center">
+                                            <i class="fas fa-tag text-gray-400 text-4xl mb-4"></i>
+                                            <h3 class="text-lg font-medium text-white">No coupons found</h3>
+                                            <p class="text-gray-400 mt-1">Add your first coupon to start offering discounts</p>
+                                            <button id="openAddModalEmpty" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center gap-2">
+                                                <i class="fas fa-plus"></i>
+                                                Create Coupon
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <% if (typeof coupons !=='undefined' && coupons.length> 0) { %>
+                    <div class="px-6 py-4 border-t border-gray-600 flex items-center justify-between">
+                        <div class="text-sm text-gray-400">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium"><%= coupons.length %></span> of <span class="font-medium"><%= coupons.length %></span> coupons
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 border border-gray-600 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 border border-gray-600 rounded-md text-sm font-medium text-white bg-green-500 hover:bg-green-600">
+                                1
+                            </button>
+                            <button class="px-3 py-1 border border-gray-600 rounded-md text-sm font-medium text-white bg-gray-700 hover:bg-gray-600">
+                                Next
+                            </button>
                         </div>
                     </div>
-                </div>
+                <% } %>
+            </div>
         </div>
+    </div>
 
-        <div id="addCouponModal"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-            <div class="relative bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4">
-                <div class="flex justify-between items-center p-5 border-b border-gray-700">
-                    <h3 class="text-xl font-semibold text-white" id="modalTitle">Add New Coupon</h3>
-                    <button id="closeAddModal" class="text-gray-400 hover:text-white">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                    </button>
+    <!-- Add/Edit Coupon Modal -->
+    <div id="addCouponModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden fade-in">
+            <div class="flex justify-between items-center p-5 border-b border-gray-600">
+                <div>
+                    <h3 class="text-xl font-semibold text-black" id="modalTitle">Add New Coupon</h3>
+                    <p class="text-sm text-gray-400 mt-1" id="modalSubtitle">Create a discount coupon for your customers</p>
                 </div>
-                <form id="couponForm" action="/admin/add-coupon" method="POST">
-                    <input type="hidden" id="couponId" name="couponId">
-                    <div class="p-5 grid grid-cols-2 gap-4">
-                        <div class="space-y-4">
-                            <div>
-                                <label for="name" class="block text-sm font-medium text-gray-300">Coupon Code</label>
-                                <input type="text" name="name" id="name"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                <button id="closeAddModal" class="text-gray-400 hover:text-gray-100 p-1 rounded-full hover:bg-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="couponForm" action="/admin/add-coupon" method="POST">
+                <input type="hidden" id="couponId" name="couponId">
+                <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div class="space-y-4">
+                        <!-- Coupon Code -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+                            <div class="relative">
+                                <input type="text" name="name" id="name" 
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white"
                                     required>
-                                <p id="nameHelpText" class="mt-1 text-xs text-gray-400">Code should be uppercase without
-                                    spaces (e.g.,
-                                    SUMMER25)</p>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-tag text-gray-400"></i>
+                                </div>
                             </div>
-                            <div>
-                                <label for="discountType" class="block text-sm font-medium text-gray-300">Discount
-                                    Type</label>
-                                <select name="discountType" id="discountType"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            <p id="nameHelpText" class="mt-1 text-xs text-gray-400">Code should be uppercase without spaces (e.g., SUMMER25)</p>
+                        </div>
+                        <!-- Discount Type -->
+                        <div>
+                            <label for="discountType" class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                            <div class="relative">
+                                <select name="discountType" id="discountType" 
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition appearance-none bg-gray-700 text-white"
                                     required>
                                     <option value="amount">Fixed Amount (₹)</option>
                                     <option value="percentage">Percentage (%)</option>
                                 </select>
-                            </div>
-                            <div>
-                                <label for="minimumPrice" class="block text-sm font-medium text-gray-300">Minimum
-                                    Purchase (₹)</label>
-                                <input type="number" name="minimumPrice" id="minimumPrice" min="0"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    required>
-                                <p class="mt-1 text-xs text-gray-400">Discount amount must be less than minimum purchase
-                                    amount</p>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-percent text-gray-400"></i>
+                                </div>
+                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-chevron-down text-gray-400"></i>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label for="description"
-                                    class="block text-sm font-medium text-gray-300">Description</label>
+                        <!-- Minimum Purchase -->
+                        <div>
+                            <label for="minimumPrice" class="block text-sm font-medium text-gray-700 mb-1">Minimum Purchase (₹)</label>
+                            <div class="relative">
+                                <input type="number" name="minimumPrice" id="minimumPrice" min="0" 
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white"
+                                    required>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-indian-rupee-sign text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right Column -->
+                    <div class="space-y-4">
+                        <!-- Description -->
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <div class="relative">
                                 <textarea name="description" id="description" rows="2"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                                <p class="mt-1 text-xs text-gray-400">Optional: Add a brief description about this
-                                    coupon</p>
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white"></textarea>
+                                <div class="absolute top-2 left-3">
+                                    <i class="fas fa-align-left text-gray-400"></i>
+                                </div>
                             </div>
-                            <div>
-                                <label for="offerPrice" class="block text-sm font-medium text-gray-300">Discount
-                                    Value</label>
-                                <input type="number" name="offerPrice" id="offerPrice" min="1"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            <p class="mt-1 text-xs text-gray-400">Optional: Add a brief description about this coupon</p>
+                        </div>
+                        <!-- Discount Value -->
+                        <div>
+                            <label for="offerPrice" class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
+                            <div class="relative">
+                                <input type="number" name="offerPrice" id="offerPrice" min="1" 
+                                    class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white"
                                     required>
-                                <p class="mt-1 text-xs text-gray-400" id="offerPriceNote">For fixed amount: must be less
-                                    than minimum purchase. For percentage: must be between 1-100.</p>
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i id="discountIcon" class="fas fa-indian-rupee-sign text-gray-400"></i>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-gray-400" id="offerPriceNote">For fixed amount: must be less than minimum purchase. For percentage: must be between 1-100.</p>
+                        </div>
+                        <!-- Usage Limit & Expiry -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="usageLimit" class="block text-sm font-medium text-gray-700 mb-1">Usage Limit</label>
+                                <div class="relative">
+                                    <input type="number" name="usageLimit" id="usageLimit" min="0" 
+                                        class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-users text-gray-400"></i>
+                                    </div>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400">0 = unlimited uses</p>
                             </div>
                             <div>
-                                <label for="usageLimit" class="block text-sm font-medium text-gray-300">Usage
-                                    Limit</label>
-                                <input type="number" name="usageLimit" id="usageLimit" min="0"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
-                                <p class="mt-1 text-xs text-gray-400">Maximum number of times this coupon can be used (0
-                                    = unlimited)</p>
-                            </div>
-                            <div>
-                                <label for="expireOn" class="block text-sm font-medium text-gray-300">Expiry
-                                    Date</label>
-                                <input type="date" name="expireOn" id="expireOn"
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-700 rounded-md shadow-sm text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                                    required>
+                                <label for="expireOn" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                                <div class="relative">
+                                    <input type="date" name="expireOn" id="expireOn" 
+                                        class="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition bg-gray-700 text-white"
+                                        required>
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-calendar-day text-gray-400"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="px-5 py-4 bg-gray-700 rounded-b-lg flex justify-end">
-                        <button type="button" id="cancelButton"
-                            class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg mr-2">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
-                            Save Coupon
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <div class="px-6 py-4 bg-gray-700 rounded-b-xl flex justify-end gap-3">
+                    <button type="button" id="cancelButton"
+                        class="bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 border border-gray-600 rounded-lg transition">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitButton"
+                        class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-save"></i>
+                        <span id="submitButtonText">Save Coupon</span>
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <script>
-            var addModal = document.getElementById('addCouponModal');
-            var openAddModalBtn = document.getElementById('openAddModal');
-            var closeAddModalBtn = document.getElementById('closeAddModal');
-            var cancelButton = document.getElementById('cancelButton');
-            var couponForm = document.getElementById('couponForm');
-            var modalTitle = document.getElementById('modalTitle');
+    <script>
+        // DOM Elements
+        var addModal = document.getElementById('addCouponModal');
+        var openAddModalBtn = document.getElementById('openAddModal');
+        var openAddModalEmptyBtn = document.getElementById('openAddModalEmpty');
+        var closeAddModalBtn = document.getElementById('closeAddModal');
+        var cancelButton = document.getElementById('cancelButton');
+        var couponForm = document.getElementById('couponForm');
+        var modalTitle = document.getElementById('modalTitle');
+        var modalSubtitle = document.getElementById('modalSubtitle');
+        var submitButtonText = document.getElementById('submitButtonText');
+        var discountIcon = document.getElementById('discountIcon');
 
-            var expireOnInput = document.getElementById('expireOn');
-            var today = new Date();
-            var formattedDate = today.toISOString().split('T')[0];
-            expireOnInput.min = formattedDate;
+        // Form Elements
+        var expireOnInput = document.getElementById('expireOn');
+        var offerPriceInput = document.getElementById('offerPrice');
+        var minimumPriceInput = document.getElementById('minimumPrice');
+        var discountTypeInput = document.getElementById('discountType');
+        var nameInput = document.getElementById('name');
+        var nameHelpText = document.getElementById('nameHelpText');
 
-            var offerPriceInput = document.getElementById('offerPrice');
-            var minimumPriceInput = document.getElementById('minimumPrice');
-            var discountTypeInput = document.getElementById('discountType');
+        // Set minimum expiry date to today
+        var today = new Date();
+        var formattedDate = today.toISOString().split('T')[0];
+        expireOnInput.min = formattedDate;
 
+        // Update discount icon based on type
+        function updateDiscountIcon() {
+            if (discountTypeInput.value === 'percentage') {
+                discountIcon.className = 'fas fa-percent text-gray-400';
+            } else {
+                discountIcon.className = 'fas fa-indian-rupee-sign text-gray-400';
+            }
+        }
+
+        // Update offer price label based on discount type
+        function updateOfferPriceLabel() {
+            var discountType = discountTypeInput.value;
+            var offerPriceNote = document.getElementById('offerPriceNote');
+
+            if (discountType === 'percentage') {
+                offerPriceNote.textContent = 'Percentage discount must be between 1 and 100';
+                offerPriceInput.max = 100;
+            } else {
+                offerPriceNote.textContent = 'Discount amount must be less than minimum purchase amount';
+                offerPriceInput.removeAttribute('max');
+            }
+            updateDiscountIcon();
+        }
+
+        // Validate prices based on discount type
+        var validatePrices = function () {
+            var offerPrice = Number(offerPriceInput.value);
+            var minimumPrice = Number(minimumPriceInput.value);
+            var discountType = discountTypeInput.value;
+
+            if (discountType === 'percentage') {
+                if (offerPrice <= 0 || offerPrice > 100) {
+                    offerPriceInput.setCustomValidity('Percentage discount must be between 1 and 100');
+                    return false;
+                } else {
+                    offerPriceInput.setCustomValidity('');
+                    return true;
+                }
+            } else {
+                if (offerPrice && minimumPrice && offerPrice >= minimumPrice) {
+                    offerPriceInput.setCustomValidity('Discount amount must be less than minimum purchase amount');
+                    return false;
+                } else {
+                    offerPriceInput.setCustomValidity('');
+                    return true;
+                }
+            }
+        };
+
+        // Event listeners for price validation
+        offerPriceInput.addEventListener('input', validatePrices);
+        minimumPriceInput.addEventListener('input', validatePrices);
+        discountTypeInput.addEventListener('change', function () {
+            validatePrices();
             updateOfferPriceLabel();
+        });
 
-            discountTypeInput.addEventListener('change', function () {
-                validatePrices();
-                updateOfferPriceLabel();
-            });
+        // Initialize modal
+        function initModal() {
+            updateOfferPriceLabel();
+        }
 
-            function updateOfferPriceLabel() {
-                var discountType = discountTypeInput.value;
-                var offerPriceNote = document.getElementById('offerPriceNote');
+        // Open modal for adding new coupon
+        function openAddModal() {
+            modalTitle.textContent = 'Add New Coupon';
+            modalSubtitle.textContent = 'Create a discount coupon for your customers';
+            submitButtonText.textContent = 'Save Coupon';
+            couponForm.reset();
+            couponForm.action = '/admin/add-coupon';
+            document.getElementById('couponId').value = '';
+            nameInput.readOnly = false;
+            nameHelpText.textContent = 'Code should be uppercase without spaces (e.g., SUMMER25)';
+            nameHelpText.classList.remove('hidden');
+            addModal.classList.remove('hidden');
+            initModal();
+        }
 
-                if (discountType === 'percentage') {
-                    offerPriceNote.textContent = 'Percentage discount must be between 1 and 100';
-                    offerPriceInput.max = 100;
-                } else {
-                    offerPriceNote.textContent = 'Discount amount must be less than minimum purchase amount';
-                    offerPriceInput.removeAttribute('max');
-                }
+        // Open modal from empty state button
+        if (openAddModalEmptyBtn) {
+            openAddModalEmptyBtn.addEventListener('click', openAddModal);
+        }
+
+        // Open modal from main button
+        openAddModalBtn.addEventListener('click', openAddModal);
+
+        // Close modal
+        function closeModal() {
+            addModal.classList.add('hidden');
+        }
+
+        closeAddModalBtn.addEventListener('click', closeModal);
+        cancelButton.addEventListener('click', closeModal);
+
+        addModal.addEventListener('click', function (e) {
+            if (e.target === addModal) {
+                closeModal();
             }
+        });
 
-            var validatePrices = function () {
-                var offerPrice = Number(offerPriceInput.value);
-                var minimumPrice = Number(minimumPriceInput.value);
-                var discountType = discountTypeInput.value;
+        // Edit coupon function
+        function editCoupon(couponId) {
+            modalTitle.textContent = 'Edit Coupon';
+            modalSubtitle.textContent = 'Update coupon details';
+            submitButtonText.textContent = 'Update Coupon';
+            couponForm.action = '/admin/edit-coupon';
+            document.getElementById('couponId').value = couponId;
 
-                if (discountType === 'percentage') {
-                    if (offerPrice <= 0 || offerPrice > 100) {
-                        offerPriceInput.setCustomValidity('Percentage discount must be between 1 and 100');
-                        return false;
-                    } else {
-                        offerPriceInput.setCustomValidity('');
-                        return true;
-                    }
-                } else {
-                    if (offerPrice && minimumPrice && offerPrice >= minimumPrice) {
-                        offerPriceInput.setCustomValidity('Discount amount must be less than minimum purchase amount');
-                        return false;
-                    } else {
-                        offerPriceInput.setCustomValidity('');
-                        return true;
-                    }
-                }
-            };
-
-            offerPriceInput.addEventListener('input', validatePrices);
-            minimumPriceInput.addEventListener('input', validatePrices);
-
-            openAddModalBtn.addEventListener('click', function () {
-                modalTitle.textContent = 'Add New Coupon';
-                couponForm.reset();
-                couponForm.action = '/admin/add-coupon';
-                document.getElementById('couponId').value = '';
-
-                const nameInput = document.getElementById('name');
-                nameInput.readOnly = false; 
-
-                const nameHelpText = document.getElementById('nameHelpText');
-                nameHelpText.textContent = 'Code should be uppercase without spaces (e.g., SUMMER25)';
-                nameHelpText.classList.remove('hidden');
-
-                addModal.classList.remove('hidden');
-            });
-
-
-            function closeModal() {
-                addModal.classList.add('hidden');
-            }
-
-            closeAddModalBtn.addEventListener('click', closeModal);
-            cancelButton.addEventListener('click', closeModal);
-
-            addModal.addEventListener('click', function (e) {
-                if (e.target === addModal) {
-                    closeModal();
-                }
-            });
-
-            function editCoupon(couponId) {
-                modalTitle.textContent = 'Edit Coupon';
-                couponForm.action = '/admin/edit-coupon';
-                document.getElementById('couponId').value = couponId;
-
-                fetch('/admin/get-coupon/' + couponId)
-                    .then(function (response) { return response.json(); })
-                    .then(function (coupon) {
-                        const nameHelpText = document.getElementById('nameHelpText');
-                        nameHelpText.textContent = 'Coupon name cannot be changed after creation';
-                        nameHelpText.classList.remove('hidden');
-                        document.getElementById('name').value = coupon.name;
-                        document.getElementById('name').readOnly = true;
-                        document.getElementById('description').value = coupon.description || '';
-                        document.getElementById('offerPrice').value = coupon.offerPrice;
-                        document.getElementById('minimumPrice').value = coupon.minimumPrice;
-                        document.getElementById('discountType').value = coupon.discountType || 'amount';
-                        document.getElementById('usageLimit').value = coupon.usageLimit || 0;
-                        document.getElementById('expireOn').value = new Date(coupon.expireOn).toISOString().split('T')[0];
-                        updateOfferPriceLabel();
-                        addModal.classList.remove('hidden');
-                    })
-                    .catch(function (error) {
-                        console.error('Error fetching coupon details:', error);
-                        swal("Error", "Failed to fetch coupon details", "error");
-                    });
-            }
-
-            function toggleCouponStatus(couponId, currentStatus) {
-                var action = currentStatus ? 'disable' : 'enable';
-
-                swal({
-                    title: action.charAt(0).toUpperCase() + action.slice(1) + " this coupon?",
-                    text: currentStatus ? "Users won't be able to use this coupon anymore." : "This will make the coupon available to users.",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: currentStatus
+            fetch('/admin/get-coupon/' + couponId)
+                .then(function (response) { return response.json(); })
+                .then(function (coupon) {
+                    nameHelpText.textContent = 'Coupon name cannot be changed after creation';
+                    nameHelpText.classList.remove('hidden');
+                    nameInput.value = coupon.name;
+                    nameInput.readOnly = true;
+                    document.getElementById('description').value = coupon.description || '';
+                    document.getElementById('offerPrice').value = coupon.offerPrice;
+                    document.getElementById('minimumPrice').value = coupon.minimumPrice;
+                    document.getElementById('discountType').value = coupon.discountType || 'amount';
+                    document.getElementById('usageLimit').value = coupon.usageLimit || 0;
+                    document.getElementById('expireOn').value = new Date(coupon.expireOn).toISOString().split('T')[0];
+                    updateOfferPriceLabel();
+                    addModal.classList.remove('hidden');
+                    initModal();
                 })
-                    .then(function (willToggle) {
-                        if (willToggle) {
-                            fetch('/admin/toggle-coupon/' + couponId, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify({ status: !currentStatus })
+                .catch(function (error) {
+                    console.error('Error fetching coupon details:', error);
+                    swal("Error", "Failed to fetch coupon details", "error");
+                });
+        }
+
+        // Toggle coupon status
+        function toggleCouponStatus(couponId, currentStatus) {
+            var action = currentStatus ? 'disable' : 'enable';
+            var actionTitle = action.charAt(0).toUpperCase() + action.slice(1);
+
+            swal({
+                title: actionTitle + " this coupon?",
+                text: currentStatus ? "Users won't be able to use this coupon anymore." : "This will make the coupon available to users.",
+                icon: "warning",
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: actionTitle,
+                        value: true,
+                        visible: true,
+                        className: currentStatus ? "bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg" : "bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg",
+                        closeModal: true
+                    }
+                },
+                dangerMode: currentStatus
+            })
+                .then(function (willToggle) {
+                    if (willToggle) {
+                        fetch('/admin/toggle-coupon/' + couponId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ status: !currentStatus })
+                        })
+                            .then(function (response) { return response.json(); })
+                            .then(function (data) {
+                                if (data.success) {
+                                    swal({
+                                        title: "Success",
+                                        text: "Coupon " + action + "d successfully",
+                                        icon: "success",
+                                        button: {
+                                            text: "OK",
+                                            className: "bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg"
+                                        }
+                                    }).then(function () {
+                                        window.location.reload();
+                                    });
+                                } else {
+                                    swal("Error", data.message || "Something went wrong", "error");
+                                }
                             })
-                                .then(function (response) { return response.json(); })
-                                .then(function (data) {
-                                    if (data.success) {
-                                        swal("Success", "Coupon " + action + "d successfully", "success")
-                                            .then(function () {
-                                                window.location.reload();
-                                            });
-                                    } else {
-                                        swal("Error", data.message || "Something went wrong", "error");
-                                    }
-                                })
-                                .catch(function (error) {
-                                    console.error('Error toggling coupon status:', error);
-                                    swal("Error", "Failed to update coupon status", "error");
-                                });
-                        }
-                    });
+                            .catch(function (error) {
+                                console.error('Error toggling coupon status:', error);
+                                swal("Error", "Failed to update coupon status", "error");
+                            });
+                    }
+                });
+        }
+
+        // Form submission handler
+        couponForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            var couponName = nameInput.value;
+            if (couponName !== couponName.toUpperCase() || couponName.includes(' ')) {
+                swal("Invalid Format", "Coupon code must be uppercase and contain no spaces", "warning");
+                return;
             }
 
-            couponForm.addEventListener('submit', function (event) {
-                event.preventDefault();
+            var offerPrice = Number(offerPriceInput.value);
+            var minimumPrice = Number(minimumPriceInput.value);
+            var discountType = discountTypeInput.value;
 
-                var couponName = document.getElementById('name').value;
-                if (couponName !== couponName.toUpperCase() || couponName.includes(' ')) {
-                    swal("Invalid Format", "Coupon code must be uppercase and contain no spaces", "warning");
+            if (discountType === 'percentage') {
+                if (offerPrice <= 0 || offerPrice > 100) {
+                    swal("Invalid Percentage", "Percentage discount must be between 1 and 100", "warning");
                     return;
                 }
-
-                var offerPrice = Number(document.getElementById('offerPrice').value);
-                var minimumPrice = Number(document.getElementById('minimumPrice').value);
-                var discountType = document.getElementById('discountType').value;
-
-                if (discountType === 'percentage') {
-                    if (offerPrice <= 0 || offerPrice > 100) {
-                        swal("Invalid Percentage", "Percentage discount must be between 1 and 100", "warning");
-                        return;
-                    }
-                } else {
-                    if (offerPrice >= minimumPrice) {
-                        swal("Invalid Amount", "Discount amount must be less than minimum purchase amount", "warning");
-                        return;
-                    }
-                }
-
-                var formAction = couponForm.action;
-                var isEdit = formAction.includes('edit-coupon');
-
-                var formData = {
-                    name: couponName,
-                    description: document.getElementById('description').value,
-                    offerPrice: offerPrice,
-                    minimumPrice: minimumPrice,
-                    discountType: discountType,
-                    usageLimit: Number(document.getElementById('usageLimit').value) || 0,
-                    expireOn: document.getElementById('expireOn').value
-                };
-
-                if (isEdit) {
-                    formData.couponId = document.getElementById('couponId').value;
-                }
-
-                fetch(formAction, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                })
-                    .then(function (response) { return response.json(); })
-                    .then(function (data) {
-                        if (data.success) {
-                            swal("Success", isEdit ? "Coupon updated successfully" : "Coupon created successfully", "success")
-                                .then(function () {
-                                    window.location.reload();
-                                });
-                        } else {
-                            swal("Error", data.message || "Something went wrong", "error");
-                        }
-                    })
-                    .catch(function (error) {
-                        console.error('Error submitting coupon form:', error);
-                        swal("Error", "Failed to " + (isEdit ? "update" : "create") + " coupon", "error");
-                    });
-            });
-
-            function toggleDetails(couponId) {
-                var detailsRow = document.getElementById('details-' + couponId);
-                if (detailsRow) {
-                    detailsRow.classList.toggle('hidden');
+            } else {
+                if (offerPrice >= minimumPrice) {
+                    swal("Invalid Amount", "Discount amount must be less than minimum purchase amount", "warning");
+                    return;
                 }
             }
 
+            var formAction = couponForm.action;
+            var isEdit = formAction.includes('edit-coupon');
 
-        </script>
+            var formData = {
+                name: couponName,
+                description: document.getElementById('description').value,
+                offerPrice: offerPrice,
+                minimumPrice: minimumPrice,
+                discountType: discountType,
+                usageLimit: Number(document.getElementById('usageLimit').value) || 0,
+                expireOn: document.getElementById('expireOn').value
+            };
+
+            if (isEdit) {
+                formData.couponId = document.getElementById('couponId').value;
+            }
+
+            // Show loading state on submit button
+            var submitButton = document.getElementById('submitButton');
+            var originalButtonHTML = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (isEdit ? 'Updating...' : 'Creating...');
+            submitButton.disabled = true;
+
+            fetch(formAction, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    submitButton.innerHTML = originalButtonHTML;
+                    submitButton.disabled = false;
+                    
+                    if (data.success) {
+                        swal({
+                            title: "Success",
+                            text: isEdit ? "Coupon updated successfully" : "Coupon created successfully",
+                            icon: "success",
+                            button: {
+                                text: "OK",
+                                className: "bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg"
+                            }
+                        }).then(function () {
+                            window.location.reload();
+                        });
+                    } else {
+                        swal("Error", data.message || "Something went wrong", "error");
+                    }
+                })
+                .catch(function (error) {
+                    submitButton.innerHTML = originalButtonHTML;
+                    submitButton.disabled = false;
+                    console.error('Error submitting coupon form:', error);
+                    swal("Error", "Failed to " + (isEdit ? "update" : "create") + " coupon", "error");
+                });
+        });
+
+        // Toggle coupon details
+        function toggleDetails(couponId) {
+            var detailsRow = document.getElementById('details-' + couponId);
+            var toggleButton = document.querySelector(`.details-toggle[data-coupon="${couponId}"] i`);
+            
+            if (detailsRow) {
+                detailsRow.classList.toggle('hidden');
+                toggleButton.classList.toggle('down');
+            }
+        }
+
+        // Export user data
+        function exportUserData(couponId, couponName) {
+            swal({
+                title: "Export User Data?",
+                text: "This will download a CSV file with all users who used this coupon.",
+                icon: "info",
+                buttons: {
+                    cancel: {
+                        text: "Cancel",
+                        value: null,
+                        visible: true,
+                        className: "bg-gray-700 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg",
+                        closeModal: true,
+                    },
+                    confirm: {
+                        text: "Export",
+                        value: true,
+                        visible: true,
+                        className: "bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg",
+                        closeModal: true
+                    }
+                }
+            }).then((confirm) => {
+                if (confirm) {
+                    window.location.href = `/admin/export-coupon-users/${couponId}?name=${encodeURIComponent(couponName)}`;
+                }
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set today's date as default expiry date
+            var today = new Date();
+            var nextWeek = new Date();
+            nextWeek.setDate(today.getDate() + 7);
+            document.getElementById('expireOn').valueAsDate = nextWeek;
+        });
+    </script>
 </body>
-
 </html>

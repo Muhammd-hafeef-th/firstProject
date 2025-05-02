@@ -48,7 +48,7 @@ const addProductItem = async (req, res) => {
             return res.status(400).json({ error: "Exactly 3 images required" });
         }
 
-        const { name, description, brand, category, amount, discount, salesAmount, shiping, stock, featured, new: isNew, color } = req.body;
+        const { name, description, brand, category, amount, discount, salesAmount,  stock, featured, new: isNew, color } = req.body;
 
         const brandDoc = await Brand.findOne({ _id: brand });
         if (!brandDoc) return res.status(400).json({ error: "Brand not found" });
@@ -64,7 +64,6 @@ const addProductItem = async (req, res) => {
             regularPrice: parseFloat(amount),
             discount: parseFloat(discount),
             salePrice: parseFloat(salesAmount),
-            shipingCharge: parseFloat(shiping),
             quantity: parseInt(stock),
             color: color,
             isFeatured: featured === 'yes',
@@ -116,7 +115,6 @@ const editProductItem = async (req, res) => {
             amount,
             saleAmount,
             discount,
-            shiping,
             stock,
             featured,
             new: isNew,
@@ -190,7 +188,6 @@ const editProductItem = async (req, res) => {
             regularPrice: parseFloat(amount),
             salePrice: finalSalePrice,
             discount: parseFloat(discount || 0),
-            shipingCharge: parseFloat(shiping),
             quantity: parseInt(stock),
             color: color.trim(),
             isFeatured: featured === 'yes',

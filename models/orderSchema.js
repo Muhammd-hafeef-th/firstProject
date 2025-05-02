@@ -117,6 +117,10 @@ const orderSchema=new Schema({
     returnReason:{
         type:String,
         required:false
+    },
+    shippingCharge:{
+        type:Number,
+        required:false
     }
 })
 

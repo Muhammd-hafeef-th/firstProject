@@ -1,6 +1,7 @@
 const User = require('../../models/userSchema')
 const Order = require('../../models/orderSchema')
 const Product = require('../../models/productSchema')
+const Brand=require('../../models/brandSchema');
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const flash = require('connect-flash')
@@ -110,7 +111,7 @@ const loadSalesReport = async (req, res) => {
                 endDate.setHours(23, 59, 59, 999);
         }
 
-        const deliveredOrders = await Order.countDocuments({
+        const totalOrders = await Order.countDocuments({
             status: 'Delivered',
             createdOn: { $gte: startDate, $lte: endDate }
         });
@@ -125,8 +126,9 @@ const loadSalesReport = async (req, res) => {
             {
                 $group: {
                     _id: null,
-                    totalSales: { $sum: "$totalPrice" },
-                    totalDiscount: { $sum: { $subtract: ["$totalPrice", "$finalAmount"] } }
+                    totalSales: { $sum: '$finalAmount' },
+                    totalDiscount: { $sum: { $subtract: ['$totalPrice', '$finalAmount'] } },
+                    avgOrderValue: { $avg: '$finalAmount' }
                 }
             }
         ]);
@@ -135,44 +137,167 @@ const loadSalesReport = async (req, res) => {
             {
                 $match: {
                     status: 'Delivered',
-                    createdOn: { $gte: startDate, $lte: endDate },
-                    'paymentMethod.type': { $exists: true }
+                    createdOn: { $gte: startDate, $lte: endDate }
                 }
             },
             {
                 $group: {
-                    _id: {
-                        $switch: {
-                            branches: [
-                                { case: { $eq: ["$paymentMethod.type", "cod"] }, then: "Cash on Delivery" },
-                                { case: { $eq: ["$paymentMethod.type", "razorpay"] }, then: "Razorpay" },
-                                { case: { $eq: ["$paymentMethod.type", "wallet"] }, then: "Wallet" }
-                            ],
-                            default: "Other"
-                        }
-                    },
-                    total: { $sum: "$finalAmount" },
+                    _id: '$paymentMethod.type',
+                    total: { $sum: '$finalAmount' },
                     count: { $sum: 1 }
                 }
             }
         ]);
 
-        const deliveredOrdersList = await Order.find({
+        const orderStatusData = await Order.aggregate([
+            {
+                $match: {
+                    createdOn: { $gte: startDate, $lte: endDate }
+                }
+            },
+            {
+                $group: {
+                    _id: '$status',
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { count: -1 } }
+        ]);
+
+        const topProducts = await Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    createdOn: { $gte: startDate, $lte: endDate }
+                }
+            },
+            { $unwind: '$orderItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' },
+            {
+                $group: {
+                    _id: '$orderItems.product',
+                    name: { $first: '$productDetails.productName' },
+                    image: { $first: { $arrayElemAt: ['$productDetails.productImage', 0] } },
+                    totalQuantity: { $sum: '$orderItems.quantity' },
+                    totalRevenue: { $sum: { $multiply: ['$orderItems.quantity', '$orderItems.price'] } }
+                }
+            },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 5 }
+        ]);
+
+        const topBrands = await Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    createdOn: { $gte: startDate, $lte: endDate }
+                }
+            },
+            { $unwind: '$orderItems' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'orderItems.product',
+                    foreignField: '_id',
+                    as: 'productDetails'
+                }
+            },
+            { $unwind: '$productDetails' },
+            {
+                $lookup: {
+                    from: 'brands',
+                    localField: 'productDetails.brand',
+                    foreignField: '_id',
+                    as: 'brandDetails'
+                }
+            },
+            { $unwind: '$brandDetails' },
+            {
+                $group: {
+                    _id: '$brandDetails.brandName',
+                    totalSales: { $sum: { $multiply: ['$orderItems.quantity', '$orderItems.price'] } },
+                    totalItems: { $sum: '$orderItems.quantity' }
+                }
+            },
+            { $sort: { totalSales: -1 } },
+            { $limit: 5 }
+        ]);
+
+        const topCoupons = await Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    createdOn: { $gte: startDate, $lte: endDate },
+                    coupon: { $exists: true }
+                }
+            },
+            {
+                $group: {
+                    _id: '$coupon.code',
+                    discountType: { $first: '$coupon.discountType' },
+                    discountValue: { $first: '$coupon.discountValue' },
+                    usageCount: { $sum: 1 },
+                    totalDiscount: { $sum: { $subtract: ['$totalPrice', '$finalAmount'] } }
+                }
+            },
+            { $sort: { usageCount: -1 } },
+            { $limit: 5 }
+        ]);
+
+        const salesTrendData = await Order.aggregate([
+            {
+                $match: {
+                    status: 'Delivered',
+                    createdOn: {
+                        $gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+                        $lte: new Date()
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdOn' } },
+                    totalSales: { $sum: '$finalAmount' },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id': 1 } }
+        ]);
+
+        const orders = await Order.find({
             status: 'Delivered',
             createdOn: { $gte: startDate, $lte: endDate }
-        }).populate('user', 'firstname').sort({ createdOn: -1 });
+        })
+            .populate('user', 'firstname')
+            .sort({ createdOn: -1 })
+            .limit(50);
 
-        res.render('salesReport', {
-            period,
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0],
-            deliveredOrders,
+        const result = {
             totalSales: salesData[0]?.totalSales || 0,
             totalDiscount: salesData[0]?.totalDiscount || 0,
+            avgOrderValue: salesData[0]?.avgOrderValue || 0,
+            totalOrders,
+            orders,
             paymentMethodData,
-            deliveredOrdersList
-        });
+            orderStatusData, 
+            topProducts,
+            topBrands,
+            topCoupons,
+            salesTrendData,
+            period,
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0]
+        };
 
+        res.render('salesReport', result);
     } catch (error) {
         console.error('Error in loadSalesReport:', error);
         res.status(500).render('error', { error: 'Failed to load sales report' });

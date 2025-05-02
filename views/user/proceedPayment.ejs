@@ -19,53 +19,73 @@
 
                 <div class="space-y-6 max-w-lg mx-auto p-6 bg-[#1F1F1F] shadow rounded-xl">
                     <form action="/choose-payment" method="post" id="paymentForm">
-                        <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="cod" class="accent-yellow-400" checked
-                                    onchange="togglePaymentDetails()" />
-                                <span class="font-medium">Cash on Delivery</span>
-                                <span class="ml-auto">💵</span>
-                            </label>
-                            <p class="text-sm text-yellow-400 mt-2 pl-7 hidden" id="codNote">
-                                Additional cash collection charge of ₹50 applies
-                            </p>
-                        </div>
-
-                        <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="razorpay" class="accent-yellow-400"
-                                    onchange="togglePaymentDetails()" />
-                                <span class="font-medium">Razor Pay</span>
-                                <img src="https://razorpay.com/assets/razorpay-logo.svg"
-                                    class="w-8 h-8 ml-auto filter brightness-0 invert-[0.8]" />
-                            </label>
-                        </div>
-
-                        <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="radio" name="payment" value="wallet" class="accent-yellow-400"
-                                    onchange="togglePaymentDetails()" <%=!canUseWallet ? 'disabled' : '' %> />
-                                <span class="font-medium">Wallet</span>
-                                <span class="ml-auto">💰</span>
-                            </label>
-                            <div class="mt-2 pl-7">
-                                <p class="text-sm <%= walletBalance >= total ? 'text-green-400' : 'text-yellow-400' %>">
-                                    Available balance: ₹<%= walletBalance.toFixed(2) %>
+                        <% if (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge < 1000) { %>
+                            <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="radio" name="payment" value="cod" class="accent-yellow-400" checked
+                                        onchange="togglePaymentDetails()" />
+                                    <span class="font-medium">Cash on Delivery</span>
+                                    <span class="ml-auto">💵</span>
+                                </label>
+                                <p class="text-sm text-yellow-400 mt-2 pl-7 hidden" id="codNote">
+                                    Additional cash collection charge of ₹50 applies
                                 </p>
-                                <% if (walletBalance < total) { %>
-                                    <p class="text-sm text-red-400 mt-1">
-                                        Insufficient balance (₹<%= (total - walletBalance).toFixed(2) %> more needed)
-                                    </p>
-                                    <% } %>
                             </div>
-                        </div>
+                            <% } else { %>
+                                <div class="border border-gray-700 rounded p-4 opacity-50 pointer-events-none">
+                                    <label class="flex items-center space-x-3 cursor-not-allowed">
+                                        <input type="radio" name="payment" value="cod" disabled
+                                            class="accent-yellow-400" />
+                                        <span class="font-medium">Cash on Delivery</span>
+                                        <span class="ml-auto">💵</span>
+                                    </label>
+                                    <p class="text-sm text-red-400 mt-2 pl-7">
+                                        Cash on Delivery available only for orders below ₹1000
+                                    </p>
+                                </div>
+                                <% } %>
 
-                        <div class="pt-6 text-center">
-                            <button type="submit" id="payBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
+
+                                    <div
+                                        class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
+                                        <label class="flex items-center space-x-3 cursor-pointer">
+                                            <input type="radio" name="payment" value="razorpay"
+                                                class="accent-yellow-400" onchange="togglePaymentDetails()" />
+                                            <span class="font-medium">Razor Pay</span>
+                                            <img src="https://razorpay.com/assets/razorpay-logo.svg"
+                                                class="w-8 h-8 ml-auto filter brightness-0 invert-[0.8]" />
+                                        </label>
+                                    </div>
+
+                                    <div
+                                        class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
+                                        <label class="flex items-center space-x-3 cursor-pointer">
+                                            <input type="radio" name="payment" value="wallet" class="accent-yellow-400"
+                                                onchange="togglePaymentDetails()" <%=!canUseWallet ? 'disabled' : '' %>
+                                            />
+                                            <span class="font-medium">Wallet</span>
+                                            <span class="ml-auto">💰</span>
+                                        </label>
+                                        <div class="mt-2 pl-7">
+                                            <p
+                                                class="text-sm <%= walletBalance >= total ? 'text-green-400' : 'text-yellow-400' %>">
+                                                Available balance: ₹<%= walletBalance.toFixed(2) %>
+                                            </p>
+                                            <% if (walletBalance < total) { %>
+                                                <p class="text-sm text-red-400 mt-1">
+                                                    Insufficient balance (₹<%= (total - walletBalance).toFixed(2) %>
+                                                        more needed)
+                                                </p>
+                                                <% } %>
+                                        </div>
+                                    </div>
+
+                                    <div class="pt-6 text-center">
+                                        <button type="submit" id="payBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
                                 font-semibold transition-colors">
-                                Continue to Payment
-                            </button>
-                        </div>
+                                            Continue to Payment
+                                        </button>
+                                    </div>
                     </form>
                 </div>
             </div>
@@ -85,7 +105,7 @@
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Delivery</span>
-                        <span class="text-white">₹<%= shipingCharge.toFixed(2) %></span>
+                        <span class="text-white">₹<%= shippingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Product Savings</span>
@@ -102,29 +122,32 @@
                 <div class="border-t border-gray-700 pt-4">
                     <div class="flex justify-between text-lg font-bold">
                         <span>TOTAL</span>
-                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %>
+                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shippingCharge).toFixed(2) %>
                         </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <script>
         function showToast(message, type = 'error') {
+            document.querySelectorAll('.toast').forEach(el => el.remove());
+
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.textContent = message;
             document.body.appendChild(toast);
 
             setTimeout(() => {
-                toast.remove();
+                toast.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => toast.remove(), 500);
             }, 3000);
         }
 
-        const style = document.createElement('style');
-        style.textContent = `
+        const toastStyles = document.createElement('style');
+        toastStyles.textContent = `
             .toast {
                 position: fixed;
                 top: 20px;
@@ -133,7 +156,10 @@
                 border-radius: 5px;
                 color: white;
                 z-index: 1000;
-                animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
+                animation: slideIn 0.5s forwards;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                max-width: 400px;
+                word-break: break-word;
             }
             .toast.error {
                 background-color: #ff4444;
@@ -141,131 +167,211 @@
             .toast.success {
                 background-color: #00C851;
             }
+            .toast.warning {
+                background-color: #ffbb33;
+            }
             @keyframes slideIn {
-                from { transform: translateX(100%); }
-                to { transform: translateX(0); }
+                from { 
+                    transform: translateX(100%); 
+                    opacity: 0;
+                }
+                to { 
+                    transform: translateX(0); 
+                    opacity: 1;
+                }
             }
             @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
+                to { 
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
             }
         `;
-        document.head.appendChild(style);
+        document.head.appendChild(toastStyles);
 
         function togglePaymentDetails() {
             const codNote = document.getElementById('codNote');
             const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
-
-            codNote.style.display = selectedMethod === 'cod' ? 'block' : 'none';
-
             const payBtn = document.getElementById('payBtn');
-            if (selectedMethod === 'wallet') {
-                payBtn.innerText = 'Pay with Wallet';
-            } else if (selectedMethod === 'razorpay') {
-                payBtn.innerText = 'Continue to Razorpay';
-            } else {
-                payBtn.innerText = 'Place Order';
+
+            if (codNote) {
+                codNote.style.display = selectedMethod === 'cod' ? 'block' : 'none';
             }
+
+            const buttonTexts = {
+                'wallet': 'Pay with Wallet',
+                'razorpay': 'Continue to Razorpay',
+                'cod': 'Place Order'
+            };
+            payBtn.innerText = buttonTexts[selectedMethod] || 'Continue';
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            togglePaymentDetails();
+            const paymentForm = document.getElementById('paymentForm');
+            const payBtn = document.getElementById('payBtn');
 
-            document.getElementById('paymentForm').addEventListener('submit', function (event) {
+            paymentForm.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
                 const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
+                const originalBtnText = payBtn.innerHTML;
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner">⌛</span> Processing...';
 
-                if (selectedMethod === 'razorpay') {
-                    event.preventDefault();
-
-                    const payBtn = document.getElementById('payBtn');
-                    const originalText = payBtn.innerText;
-                    payBtn.innerText = 'Processing...';
-                    payBtn.disabled = true;
-
-                    fetch('/choose-payment', {
+                try {
+                    const response = await fetch('/choose-payment', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
-                            payment: 'razorpay'
+                            payment: selectedMethod
                         })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                const options = data.razorpay;
+                    });
 
-                                options.handler = function (response) {
-                                    console.log(response);
-                                    verifyPayment(response, data.orderId);
-                                };
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const errorText = await response.text();
+                        throw new Error('Server returned unexpected response');
+                    }
 
-                                const rzp = new Razorpay(options);
-                                rzp.on('payment.error', function (response) {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Payment Failed',
-                                        text: 'Something went wrong. Please try again.',
-                                        confirmButtonColor: '#d33'
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.message || 'Payment processing failed');
+                    }
+
+                    if (selectedMethod === 'razorpay') {
+                        const options = {
+                            key: data.razorpay.key,
+                            amount: data.razorpay.amount,
+                            currency: data.razorpay.currency,
+                            order_id: data.razorpay.order_id,
+                            name: data.razorpay.name,
+                            description: data.razorpay.description,
+                            image: '/images/logo.png',
+                            handler: async function (razorpayResponse) {
+                                payBtn.innerHTML = '<span class="spinner">⌛</span> Verifying...';
+
+                                try {
+                                    const verifyResponse = await fetch('/razorpay/verify', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                                            razorpay_order_id: razorpayResponse.razorpay_order_id,
+                                            razorpay_signature: razorpayResponse.razorpay_signature,
+                                            orderId: data.orderId
+                                        })
                                     });
 
-                                    payBtn.innerText = originalText;
-                                    payBtn.disabled = false;
-                                });
+                                    const verifyData = await verifyResponse.json();
 
-                                rzp.open();
+                                    if (verifyData.success) {
+                                        window.location.href = `/paymentSuccess/${verifyData.orderId}`;
+                                    } else {
+                                        throw new Error(verifyData.message || 'Payment verification failed');
+                                    }
+                                } catch (error) {
+                                    console.error('Verification error:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Verification Failed',
+                                        text: error.message || 'Could not verify your payment',
+                                        confirmButtonColor: '#d33'
+                                    });
+                                    payBtn.innerHTML = originalBtnText;
+                                    payBtn.disabled = false;
+                                }
+                            },
+                            prefill: data.razorpay.prefill,
+                            theme: {
+                                color: '#3399cc'
+                            },
+                            modal: {
+                                ondismiss: function () {
+                                    payBtn.innerHTML = originalBtnText;
+                                    payBtn.disabled = false;
+                                }
                             }
-                            else {
-                                showToast('Failed to initialize payment. Please try again.');
-                                payBtn.innerText = originalText;
-                                payBtn.disabled = false;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            showToast('Something went wrong. Please try again.');
-                            payBtn.innerText = originalText;
+                        };
+
+                        const rzp = new Razorpay(options);
+
+                        rzp.on('payment.failed', function (response) {
+                            console.error('Payment failed:', response.error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Payment Failed',
+                                text: response.error.description || 'Payment failed. Please try again.',
+                                confirmButtonColor: '#d33'
+                            });
+                            payBtn.innerHTML = originalBtnText;
                             payBtn.disabled = false;
                         });
+
+                        rzp.open();
+                    }
+                    else if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                    else if (data.orderId) {
+                        window.location.href = `/paymentSuccess/${data.orderId}`;
+                    }
+                    else {
+                        throw new Error('Unexpected response from server');
+                    }
+
+                } catch (error) {
+                    console.error('Payment error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Something went wrong. Please try again.',
+                        confirmButtonColor: '#d33'
+                    });
+                    payBtn.innerHTML = originalBtnText;
+                    payBtn.disabled = false;
                 }
+            });
+
+            document.querySelectorAll('input[name="payment"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const payBtn = document.getElementById('payBtn');
+                    const codNote = document.getElementById('codNote');
+
+                    if (this.value === 'cod') {
+                        payBtn.textContent = 'Place Order';
+                        if (codNote) codNote.style.display = 'block';
+                    }
+                    else if (this.value === 'wallet') {
+                        payBtn.textContent = 'Pay with Wallet';
+                        if (codNote) codNote.style.display = 'none';
+                    }
+                    else if (this.value === 'razorpay') {
+                        payBtn.textContent = 'Continue to Razorpay';
+                        if (codNote) codNote.style.display = 'none';
+                    }
+                });
             });
         });
 
-        function verifyPayment(response, orderId) {
-            const payBtn = document.getElementById('payBtn');
-            payBtn.innerText = 'Verifying Payment...';
-
-            fetch('/razorpay/verify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
-                    orderId: orderId
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = `/paymentSuccess/${data.orderId}`;
-                    } else {
-                        showToast('Payment verification failed. Please try again.');
-                        payBtn.innerText = 'Continue to Razorpay';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast('Error verifying payment. Please contact support.');
-                    payBtn.innerText = 'Continue to Razorpay';
-                });
-        }
+        const style = document.createElement('style');
+        style.textContent = `
+    .spinner {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+        document.head.appendChild(style);
     </script>
-
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>
 
 <%- include('../../views/partials/user/footer') %>

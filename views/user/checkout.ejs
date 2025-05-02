@@ -182,11 +182,7 @@
 
                     <div class="flex justify-between">
                         <span class="text-gray-400">Shipping</span>
-                        <span class="text-white">₹<%= shipingCharge.toFixed(2) %></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Tax</span>
-                        <span class="text-white">₹0</span>
+                        <span class="text-white">₹<%= shippingCharge.toFixed(2) %></span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-400">Product Savings</span>
@@ -203,7 +199,7 @@
 
                     <div class="flex justify-between text-lg font-bold mb-6">
                         <span>Total</span>
-                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge).toFixed(2) %></span>
+                        <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shippingCharge).toFixed(2) %></span>
                     </div>
                     <% if (addresses && addresses.length > 0) { %>
                         <form action="/proceed-payment" method="get">
