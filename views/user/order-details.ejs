@@ -334,8 +334,8 @@
                         <p class="font-medium"><%= selectedAddress.name %></p>
                     <% } %>
             
-                    <% if (selectedAddress.addressLine1) { %>
-                        <p><%= selectedAddress.addressLine1 %></p>
+                    <% if (selectedAddress.landMark) { %>
+                        <p><%= selectedAddress.landMark %></p>
                     <% } %>
             
                     <% if (selectedAddress.city || selectedAddress.state || selectedAddress.pincode) { %>
@@ -348,8 +348,8 @@
                         <p><%= selectedAddress.country %></p>
                     <% } %>
             
-                    <% if (selectedAddress.mobile) { %>
-                        <p class="text-white">Phone: <%= selectedAddress.mobile %></p>
+                    <% if (selectedAddress.phone) { %>
+                        <p class="text-white">Phone: <%= selectedAddress.phone%></p>
                     <% } %>
                 <% } else { %>
                     <p class="text-gray-300">Address not available.</p>

@@ -75,7 +75,6 @@
 </style>
 
 <body class="bg-[#1A1A1A] text-white relative overflow-hidden">
-    <!-- Background gradient elements -->
     <div class="fixed inset-0 -z-10 bg-gradient-animated opacity-80"></div>
     <div class="fixed -top-[30%] -right-[20%] w-[70%] h-[70%] bg-[#E8B888]/5 blur-[120px] rounded-full animate-pulse-subtle -z-10"></div>
     <div class="fixed -bottom-[30%] -left-[20%] w-[70%] h-[70%] bg-[#E8B888]/5 blur-[120px] rounded-full animate-pulse-subtle -z-10 animation-delay-1000"></div>
@@ -258,7 +257,7 @@
                     <div class="absolute -inset-4 "></div>
                     <div class="relative overflow-hidden rounded-xl">
                         <div class="absolute inset-0 "></div>
-                        <img src="/images/ethos ladies 3-Photoroom.png" alt="Luxury Watch" class="w-full max-w-md mx-auto rounded-lg shadow-2xl transform transition-all duration-700 group-hover:scale-105">
+                        <img src="<%=storyImage.productImage[0]%>" alt="<%=storyImage.productName%>" class="w-full max-w-md mx-auto rounded-lg shadow-2xl transform transition-all duration-700 group-hover:scale-105">
                         <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
                     <div class="absolute -bottom-2 -right-2 w-24 h-24 bg-[#E8B888]/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -278,6 +277,7 @@
                         The latest and modern watches of this year are available in various presentations in this store. Discover them now.
                     </p>
                 </div>
+                <a href="/products">
                 <button class="group relative px-8 py-3 overflow-hidden rounded-lg font-medium transition-all duration-300 transform hover:-translate-y-1">
                     <span class="absolute inset-0 w-full h-full transition-all duration-300 bg-gradient-to-r from-[#3A3A3A] to-[#2A2A2A] rounded-lg"></span>
                     <span class="absolute inset-0 w-full h-full transition-all duration-500 bg-gradient-to-r from-[#E8B888] to-amber-600 rounded-lg opacity-0 group-hover:opacity-100"></span>
@@ -288,6 +288,7 @@
                         </svg>
                     </span>
                 </button>
+            </a>
             </div>
         </div>
     </section>

@@ -87,14 +87,7 @@ const orderDetails = async (req, res, next) => {
             return res.status(404).render('error', { message: 'Order not found' });
         }
 
-        const fullAddressDoc = await Address.findOne(
-            { "address._id": order.address }
-        );
-
-        let selectedAddress = null;
-        if (fullAddressDoc) {
-            selectedAddress = fullAddressDoc.address.find(addr => addr._id.equals(order.address));
-        }
+        const selectedAddress = order.address;
 
         let progress = 0;
         switch (order.status) {
@@ -274,17 +267,13 @@ const downloadInvoice = async (req, res, next) => {
     try {
         const orderId = req.params.orderId;
         const order = await Order.findOne({ orderId: orderId })
-            .populate('user')
-            .populate('orderItems.product')
+            .populate({
+                path: 'orderItems.product',
+                select: 'productName productImage salePrice regularPrice description brand discount'
+            });
 
-        const fullAddressDoc = await Address.findOne(
-            { "address._id": order.address }
-        );
-
-        let selectedAddress = null;
-        if (fullAddressDoc) {
-            selectedAddress = fullAddressDoc.address.find(addr => addr._id.equals(order.address));
-        }
+        // Address is now stored directly in the order
+        const selectedAddress = order.address;
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });

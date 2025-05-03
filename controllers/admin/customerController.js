@@ -59,26 +59,10 @@ const customerUnblocked = async (req, res,next) => {
         next(error)
     }
 }
-const addUser=async (req,res,next)=>{
-    try {
-        res.render('add-user')
-    } catch (error) {
-        next(error)
-    }
-}
-const editUser=async (req,res,next)=>{
-    try {
-        res.render('edit-user')
-    } catch (error) {
-        next(error)
-    }
-}
 
 module.exports = {
     customerInfo,
     customerBlocked,
     customerUnblocked,
-    addUser,
-    editUser
 
 };

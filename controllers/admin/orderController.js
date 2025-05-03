@@ -41,14 +41,8 @@ const orderDetails=async(req,res,next)=>{
                 select: 'productName productImage salePrice regularPrice description'
             })
           
-        const fullAddressDoc = await Address.findOne(
-            { "address._id": order.address }
-        );
-        
-        let selectedAddress = null;
-        if (fullAddressDoc) {
-            selectedAddress = fullAddressDoc.address.find(addr => addr._id.equals(order.address));
-        }
+            const selectedAddress = order.address;
+
 
         res.render('admin-order-details',{order:order,selectedAddress:selectedAddress});
     } catch (error) {

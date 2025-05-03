@@ -24,8 +24,7 @@ router.get('/pageError', adminController.pageError);
 router.get('/users', adminAuth, customerController.customerInfo);
 router.get('/blockCustomer', adminAuth, customerController.customerBlocked);
 router.get('/unblockCustomer', adminAuth, customerController.customerUnblocked);
-router.get("/add-user", adminAuth, customerController.addUser);
-router.get("/edit-user", adminAuth, customerController.editUser);
+
 
 //brand management
 router.get('/brands', adminAuth, brandController.brandInfo)

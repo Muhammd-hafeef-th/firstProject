@@ -8,6 +8,7 @@ const Brand = require("../../models/brandSchema");
 const { trace } = require('../../routes/userRouter');
 const multer = require("multer");
 const Coupon = require('../../models/couponSchema');
+const Order =require('../../models/orderSchema')
 
 
 
@@ -24,10 +25,13 @@ const upload = multer({ storage: storage });
 
 const loadHomepage = async (req, res, next) => {
     try {
+        let gentsMatch = /gents/i;
         let productsData = await Product.find({ quantity: { $gt: 0 }, isListed: true }).populate('brand')
         let featuredData = await Product.find({ isFeatured: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
         let newArrivalsData = await Product.find({ isNew: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
+        let storyImage= await Product.find({category:gentsMatch,isListed:true,isNew:true,quantity:{$gt:0}}).skip(2).limit(1);
         const brandData = await Brand.find({ isListed: true })
+
 
         productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productsData = productsData.slice(0, 3)
@@ -77,7 +81,8 @@ const loadHomepage = async (req, res, next) => {
             products: productsWithPrices,
             featured: featuredWithPrices,
             newArrival: newArrivalsWithPrices,
-            brands: brandData
+            brands: brandData,
+            storyImage:storyImage[0]
         });
 
 
@@ -1356,7 +1361,7 @@ const cart = async (req, res, next) => {
             
             const discountedSubtotal = cartItems.subtotal - cartItems.discountAmount;
             if (discountedSubtotal < 3000) {
-                cartItems.shippingCharge =40
+                cartItems.shippingCharge = 40;
             } else {
                 cartItems.shippingCharge = 0;
             }
@@ -1368,6 +1373,8 @@ const cart = async (req, res, next) => {
 
         let applicableCoupons = [];
         if (cartItems.subtotal > 0) {
+            const usedCoupons = await Order.distinct('couponApplied', { userId });
+            
             applicableCoupons = await Coupon.find({
                 minimumPrice: { $lte: cartItems.subtotal },
                 expireOn: { $gt: currentDate },
@@ -1376,6 +1383,7 @@ const cart = async (req, res, next) => {
                     { usageLimit: 0 },
                     { $expr: { $lt: ["$usageCount", "$usageLimit"] } }
                 ],
+                _id: { $nin: usedCoupons },
                 userId: { $ne: userId }
             }).sort({ offerPrice: -1 }).limit(5);
         }
@@ -1384,16 +1392,32 @@ const cart = async (req, res, next) => {
         let couponDiscount = 0;
 
         if (appliedCoupon && !cartItems.hasOutOfStockItems && !cartItems.hasUnlistedItems) {
-            if (appliedCoupon.discountType === 'percentage') {
-                couponDiscount = (cartItems.subtotal * appliedCoupon.offerPrice) / 100;
+            const isValidCoupon = applicableCoupons.some(c => {
+                if (!appliedCoupon?.id && !c?._id) return false;
+                return c._id.toString() === appliedCoupon.id.toString();
+            });
+            
+            if (isValidCoupon) {
+                if (appliedCoupon.discountType === 'percentage') {
+                    couponDiscount = Math.min(
+                        (cartItems.subtotal * appliedCoupon.offerPrice) / 100,
+                        appliedCoupon.maxDiscount || Infinity
+                    );
+                } else {
+                    couponDiscount = Math.min(
+                        appliedCoupon.offerPrice,
+                        cartItems.subtotal - cartItems.discountAmount
+                    );
+                }
+                cartItems.couponDiscount = couponDiscount;
+                
+                const discountedSubtotal = cartItems.subtotal - cartItems.discountAmount - couponDiscount;
+                
+                
+                cartItems.total = Math.max(0, discountedSubtotal + cartItems.shippingCharge);
             } else {
-                couponDiscount = appliedCoupon.offerPrice;
+                req.session.appliedCoupon = null;
             }
-            cartItems.couponDiscount = couponDiscount;
-            
-            const discountedTotal = cartItems.subtotal - cartItems.discountAmount - couponDiscount;
-            
-            cartItems.total = discountedTotal + cartItems.shippingCharge;
         }
 
         res.render('addToCart', {
@@ -1402,7 +1426,11 @@ const cart = async (req, res, next) => {
             discountedPriceTotal: cartItems.total,
             shippingCharge: cartItems.shippingCharge,
             applicableCoupons,
-            appliedCoupon,
+            appliedCoupon: appliedCoupon ? {
+                code: appliedCoupon.name,
+                discountType: appliedCoupon.discountType,
+                offerPrice: appliedCoupon.offerPrice
+            } : null,
             couponDiscount,
             messages: {
                 hasUnlistedItems: cartItems.hasUnlistedItems,
@@ -1485,7 +1513,6 @@ const deleteCartProduct = async (req, res, next) => {
         let total = calculations.subtotal - calculations.discountAmount;
         let shippingCharge = 0;
         
-        // Calculate shipping charge
         if (total < 3000) {
             shippingCharge = 40;
         }
@@ -1541,7 +1568,7 @@ const deleteCartProduct = async (req, res, next) => {
             hasOutOfStockItems,
             hasUnlistedItems,
             appliedCoupon: appliedCoupon ? {
-                code: appliedCoupon.code,
+                code: appliedCoupon.name,
                 discountType: appliedCoupon.discountType,
                 offerPrice: appliedCoupon.offerPrice
             } : null
@@ -1661,7 +1688,6 @@ const updateCartQuantity = async (req, res) => {
         let total = calculations.subtotal - calculations.discountAmount;
         let shippingCharge = 0;
         
-        // Calculate shipping charge
         if (total < 3000) {
             shippingCharge = 40;
         }
@@ -1697,7 +1723,6 @@ const updateCartQuantity = async (req, res) => {
                 couponDiscount = appliedCoupon.offerPrice;
             }
             
-            // Recalculate shipping after coupon
             total = calculations.subtotal - calculations.discountAmount - couponDiscount;
         }
 
@@ -1715,7 +1740,7 @@ const updateCartQuantity = async (req, res) => {
             hasOutOfStockItems,
             hasUnlistedItems,
             appliedCoupon: appliedCoupon ? {
-                code: appliedCoupon.code,
+                code: appliedCoupon.name,
                 discountType: appliedCoupon.discountType,
                 offerPrice: appliedCoupon.offerPrice
             } : null
