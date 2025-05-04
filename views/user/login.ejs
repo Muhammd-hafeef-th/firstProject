@@ -4,15 +4,28 @@
         font-size: 0.75rem;
         display: none;
     }
+    .password-container {
+        position: relative;
+    }
+    .toggle-password {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6b7280;
+    }
 </style>
 <script src="https://cdn.tailwindcss.com"></script>
 <section>
     <div class="min-h-screen flex flex-col min-[1000px]:flex-row justify-center items-center">
         <div class="w-full min-[1000px]:w-1/2 px-8 sm:px-16 bg-white h-screen flex flex-col justify-center relative">
+           <a href="/">
             <div class="absolute top-5 left-5 flex items-center">
                 <img src="/images/hand watch2.png" class="h-8 w-8">
                 <p class="text-black font-extrabold text-3xl ml-2">LB</p>
             </div>
+           </a>
 
             <h1 class="font-bold text-2xl text-black text-center">Welcome Back!</h1>
             <h6 class="text-black text-center mb-6">Enter your credentials to access your account</h6>
@@ -23,27 +36,34 @@
                     placeholder="email" required>
                 <div id="error1" class="error-message"></div>
 
-                <div class="relative mt-4 w-full">
+                <div class="mt-4 w-full">
                     <div class="flex justify-between">
                         <label class="text-black">Password</label>
                         <a href="/forgot-password" class="text-blue-500 text-sm">Forgot password?</a>
                     </div>
-                    <input class="rounded-xl border p-2 text-black w-full mt-1" type="password" id="password"
-                        name="password" placeholder="password" required>
+                    <div class="password-container relative">
+                        <input class="rounded-xl border p-2 text-black w-full mt-1 pr-10" type="password" id="password"
+                            name="password" placeholder="password" required>
+                        <span class="toggle-password" id="togglePassword">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
+                    </div>
                 </div>
                 <div id="error2" class="error-message"></div>
                 <%if(locals.message && message.length>0){%>
                     <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
                         <%=message%>
                     </div>
-                    <%}%>
-                 
-                    
-
-                        <button class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
+                <%}%>
+                
+                <button class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
             </form>
 
             <p class="text-gray-400 mt-7 text-center">OR</p>
+            
             <button
                 class="bg-white border border-gray-400 py-2 rounded-2xl mt-5 flex justify-center items-center text-sm w-full max-w-md mx-auto">
                 <svg class="mr-2 w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -62,10 +82,15 @@
                 </svg>
                 <a href="/auth/google/login">Login With Google</a>
             </button>
-
+            
+            <button onclick="window.location.href='/'" class="btn-secondary text-gray-700 font-medium py-3 px-4 rounded-lg w-full mt-4 flex justify-center items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+                <span>Continue as Guest</span>
+            </button>
             <span class="text-black text-center mt-10">Don't have an account? <a class="text-blue-500"
-                    href="/signup">Sign
-                    Up</a></span>
+                    href="/signup">Sign Up</a></span>
         </div>
         <div class="hidden min-[1000px]:block w-1/2 h-screen">
             <img src="/images/watch 1.jpg" class="w-full h-full object-cover rounded-tl-3xl rounded-bl-3xl">
@@ -79,6 +104,29 @@
     const error1 = document.getElementById('error1');
     const error2 = document.getElementById('error2');
     const loginForm = document.getElementById('loginForm');
+    const togglePassword = document.getElementById('togglePassword');
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        
+        // Toggle icon
+        if (type === 'text') {
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                </svg>
+            `;
+        } else {
+            this.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+            `;
+        }
+    });
 
     function passwordValidation() {
         const passwordValue = password.value;
@@ -119,13 +167,4 @@
             }
         });
     });
-
-    password.addEventListener("focus", function () {
-        this.type = "text";
-    });
-
-    password.addEventListener("blur", function () {
-        this.type = "password";
-    });
-
 </script>

@@ -272,7 +272,6 @@ const downloadInvoice = async (req, res, next) => {
                 select: 'productName productImage salePrice regularPrice description brand discount'
             });
 
-        // Address is now stored directly in the order
         const selectedAddress = order.address;
 
         if (!order) {
