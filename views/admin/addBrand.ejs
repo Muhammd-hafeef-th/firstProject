@@ -4,222 +4,266 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Brand - LB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
-    <title>Add Brand</title>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6d28d9',
+                        dark: '#111827',
+                        darker: '#0d1321',
+                        light: '#f3f4f6',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        * {
+            box-sizing: border-box;
+        }
         .error-message {
-            color: red;
+            color: #f87171;
             font-size: 0.75rem;
+            margin-top: 0.25rem;
             display: none;
         }
     </style>
 </head>
 
-<body class="bg-gray-900 text-white">
+<body class="bg-darker text-white min-h-screen">
+    <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar') %>
-        <div class="flex">
-            <%- include('../../views/partials/admin/sidebar') %>
-                <div class="container mx-auto p-4 md:p-6 pt-20">
-                    <div class="max-w-4xl mx-auto bg-gray-800 p-4 rounded-lg shadow-lg">
-                        <h1 class="text-2xl font-bold mb-4 text-center">Add Brand</h1>
-                        <form enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)"
-                            class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
 
+    <div class="flex h-screen pt-16">
+        <!-- Sidebar -->
+        <%- include('../../views/partials/admin/sidebar') %>
 
-                            <div class="col-span-1 flex flex-col items-center">
-                                <label class="block text-sm font-medium mb-2">Add Image:</label>
-                                <div
-                                    class="w-40 h-52 border-2 border-gray-500 rounded-md flex items-center justify-center bg-gray-700">
-                                    <input type="file" id="fileInput" class="hidden" onchange="loadImage(event)"
-                                        name="image">
-                                    <label for="fileInput" class="cursor-pointer flex items-center justify-center">
-                                        <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
-                                        <span id="uploadText" class="text-gray-400">Upload</span>
-                                    </label>
-                                </div>
-                                <div id="image-error" class="error-message"></div>
-                            </div>
-
-
-                            <div class="col-span-2 grid grid-cols-1 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium">Brand Name:</label>
-                                    <input type="text" placeholder="Enter brand name" id="name" name="name"
-                                        class="w-1/2 p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-green-400">
-                                    <div id="name-error" class="error-message"></div>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium">Description:</label>
-                                    <textarea id="description" name="description"
-                                        class="w-1/2 p-2 h-24 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400"
-                                        placeholder="Enter description..."></textarea>
-                                    <div id="description-error" class="error-message"></div>
-                                </div>
-                            </div>
-
-
-                            <div class="col-span-3 flex justify-center">
-                                <button type="submit" id="submitButton"
-                                    class="bg-green-400 text-black px-6 py-2 rounded-lg font-semibold hover:bg-green-500 transition">
-                                    ADD BRAND
-                                </button>
-                            </div>
-                        </form>
+        <!-- Main Content -->
+        <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-4xl mx-auto w-full min-w-0 overflow-x-hidden transition-all duration-300">
+            <div class="bg-dark rounded-xl p-4 sm:p-6 shadow-lg">
+                <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">Add Brand</h1>
+                <form enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)"
+                    class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-center">
+                    <!-- Image Upload -->
+                    <div class="col-span-1 flex flex-col items-center">
+                        <label class="block text-sm sm:text-base font-medium mb-2">Add Image:</label>
+                        <div class="w-32 sm:w-40 h-40 sm:h-52 border-2 border-gray-500 rounded-md flex items-center justify-center bg-gray-700">
+                            <input type="file" id="fileInput" class="hidden" onchange="loadImage(event)" name="image">
+                            <label for="fileInput" class="cursor-pointer flex items-center justify-center w-full h-full">
+                                <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
+                                <span id="uploadText" class="text-gray-400 text-sm sm:text-base">Upload</span>
+                            </label>
+                        </div>
+                        <div id="image-error" class="error-message"></div>
                     </div>
-                </div>
-        </div>
 
-        <div id="cropperModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
-                <h2 class="text-xl font-bold mb-4">Crop Image</h2>
-                <div class="flex justify-center">
-                    <img id="cropperImage" class=" rounded-md" style="max-width: 60%;">
-                </div>
-                <div class="flex justify-end mt-4">
-                    <button onclick="cancelCrop()"
-                        class="bg-red-400 px-4 py-2 rounded-lg text-black font-semibold mr-2">
-                        Cancel
-                    </button>
-                    <button onclick="cropImage()" class="bg-green-400 px-4 py-2 rounded-lg text-black font-semibold">
-                        Crop & Save
-                    </button>
-                </div>
+                    <!-- Form Inputs -->
+                    <div class="col-span-2 grid grid-cols-1 gap-4">
+                        <div>
+                            <label class="block text-sm sm:text-base font-medium">Brand Name:</label>
+                            <input type="text" placeholder="Enter brand name" id="name" name="name"
+                                class="w-full sm:w-1/2 p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-primary text-sm sm:text-base">
+                            <div id="name-error" class="error-message"></div>
+                        </div>
+                        <div>
+                            <label class="block text-sm sm:text-base font-medium">Description:</label>
+                            <textarea id="description" name="description"
+                                class="w-full sm:w-1/2 p-2 h-24 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-primary text-sm sm:text-base"
+                                placeholder="Enter description..."></textarea>
+                            <div id="description-error" class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="col-span-3 flex justify-center">
+                        <button type="submit" id="submitButton"
+                            class="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition text-sm sm:text-base">
+                            ADD BRAND
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
+    </div>
 
-        <script>
-            let cropper;
-            let isSubmitting = false;
-            const submitButton = document.getElementById("submitButton");
+    <!-- Cropper Modal -->
+    <div id="cropperModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+        <div class="bg-dark p-4 sm:p-6 rounded-xl shadow-lg max-w-[90%] sm:max-w-[60%]">
+            <h2 class="text-lg sm:text-xl font-bold mb-4">Crop Image</h2>
+            <div class="flex justify-center">
+                <img id="cropperImage" class="rounded-md max-w-full" style="max-width: 100%;">
+            </div>
+            <div class="flex justify-end mt-4 space-x-3">
+                <button onclick="cancelCrop()"
+                    class="bg-red-600 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-700 text-sm sm:text-base">
+                    Cancel
+                </button>
+                <button onclick="cropImage()"
+                    class="bg-primary px-4 py-2 rounded-lg text-white font-semibold hover:bg-primary/90 text-sm sm:text-base">
+                    Crop & Save
+                </button>
+            </div>
+        </div>
+    </div>
 
-            function handleFormSubmit(event) {
-                event.preventDefault();
-                if (isSubmitting) return;
-                isSubmitting = true;
-                submitButton.disabled = true;
+    <script>
+        let cropper;
+        let isSubmitting = false;
+        const submitButton = document.getElementById("submitButton");
 
-                if (!validationForm()) {
-                    isSubmitting = false;
-                    submitButton.disabled = false;
-                    return false;
-                }
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            if (isSubmitting) return;
+            isSubmitting = true;
+            submitButton.disabled = true;
 
-                const formData = new FormData();
-                formData.append("name", document.getElementById("name").value);
-                formData.append("description", document.getElementById("description").value);
-                formData.append("image", document.getElementById("fileInput").files[0]);
-
-                fetch("/admin/addBrand", {
-                    method: "POST",
-                    body: formData,
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        Swal.fire({ icon: "success", title: "Success", text: data.message });
-                        window.location.href = "/admin/brands";
-                    })
-                    .catch(error => {
-                        Swal.fire({ icon: "error", title: "Oops", text: error.message });
-                        submitButton.disabled = false;
-                    })
-                    .finally(() => {
-                        isSubmitting = false;
-                    });
-
+            if (!validationForm()) {
+                isSubmitting = false;
+                submitButton.disabled = false;
                 return false;
             }
 
-            function validationForm() {
-                clearErrorMessage();
-                const name = document.getElementById('name').value.trim();
-                const description = document.getElementById('description').value.trim();
-                const image = document.getElementById('fileInput').files[0];
-                let isValid = true;
+            const formData = new FormData();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("description", document.getElementById("description").value);
+            formData.append("image", document.getElementById("fileInput").files[0]);
 
-                if (name === "" || !/^[A-Z][a-zA-Z\s]*$/.test(name)) {
-                    showError("name-error", "Brand name must start with a capital letter and contain only alphabets");
-                    isValid = false;
-                }
-                if (description === "") {
-                    showError("description-error", "Please enter a description");
-                    isValid = false;
-                }
-                if (!image) {
-                    showError("image-error", "Please upload an image");
-                    isValid = false;
-                } else {
-                    
-                    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-                    if (!allowedTypes.includes(image.type)) {
-                        showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
-                       
-                        document.getElementById('fileInput').value = '';
-                        isValid = false;
-                    }
-                }
-                return isValid;
-            }
-
-
-            function showError(elementId, message) {
-                document.getElementById(elementId).innerText = message;
-                document.getElementById(elementId).style.display = "block";
-            }
-
-            function clearErrorMessage() {
-                document.querySelectorAll(".error-message").forEach(el => {
-                    el.innerText = "";
-                    el.style.display = "none";
+            fetch("/admin/addBrand", {
+                method: "POST",
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({ icon: "success", title: "Success", text: data.message });
+                    window.location.href = "/admin/brands";
+                })
+                .catch(error => {
+                    Swal.fire({ icon: "error", title: "Oops", text: error.message });
+                    isSubmitting = false;
+                    submitButton.disabled = false;
+                })
+                .finally(() => {
+                    isSubmitting = false;
                 });
+
+            return false;
+        }
+
+        function validationForm() {
+            clearErrorMessage();
+            const name = document.getElementById('name').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const image = document.getElementById('fileInput').files[0];
+            let isValid = true;
+
+            if (name === "" || !/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+                showError("name-error", "Brand name must start with a capital letter and contain only alphabets");
+                isValid = false;
             }
-
-            function loadImage(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-                    displayErrorMessage("image-error", "Only JPG, PNG, or WEBP files are allowed");
-                    event.target.value = '';
-                    return;
+            if (description === "") {
+                showError("description-error", "Please enter a description");
+                isValid = false;
+            }
+            if (!image) {
+                showError("image-error", "Please upload an image");
+                isValid = false;
+            } else {
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                if (!allowedTypes.includes(image.type)) {
+                    showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
+                    document.getElementById('fileInput').value = '';
+                    isValid = false;
                 }
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        document.getElementById("cropperImage").src = e.target.result;
-                        document.getElementById("cropperModal").classList.remove("hidden");
-                        cropper = new Cropper(document.getElementById("cropperImage"), {
-                            aspectRatio: 0,
-                            viewMode: 2,
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                }
             }
+            return isValid;
+        }
 
-            function cropImage() {
-                const canvas = cropper.getCroppedCanvas();
-                canvas.toBlob(blob => {
-                    const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    document.getElementById("fileInput").files = dataTransfer.files;
-                    const imgPreview = document.getElementById("imagePreview");
-                    imgPreview.src = URL.createObjectURL(blob);
-                    imgPreview.classList.remove("hidden");
-                    document.getElementById("uploadText").classList.add("hidden");
-                    document.getElementById("cropperModal").classList.add("hidden");
-                    cropper.destroy();
-                }, "image/jpeg");
+        function showError(elementId, message) {
+            document.getElementById(elementId).innerText = message;
+            document.getElementById(elementId).style.display = "block";
+        }
+
+        function clearErrorMessage() {
+            document.querySelectorAll(".error-message").forEach(el => {
+                el.innerText = "";
+                el.style.display = "none";
+            });
+        }
+
+        function loadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                showError("image-error", "Only JPG, PNG, or WEBP files are allowed");
+                event.target.value = '';
+                return;
             }
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById("cropperImage").src = e.target.result;
+                    document.getElementById("cropperModal").classList.remove("hidden");
+                    cropper = new Cropper(document.getElementById("cropperImage"), {
+                        aspectRatio: 0,
+                        viewMode: 2,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
 
-            function cancelCrop() {
+        function cropImage() {
+            const canvas = cropper.getCroppedCanvas();
+            canvas.toBlob(blob => {
+                const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                document.getElementById("fileInput").files = dataTransfer.files;
+                const imgPreview = document.getElementById("imagePreview");
+                imgPreview.src = URL.createObjectURL(blob);
+                imgPreview.classList.remove("hidden");
+                document.getElementById("uploadText").classList.add("hidden");
                 document.getElementById("cropperModal").classList.add("hidden");
+                cropper.destroy();
+            }, "image/jpeg");
+        }
+
+        function cancelCrop() {
+            document.getElementById("cropperModal").classList.add("hidden");
+            document.getElementById("fileInput").value = '';
+            document.getElementById("imagePreview").classList.add("hidden");
+            document.getElementById("uploadText").classList.remove("hidden");
+            if (cropper) {
+                cropper.destroy();
             }
-        </script>
+        }
 
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+
+            function handleResize() {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            }
+
+            window.addEventListener('resize', handleResize);
+            handleResize();
+        });
+    </script>
 </body>
-
 </html>

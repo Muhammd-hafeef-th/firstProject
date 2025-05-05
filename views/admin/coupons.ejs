@@ -46,14 +46,13 @@
     <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar') %>
 
-    <div class="flex">
+    <div class="flex h-screen pt-16">
         <!-- Sidebar -->
         <%- include('../../views/partials/admin/sidebar') %>
 
         <!-- Main Content -->
-        <div class="flex-1 p-6 pt-32">
+        <div class="flex-1 ml-0 md:ml-64 p-6 w-full min-w-0 transition-all duration-300">
             <div class="bg-gray-800 rounded-xl shadow-sm border border-gray-600 overflow-hidden">
-                <!-- Header with search and add button -->
                 <div class="px-6 py-4 border-b border-gray-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 class="text-2xl font-bold text-white flex items-center gap-2">
@@ -72,7 +71,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-4 border-b border-gray-600">
                     <div class="bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-xs">
                         <div class="flex items-center justify-between">
@@ -125,8 +123,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Coupon Table -->
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-600">
                         <thead class="bg-gray-700">
@@ -385,7 +381,6 @@
         </div>
     </div>
 
-    <!-- Add/Edit Coupon Modal -->
     <div id="addCouponModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="relative bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 overflow-hidden fade-in">
             <div class="flex justify-between items-center p-5 border-b border-gray-600">
@@ -400,9 +395,7 @@
             <form id="couponForm" action="/admin/add-coupon" method="POST">
                 <input type="hidden" id="couponId" name="couponId">
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Left Column -->
                     <div class="space-y-4">
-                        <!-- Coupon Code -->
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
                             <div class="relative">
@@ -415,7 +408,6 @@
                             </div>
                             <p id="nameHelpText" class="mt-1 text-xs text-gray-400">Code should be uppercase without spaces (e.g., SUMMER25)</p>
                         </div>
-                        <!-- Discount Type -->
                         <div>
                             <label for="discountType" class="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
                             <div class="relative">
@@ -433,7 +425,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Minimum Purchase -->
                         <div>
                             <label for="minimumPrice" class="block text-sm font-medium text-gray-700 mb-1">Minimum Purchase (₹)</label>
                             <div class="relative">
@@ -446,9 +437,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- Right Column -->
                     <div class="space-y-4">
-                        <!-- Description -->
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
                             <div class="relative">
@@ -460,7 +449,6 @@
                             </div>
                             <p class="mt-1 text-xs text-gray-400">Optional: Add a brief description about this coupon</p>
                         </div>
-                        <!-- Discount Value -->
                         <div>
                             <label for="offerPrice" class="block text-sm font-medium text-gray-700 mb-1">Discount Value</label>
                             <div class="relative">
@@ -473,7 +461,6 @@
                             </div>
                             <p class="mt-1 text-xs text-gray-400" id="offerPriceNote">For fixed amount: must be less than minimum purchase. For percentage: must be between 1-100.</p>
                         </div>
-                        <!-- Usage Limit & Expiry -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="usageLimit" class="block text-sm font-medium text-gray-700 mb-1">Usage Limit</label>
@@ -516,7 +503,6 @@
     </div>
 
     <script>
-        // DOM Elements
         var addModal = document.getElementById('addCouponModal');
         var openAddModalBtn = document.getElementById('openAddModal');
         var openAddModalEmptyBtn = document.getElementById('openAddModalEmpty');
@@ -528,7 +514,6 @@
         var submitButtonText = document.getElementById('submitButtonText');
         var discountIcon = document.getElementById('discountIcon');
 
-        // Form Elements
         var expireOnInput = document.getElementById('expireOn');
         var offerPriceInput = document.getElementById('offerPrice');
         var minimumPriceInput = document.getElementById('minimumPrice');
@@ -536,12 +521,10 @@
         var nameInput = document.getElementById('name');
         var nameHelpText = document.getElementById('nameHelpText');
 
-        // Set minimum expiry date to today
         var today = new Date();
         var formattedDate = today.toISOString().split('T')[0];
         expireOnInput.min = formattedDate;
 
-        // Update discount icon based on type
         function updateDiscountIcon() {
             if (discountTypeInput.value === 'percentage') {
                 discountIcon.className = 'fas fa-percent text-gray-400';
@@ -550,7 +533,6 @@
             }
         }
 
-        // Update offer price label based on discount type
         function updateOfferPriceLabel() {
             var discountType = discountTypeInput.value;
             var offerPriceNote = document.getElementById('offerPriceNote');
@@ -565,7 +547,6 @@
             updateDiscountIcon();
         }
 
-        // Validate prices based on discount type
         var validatePrices = function () {
             var offerPrice = Number(offerPriceInput.value);
             var minimumPrice = Number(minimumPriceInput.value);
@@ -590,7 +571,6 @@
             }
         };
 
-        // Event listeners for price validation
         offerPriceInput.addEventListener('input', validatePrices);
         minimumPriceInput.addEventListener('input', validatePrices);
         discountTypeInput.addEventListener('change', function () {
@@ -598,12 +578,10 @@
             updateOfferPriceLabel();
         });
 
-        // Initialize modal
         function initModal() {
             updateOfferPriceLabel();
         }
 
-        // Open modal for adding new coupon
         function openAddModal() {
             modalTitle.textContent = 'Add New Coupon';
             modalSubtitle.textContent = 'Create a discount coupon for your customers';
@@ -618,15 +596,12 @@
             initModal();
         }
 
-        // Open modal from empty state button
         if (openAddModalEmptyBtn) {
             openAddModalEmptyBtn.addEventListener('click', openAddModal);
         }
 
-        // Open modal from main button
         openAddModalBtn.addEventListener('click', openAddModal);
 
-        // Close modal
         function closeModal() {
             addModal.classList.add('hidden');
         }
@@ -640,7 +615,6 @@
             }
         });
 
-        // Edit coupon function
         function editCoupon(couponId) {
             modalTitle.textContent = 'Edit Coupon';
             modalSubtitle.textContent = 'Update coupon details';
@@ -671,7 +645,6 @@
                 });
         }
 
-        // Toggle coupon status
         function toggleCouponStatus(couponId, currentStatus) {
             var action = currentStatus ? 'disable' : 'enable';
             var actionTitle = action.charAt(0).toUpperCase() + action.slice(1);
@@ -733,7 +706,6 @@
                 });
         }
 
-        // Form submission handler
         couponForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -776,7 +748,6 @@
                 formData.couponId = document.getElementById('couponId').value;
             }
 
-            // Show loading state on submit button
             var submitButton = document.getElementById('submitButton');
             var originalButtonHTML = submitButton.innerHTML;
             submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + (isEdit ? 'Updating...' : 'Creating...');
@@ -818,7 +789,6 @@
                 });
         });
 
-        // Toggle coupon details
         function toggleDetails(couponId) {
             var detailsRow = document.getElementById('details-' + couponId);
             var toggleButton = document.querySelector(`.details-toggle[data-coupon="${couponId}"] i`);
@@ -829,7 +799,6 @@
             }
         }
 
-        // Export user data
         function exportUserData(couponId, couponName) {
             swal({
                 title: "Export User Data?",
@@ -858,9 +827,7 @@
             });
         }
 
-        // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
-            // Set today's date as default expiry date
             var today = new Date();
             var nextWeek = new Date();
             nextWeek.setDate(today.getDate() + 7);

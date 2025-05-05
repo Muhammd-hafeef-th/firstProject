@@ -31,19 +31,35 @@
             <h6 class="text-black text-center mb-6">Enter your credentials to access your account</h6>
 
             <form id="loginForm" action="/login" method="POST" class="flex flex-col w-full max-w-md mx-auto">
+                <% if (locals.message || messages.error) { %>
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" role="alert">
+                        <p class="font-bold">Error</p>
+                        <p><%= locals.message || messages.error.join(', ') %></p>
+                    </div>
+                <% } %>
+                
                 <label class="text-black">Email</label>
-                <input class="rounded-xl border p-2 text-black w-full" type="email" id="email" name="email"
-                    placeholder="email" required>
+                <input class="rounded-xl border p-2 text-black w-full" 
+                       type="email" 
+                       id="email" 
+                       name="email"
+                       placeholder="email" 
+                       value="<%= locals.email || '' %>" 
+                       required>
                 <div id="error1" class="error-message"></div>
-
+            
                 <div class="mt-4 w-full">
                     <div class="flex justify-between">
                         <label class="text-black">Password</label>
                         <a href="/forgot-password" class="text-blue-500 text-sm">Forgot password?</a>
                     </div>
                     <div class="password-container relative">
-                        <input class="rounded-xl border p-2 text-black w-full mt-1 pr-10" type="password" id="password"
-                            name="password" placeholder="password" required>
+                        <input class="rounded-xl border p-2 text-black w-full mt-1 pr-10" 
+                               type="password" 
+                               id="password"
+                               name="password" 
+                               placeholder="password" 
+                               required>
                         <span class="toggle-password" id="togglePassword">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -53,11 +69,6 @@
                     </div>
                 </div>
                 <div id="error2" class="error-message"></div>
-                <%if(locals.message && message.length>0){%>
-                    <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
-                        <%=message%>
-                    </div>
-                <%}%>
                 
                 <button class="bg-black text-white py-2 mt-10 rounded-2xl w-full">Login</button>
             </form>
@@ -106,12 +117,10 @@
     const loginForm = document.getElementById('loginForm');
     const togglePassword = document.getElementById('togglePassword');
 
-    // Toggle password visibility
     togglePassword.addEventListener('click', function() {
         const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
         password.setAttribute('type', type);
         
-        // Toggle icon
         if (type === 'text') {
             this.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

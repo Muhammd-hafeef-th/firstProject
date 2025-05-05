@@ -72,9 +72,44 @@
     .bg-gradient-radial {
         background-image: radial-gradient(var(--tw-gradient-stops));
     }
+    .toast {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        z-index: 1000;
+        background: #2A2A2A;
+        color: white;
+        border: 1px solid #E8B888;
+        border-radius: 0.5rem;
+        padding: 1rem 1.5rem;
+        box-shadow: 0 4px 20px rgba(232, 184, 136, 0.2);
+        max-width: 20rem;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
+    .toast.show {
+        display: flex;
+        align-items: center;
+    }
+    .toast-close {
+        margin-left: 1rem;
+        cursor: pointer;
+        color: #E8B888;
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+    .toast-close:hover {
+        color: #D4A373;
+    }
 </style>
 
 <body class="bg-[#1A1A1A] text-white relative overflow-hidden">
+    <div id="toast" class="toast" data-aos="fade-left">
+        <span id="toast-message"></span>
+        <span id="toast-close" class="toast-close">×</span>
+    </div>
+
     <div class="fixed inset-0 -z-10 bg-gradient-animated opacity-80"></div>
     <div class="fixed -top-[30%] -right-[20%] w-[70%] h-[70%] bg-[#E8B888]/5 blur-[120px] rounded-full animate-pulse-subtle -z-10"></div>
     <div class="fixed -bottom-[30%] -left-[20%] w-[70%] h-[70%] bg-[#E8B888]/5 blur-[120px] rounded-full animate-pulse-subtle -z-10 animation-delay-1000"></div>
@@ -188,7 +223,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="100">
                 <% featured.forEach(watch=> { %>
                 <div class="relative group">
-                    <!-- Decorative elements -->
                     <div class="absolute -inset-1 bg-gradient-to-r from-amber-600 to-[#E8B888] rounded-lg blur opacity-25 group-hover:opacity-60 transition duration-500"></div>
                     
                     <div class="bg-[#2A2A2A] relative rounded-xl overflow-hidden transform transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(232,184,136,0.5)]">
@@ -304,7 +338,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="100">
                 <% products.forEach(watch=> { %>
                 <div class="relative group">
-                    <!-- Glass morphism effect -->
                     <div class="absolute inset-0 rounded-xl bg-gradient-to-br from-[#E8B888]/30 to-[#E8B888]/5 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 -z-10 scale-105"></div>
                     
                     <div class="relative bg-[#222222] border border-gray-800 group-hover:border-[#E8B888]/30 rounded-xl overflow-hidden transition-all duration-500 hover:shadow-[0_8px_30px_rgb(232,184,136,0.12)]">
@@ -410,7 +443,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" data-aos="fade-up" data-aos-delay="100">
                 <% newArrival.forEach(watch=> { %>
                 <div class="relative group">
-                    <!-- Decorative elements -->
                     <div class="absolute -inset-1 bg-gradient-to-r from-[#E8B888] to-amber-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-500"></div>
                     
                     <div class="bg-[#1A1A1A] relative rounded-xl overflow-hidden transform transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(232,184,136,0.5)]">
@@ -472,6 +504,24 @@
         AOS.init({
             duration: 800,
             once: true
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const toastClose = document.getElementById('toast-close');
+
+            <% if (messages) { %>
+                toastMessage.textContent = '<%= messages %>';
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            <% } %>
+
+            toastClose.addEventListener('click', () => {
+                toast.classList.remove('show');
+            });
         });
     </script>
 </body>

@@ -12,6 +12,7 @@ const Order =require('../../models/orderSchema')
 
 
 
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "public/uploads/profile-image/");
@@ -29,9 +30,8 @@ const loadHomepage = async (req, res, next) => {
         let productsData = await Product.find({ quantity: { $gt: 0 }, isListed: true }).populate('brand')
         let featuredData = await Product.find({ isFeatured: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
         let newArrivalsData = await Product.find({ isNew: true, isListed: true, quantity: { $gt: 0 } }).populate('brand')
-        let storyImage= await Product.find({category:gentsMatch,isListed:true,isNew:true,quantity:{$gt:0}}).skip(2).limit(1);
+        let storyImage = await Product.find({ category: gentsMatch, isListed: true, isNew: true, quantity: { $gt: 0 } }).skip(2).limit(1);
         const brandData = await Brand.find({ isListed: true })
-
 
         productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productsData = productsData.slice(0, 3)
@@ -62,29 +62,41 @@ const loadHomepage = async (req, res, next) => {
         const featuredWithPrices = processProducts(featuredData);
         const newArrivalsWithPrices = processProducts(newArrivalsData);
 
-        const user = await User.findOne({ _id: req.session.user });
-
         let userData = null;
         if (req.session.user) {
-            if (user.isBlocked) {
-                req.session.destroy((err) => {
-                    if (err) console.error('Session destroy error:', err);
-                });
-                res.redirect('/login')
-            }
-            else if (user) {
+            const user = await User.findOne({ _id: req.session.user });
+            if (user) {
+                if (user.isBlocked) {
+                    req.session.destroy((err) => {
+                        if (err) {
+                            console.error('Session destroy error:', err);
+                            return next(err);
+                        }
+                        return res.render('home', {
+                            user: null,
+                            products: productsWithPrices,
+                            featured: featuredWithPrices,
+                            newArrival: newArrivalsWithPrices,
+                            brands: brandData,
+                            storyImage: storyImage[0],
+                            messages: "User blocked by admin"
+                        });
+                    });
+                    return;
+                }
                 userData = user;
             }
         }
+
         res.render('home', {
             user: userData,
             products: productsWithPrices,
             featured: featuredWithPrices,
             newArrival: newArrivalsWithPrices,
             brands: brandData,
-            storyImage:storyImage[0]
+            storyImage: storyImage[0],
+            messages: ''
         });
-
 
     } catch (error) {
         error.message = "Server error " + error.message;
@@ -284,32 +296,50 @@ const login = async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.render("login", { message: "Email and Password are required" });
+            return res.render("login", { 
+                message: "Email and Password are required",
+                email: email || '' 
+            });
         }
 
         const user = await User.findOne({ isAdmin: 0, email });
         if (!user) {
-            return res.render("login", { message: "User not found" });
+            return res.render("login", { 
+                message: "User not found",
+                email 
+            });
         }
 
         if (user.isBlocked) {
-            return res.render("login", { message: "User is blocked by admin" });
+            return res.render("login", { 
+                message: "User is blocked by admin",
+                email 
+            });
         }
 
         if (!user.password) {
-            return res.render("login", { message: "Password not set. Please login using Google or reset your password." });
+            return res.render("login", { 
+                message: "Password not set. Please login using Google or reset your password.",
+                email 
+            });
         }
 
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
-            return res.render("login", { message: "Incorrect Password" });
+            return res.render("login", { 
+                message: "Incorrect Password",
+                email 
+            });
         }
 
         req.session.user = user._id;
         res.redirect("/");
     } catch (error) {
         console.error("Login error", error);
-        res.render("login", { message: "Login failed. Please try again" });
+        res.render("login", { 
+            message: "Login failed. Please try again",
+            email: req.body.email || '' 
+        });
     }
 };
 const logout = async (req, res, next) => {

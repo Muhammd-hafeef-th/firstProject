@@ -28,6 +28,9 @@
     </script>
 
     <style>
+        * {
+            box-sizing: border-box; /* Ensure padding/borders are included in width */
+        }
         .error-message {
             color: #f87171;
             font-size: 0.75rem;
@@ -37,8 +40,9 @@
         .chart-container {
             position: relative;
             height: 40vh;
-            min-height: 300px;
-            max-height: 400px;
+            min-height: 250px; 
+            max-height: 350px; 
+            width: 100%; 
         }
         .glass-card {
             background: rgba(17, 24, 39, 0.85);
@@ -60,84 +64,85 @@
     </style>
 </head>
 
-<body class="bg-darker text-gray-100 min-h-screen font-['Inter'] overflow-x-hidden">
+<body class="bg-darker text-gray-100 min-h-screen font-['Inter']">
     <!-- Navbar -->
     <%- include('../../views/partials/admin/navbar')%>
 
-    <div class="flex">
+    <div class="flex h-screen pt-16">
         <!-- Sidebar -->
         <%- include('../../views/partials/admin/sidebar')%>
 
         <!-- Main Content -->
-        <div class="flex-1 p-6 pt-20  transition-all duration-300">
-            <div class="dashboard-header rounded-xl p-6 shadow-lg mb-8">
+        <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-7xl mx-auto w-full overflow-x-hidden">
+            <div class="dashboard-header rounded-xl p-4 sm:p-6 shadow-lg mb-6 w-full">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h1 class="text-3xl font-bold text-white">Dashboard Overview</h1>
-                        <p class="text-gray-400 mt-2">Welcome back, Admin. Here's your store performance at a glance.</p>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">Dashboard Overview</h1>
+                        <p class="text-gray-400 mt-2 text-sm sm:text-base">Welcome back, Admin. Here's your store performance at a glance.</p>
                     </div>
-                   
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-purple-600">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 w-full">
+                <div class="stat-card bg-gray-800 rounded-xl p-4 md:p-6 border-l-purple-600">
                     <div class="flex items-center justify-between">
-                       <a href="/admin/products"> <div>
-                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Products</h3>
-                            <p class="text-3xl font-bold text-white"><%= totalProducts %></p>
-                            <p class="text-sm text-purple-400 mt-2 flex items-center gap-1">
-                            </p>
-                        </div>
-                    </a>
+                        <a href="/admin/products">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-300 mb-1">Total Products</h3>
+                                <p class="text-2xl sm:text-3xl font-bold text-white"><%= totalProducts %></p>
+                                <p class="text-sm text-purple-400 mt-2 flex items-center gap-1"></p>
+                            </div>
+                        </a>
                         <div class="p-3 bg-purple-600/20 rounded-lg">
-                            <i class="ph ph-package text-2xl text-purple-400"></i>
+                            <i class="ph ph-package text-xl sm:text-2xl text-purple-400"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-blue-500">
+                <div class="stat-card bg-gray-800 rounded-xl p-4 md:p-6 border-l-blue-500">
                     <div class="flex items-center justify-between">
-                       <a href="/admin/orders"> <div>
-                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Orders</h3>
-                            <p class="text-3xl font-bold text-white"><%= totalOrders %></p>
-                            <p class="text-sm text-blue-400 mt-2 flex items-center gap-1">
-                            </p>
-                        </div></a>
+                        <a href="/admin/orders">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-300 mb-1">Total Orders</h3>
+                                <p class="text-2xl sm:text-3xl font-bold text-white"><%= totalOrders %></p>
+                                <p class="text-sm text-blue-400 mt-2 flex items-center gap-1"></p>
+                            </div>
+                        </a>
                         <div class="p-3 bg-blue-500/20 rounded-lg">
-                            <i class="ph ph-shopping-cart text-2xl text-blue-400"></i>
+                            <i class="ph ph-shopping-cart text-xl sm:text-2xl text-blue-400"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-green-500">
+                <div class="stat-card bg-gray-800 rounded-xl p-4 md:p-6 border-l-green-500">
                     <div class="flex items-center justify-between">
-                        <a href="/admin/users"><div>
-                            <h3 class="text-lg font-semibold text-gray-300 mb-1">Total Users</h3>
-                            <p class="text-3xl font-bold text-white"><%= totalUsers %></p>
-                            <p class="text-sm text-green-400 mt-2 flex items-center gap-1">
-                            </p>
-                        </div></a>
+                        <a href="/admin/users">
+                            <div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-300 mb-1">Total Users</h3>
+                                <p class="text-2xl sm:text-3xl font-bold text-white"><%= totalUsers %></p>
+                                <p class="text-sm text-green-400 mt-2 flex items-center gap-1"></p>
+                            </div>
+                        </a>
                         <div class="p-3 bg-green-500/20 rounded-lg">
-                            <i class="ph ph-users text-2xl text-green-400"></i>
+                            <i class="ph ph-users text-xl sm:text-2xl text-green-400"></i>
                         </div>
                     </div>
                 </div>
 
-                <div class="stat-card bg-gray-800 rounded-xl p-6 border-l-indigo-500">
+                <div class="stat-card bg-gray-800 rounded-xl p-4 md:p-6 border-l-indigo-500">
                     <div class="h-full flex flex-col justify-between">
-                        <h3 class="text-lg font-semibold text-gray-300 mb-4">Sales Analytics</h3>
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-300 mb-4">Sales Analytics</h3>
                         <a href="/admin/sales-report" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300 flex items-center justify-center gap-2">
-                            <i class="ph ph-chart-line-up"></i>
+                            <i class="ph ph-chart-line-up text-base sm:text-lg"></i>
                             View Full Report
                         </a>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-gray-800 rounded-xl p-6 shadow-lg mb-8">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-                    <h3 class="text-xl font-semibold text-white">Order Status Distribution</h3>
+            <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg mb-6 w-full">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 sm:mb-6">
+                    <h3 class="text-lg sm:text-xl font-semibold text-white">Order Status Distribution</h3>
                     <div class="flex items-center gap-2 mt-2 md:mt-0">
                         <span class="text-sm text-gray-400">Real-time data</span>
                         <div class="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -148,26 +153,25 @@
                 </div>
             </div>
 
-                <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
-                    <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-                    <div class="grid grid-cols-2 gap-3">
-                        <a href="/admin/add-product" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
-                            <i class="ph ph-plus-circle text-2xl text-purple-400 mb-1"></i>
-                            <span class="text-xs">Add Product</span>
-                        </a>
-                        <a href="/admin/orders" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
-                            <i class="ph ph-list-checks text-2xl text-blue-400 mb-1"></i>
-                            <span class="text-xs">View Orders</span>
-                        </a>
-                        <a href="/admin/users" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
-                            <i class="ph ph-users text-2xl text-green-400 mb-1"></i>
-                            <span class="text-xs">Customers</span>
-                        </a>
-                        <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white p-3 rounded-lg flex flex-col items-center justify-center transition">
-                            <i class="ph ph-gear text-2xl text-yellow-400 mb-1"></i>
-                            <span class="text-xs">Settings</span>
-                        </a>
-                    </div>
+            <div class="bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg w-full">
+                <h3 class="text-lg sm:text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <a href="/admin/add-product" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="ph ph-plus-circle text-xl sm:text-2xl text-purple-400 mb-1"></i>
+                        <span class="text-xs sm:text-sm">Add Product</span>
+                    </a>
+                    <a href="/admin/orders" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="ph ph-list-checks text-xl sm:text-2xl text-blue-400 mb-1"></i>
+                        <span class="text-xs sm:text-sm">View Orders</span>
+                    </a>
+                    <a href="/admin/users" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="ph ph-users text-xl sm:text-2xl text-green-400 mb-1"></i>
+                        <span class="text-xs sm:text-sm">Customers</span>
+                    </a>
+                    <a href="#" class="bg-gray-700 hover:bg-gray-600 text-white p-4 rounded-lg flex flex-col items-center justify-center transition">
+                        <i class="ph ph-gear text-xl sm:text-2xl text-yellow-400 mb-1"></i>
+                        <span class="text-xs sm:text-sm">Settings</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -209,7 +213,7 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'right',
+                        position: window.innerWidth < 640 ? 'bottom' : 'right',
                         labels: {
                             color: '#e5e7eb',
                             font: { size: 12 },

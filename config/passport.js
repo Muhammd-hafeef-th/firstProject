@@ -23,10 +23,8 @@ passport.use(
                 let user = await User.findOne({ googleId: profile.id });
 
                 if (!user) {
-                    // Get referral code from session if available
                     const referralCode = req.session.referralCode || null;
                     
-                    // Generate a unique referral code for this new user
                     const newReferralCode = referralController.generateReferralCode(profile.displayName);
                     
                     user = new User({
@@ -38,30 +36,24 @@ passport.use(
                         redeemedUsers: []
                     });
                     
-                    // Save the new user
                     const savedUser = await user.save();
                     
-                    // Process referral code if provided
                     if (referralCode) {
-                        // Check if the referral code is valid
                         const referrer = await User.findOne({ referalCode: referralCode });
                         
                         if (referrer) {
-                            // Add referral bonus to referrer
                             await referralController.addReferralBonus(
                                 referrer._id, 
                                 100, 
                                 `Referral bonus for inviting ${savedUser.firstname}`
                             );
                             
-                            // Add bonus to new user
                             await referralController.addReferralBonus(
                                 savedUser._id, 
                                 50, 
                                 'Welcome bonus for using a referral code'
                             );
                             
-                            // Add this user to referrer's redeemedUsers array
                             await User.findByIdAndUpdate(
                                 referrer._id, 
                                 { $push: { redeemedUsers: savedUser._id } }
@@ -70,7 +62,6 @@ passport.use(
                     }
                 }
 
-                // Clear referral code from session after use
                 if (req.session.referralCode) {
                     delete req.session.referralCode;
                 }
@@ -102,6 +93,10 @@ passport.use(
                 }
 
                 let user = await User.findOne({ googleId: profile.id });
+
+                if(user.isBlocked){
+                    return done(null,false,{message:"User is blocked by admin"});
+                }
 
                 if (!user) {
                     return done(null, false, { message: "No account found. Please sign up first." });
