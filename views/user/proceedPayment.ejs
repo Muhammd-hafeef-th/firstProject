@@ -1,5 +1,5 @@
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
-    <%- include('../../views/partials/user/header')%>
+    <%- include('../../views/partials/user/header') %>
 </header>
 
 <body class="bg-[#1F1F1F] text-white min-h-screen">
@@ -19,7 +19,7 @@
 
                 <div class="space-y-6 max-w-lg mx-auto p-6 bg-[#1F1F1F] shadow rounded-xl">
                     <form action="/choose-payment" method="post" id="paymentForm">
-                        <% if (subtotal - discountAmount - (couponDiscount || 0) + shipingCharge < 1000) { %>
+                        <% if (subtotal - discountAmount - (couponDiscount || 0) + shippingCharge < 1000) { %>
                             <div class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
                                 <label class="flex items-center space-x-3 cursor-pointer">
                                     <input type="radio" name="payment" value="cod" class="accent-yellow-400" checked
@@ -44,7 +44,6 @@
                                     </p>
                                 </div>
                                 <% } %>
-
 
                                     <div
                                         class="border border-gray-700 rounded p-4 hover:border-yellow-400 transition-colors">
@@ -81,8 +80,8 @@
                                     </div>
 
                                     <div class="pt-6 text-center">
-                                        <button type="submit" id="payBtn" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded 
-                                font-semibold transition-colors">
+                                        <button type="submit" id="payBtn"
+                                            class="w-full bg-yellow-500 hover:bg-yellow-600 text-black py-3 rounded font-semibold transition-colors">
                                             Continue to Payment
                                         </button>
                                     </div>
@@ -91,8 +90,6 @@
             </div>
 
             <div class="bg-[#2A2A2A] rounded-xl p-8 shadow-lg h-fit sticky top-8">
-
-
                 <h2 class="text-lg font-bold tracking-wider mt-6 mb-4 flex items-center">
                     <span class="w-4 h-4 bg-yellow-400 rounded-full mr-3"></span>
                     ORDER SUMMARY
@@ -129,9 +126,13 @@
             </div>
         </div>
     </div>
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        let isPaymentInProgress = false;
+        let shouldRetryPayment = false;
+
         function showToast(message, type = 'error') {
             document.querySelectorAll('.toast').forEach(el => el.remove());
 
@@ -206,6 +207,160 @@
             payBtn.innerText = buttonTexts[selectedMethod] || 'Continue';
         }
 
+        async function retryRazorpayPayment(payBtn, originalBtnText) {
+            try {
+                if (isPaymentInProgress) return;
+                isPaymentInProgress = true;
+
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner">⌛</span> Processing...';
+
+                const response = await fetch('/choose-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        payment: 'razorpay'
+                    })
+                });
+
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned unexpected response');
+                }
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to initialize payment');
+                }
+
+                const options = {
+                    key: data.razorpay.key,
+                    amount: data.razorpay.amount,
+                    currency: data.razorpay.currency,
+                    order_id: data.razorpay.order_id,
+                    name: data.razorpay.name,
+                    description: data.razorpay.description,
+                    image: '/images/hand-watch - Copy.png',
+                    handler: async function (razorpayResponse) {
+                        payBtn.innerHTML = '<span class="spinner">⌛</span> Verifying...';
+
+                        try {
+                            const verifyResponse = await fetch('/razorpay/verify', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: razorpayResponse.razorpay_payment_id,
+                                    razorpay_order_id: razorpayResponse.razorpay_order_id,
+                                    razorpay_signature: razorpayResponse.razorpay_signature,
+                                    orderId: data.tempOrderId,
+                                    paymentId: razorpayResponse.razorpay_payment_id
+                                })
+                            });
+
+                            const verifyData = await verifyResponse.json();
+
+                            if (verifyData.success) {
+                                window.location.href = `/paymentSuccess/${verifyData.orderId}`;
+                            } else {
+                                throw new Error(verifyData.message || 'Payment verification failed');
+                            }
+                        } catch (error) {
+                            console.error('Verification error:', error);
+                            isPaymentInProgress = false;
+                            payBtn.innerHTML = originalBtnText;
+                            payBtn.disabled = false;
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Verification Failed',
+                                text: error.message || 'Could not verify your payment',
+                                confirmButtonColor: '#d33',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                window.location.href = '/proceed-payment';
+                            });
+                        }
+                    },
+                    prefill: data.razorpay.prefill,
+                    theme: {
+                        color: '#3399cc'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            isPaymentInProgress = false;
+                            payBtn.innerHTML = originalBtnText;
+                            payBtn.disabled = false;
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'Payment Cancelled',
+                                text: 'You cancelled the payment. Would you like to try again?',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Retry',
+                                showCancelButton: true,
+                                cancelButtonText: 'Exit',
+                                cancelButtonColor: '#d33',
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    retryRazorpayPayment(payBtn, originalBtnText);
+                                } else {
+                                    window.location.href = '/proceed-payment';
+                                }
+                            });
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+
+                rzp.on('payment.failed', function (response) {
+                    console.error('Payment failed:', response.error);
+                    isPaymentInProgress = false;
+                    payBtn.innerHTML = originalBtnText;
+                    payBtn.disabled = false;
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: response.error.description || 'Payment failed. Please try again.',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Retry',
+                        showCancelButton: true,
+                        cancelButtonText: 'Exit',
+                        cancelButtonColor: '#d33',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            retryRazorpayPayment(payBtn, originalBtnText);
+                        } else {
+                            window.location.href = '/proceed-payment';
+                        }
+                    });
+                });
+
+                rzp.open();
+            }
+            catch (error) {
+                console.error('Retry payment error:', error);
+                isPaymentInProgress = false;
+                payBtn.innerHTML = originalBtnText;
+                payBtn.disabled = false;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to initialize payment. Please try again.',
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.href = '/proceed-payment';
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const paymentForm = document.getElementById('paymentForm');
             const payBtn = document.getElementById('payBtn');
@@ -215,6 +370,10 @@
 
                 const selectedMethod = document.querySelector('input[name="payment"]:checked').value;
                 const originalBtnText = payBtn.innerHTML;
+
+                if (isPaymentInProgress) return;
+                isPaymentInProgress = true;
+
                 payBtn.disabled = true;
                 payBtn.innerHTML = '<span class="spinner">⌛</span> Processing...';
 
@@ -232,7 +391,6 @@
 
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
-                        const errorText = await response.text();
                         throw new Error('Server returned unexpected response');
                     }
 
@@ -278,14 +436,18 @@
                                     }
                                 } catch (error) {
                                     console.error('Verification error:', error);
+                                    isPaymentInProgress = false;
+                                    payBtn.innerHTML = originalBtnText;
+                                    payBtn.disabled = false;
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Verification Failed',
                                         text: error.message || 'Could not verify your payment',
-                                        confirmButtonColor: '#d33'
+                                        confirmButtonColor: '#d33',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.href = '/proceed-payment';
                                     });
-                                    payBtn.innerHTML = originalBtnText;
-                                    payBtn.disabled = false;
                                 }
                             },
                             prefill: data.razorpay.prefill,
@@ -294,8 +456,27 @@
                             },
                             modal: {
                                 ondismiss: function () {
+                                    isPaymentInProgress = false;
                                     payBtn.innerHTML = originalBtnText;
                                     payBtn.disabled = false;
+                                    Swal.fire({
+                                    icon: 'warning',
+                                    title: 'Payment Cancelled',
+                                    text: 'You cancelled the payment. Would you like to try again?',
+                                    confirmButtonColor: '#3085d6', 
+                                    confirmButtonText: 'Retry',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Exit',
+                                    cancelButtonColor: '#d33',
+                                    reverseButtons: true
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        retryRazorpayPayment(payBtn, originalBtnText);
+                                    } else {
+                                        window.location.href = '/proceed-payment';
+                                    }    
+                                });
+
                                 }
                             }
                         };
@@ -304,38 +485,51 @@
 
                         rzp.on('payment.failed', function (response) {
                             console.error('Payment failed:', response.error);
+                            isPaymentInProgress = false;
+                            payBtn.innerHTML = originalBtnText;
+                            payBtn.disabled = false;
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Payment Failed',
                                 text: response.error.description || 'Payment failed. Please try again.',
-                                confirmButtonColor: '#d33'
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Retry',
+                                showCancelButton: true,
+                                cancelButtonText: 'Exit',
+                                cancelButtonColor: '#d33',
+                                reverseButtons: true
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    retryRazorpayPayment(payBtn, originalBtnText);
+                                } else {
+                                    window.location.href = '/proceed-payment';
+                                }  
                             });
-                            payBtn.innerHTML = originalBtnText;
-                            payBtn.disabled = false;
                         });
 
                         rzp.open();
                     }
                     else if (data.redirect) {
                         window.location.href = data.redirect;
-                    }
-                    else if (data.orderId) {
+                    } else if (data.orderId) {
                         window.location.href = `/paymentSuccess/${data.orderId}`;
-                    }
-                    else {
+                    } else {
                         throw new Error('Unexpected response from server');
                     }
-
                 } catch (error) {
                     console.error('Payment error:', error);
+                    isPaymentInProgress = false;
+                    payBtn.innerHTML = originalBtnText;
+                    payBtn.disabled = false;
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
                         text: error.message || 'Something went wrong. Please try again.',
-                        confirmButtonColor: '#d33'
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/proceed-payment';
                     });
-                    payBtn.innerHTML = originalBtnText;
-                    payBtn.disabled = false;
                 }
             });
 
@@ -347,12 +541,10 @@
                     if (this.value === 'cod') {
                         payBtn.textContent = 'Place Order';
                         if (codNote) codNote.style.display = 'block';
-                    }
-                    else if (this.value === 'wallet') {
+                    } else if (this.value === 'wallet') {
                         payBtn.textContent = 'Pay with Wallet';
                         if (codNote) codNote.style.display = 'none';
-                    }
-                    else if (this.value === 'razorpay') {
+                    } else if (this.value === 'razorpay') {
                         payBtn.textContent = 'Continue to Razorpay';
                         if (codNote) codNote.style.display = 'none';
                     }
@@ -362,15 +554,15 @@
 
         const style = document.createElement('style');
         style.textContent = `
-    .spinner {
-        display: inline-block;
-        animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-`;
+            .spinner {
+                display: inline-block;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
         document.head.appendChild(style);
     </script>
 </body>

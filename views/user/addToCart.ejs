@@ -1,107 +1,93 @@
-<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
-    <%- include('../../views/partials/user/header')%>
-</header>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    .no-spinner::-webkit-outer-spin-button,
-    .no-spinner::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-
-    .no-spinner {
-        -moz-appearance: textfield;
-    }
-
-    .out-of-stock-item {
-        position: relative;
-    }
-
-    .out-of-stock-item::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.3);
-        z-index: 1;
-        border-radius: 0.375rem;
-        pointer-events: none;
-    }
-
-    .delete-item-btn {
-        z-index: 2;
-        position: relative;
-    }
-
-    .unlisted-item {
-        position: relative;
-    }
-
-    .unlisted-item::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1;
-        border-radius: 0.375rem;
-        pointer-events: none;
-    }
-
-    .unlisted-badge {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        z-index: 2;
-        font-size: 0.75rem;
-    }
-
-    .coupon-applied {
-        animation: couponApplied 0.5s ease;
-    }
-
-    @keyframes couponApplied {
-        0% {
-            transform: scale(1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
         }
-
-        50% {
-            transform: scale(1.02);
+        .no-spinner::-webkit-outer-spin-button,
+        .no-spinner::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-
-        100% {
-            transform: scale(1);
+        .no-spinner {
+            -moz-appearance: textfield;
+            appearance: textfield;
         }
-    }
-
-    .coupon-removed {
-        animation: couponRemoved 0.5s ease forwards;
-    }
-
-    @keyframes couponRemoved {
-        0% {
-            opacity: 1;
-            transform: translateX(0);
+        .out-of-stock-item {
+            position: relative;
         }
-
-        100% {
-            opacity: 0;
-            transform: translateX(100%);
+        .out-of-stock-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            border-radius: 0.375rem;
+            pointer-events: none;
         }
-    }
-</style>
-
+        .delete-item-btn {
+            z-index: 2;
+            position: relative;
+        }
+        .unlisted-item {
+            position: relative;
+        }
+        .unlisted-item::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+            border-radius: 0.375rem;
+            pointer-events: none;
+        }
+        .unlisted-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            z-index: 2;
+            font-size: 0.75rem;
+        }
+        .coupon-applied {
+            animation: couponApplied 0.5s ease;
+        }
+        @keyframes couponApplied {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .coupon-removed {
+            animation: couponRemoved 0.5s ease forwards;
+        }
+        @keyframes couponRemoved {
+            0% { opacity: 1; transform: translateX(0); }
+            100% { opacity: 0; transform: translateX(100%); }
+        }
+    </style>
+</head>
 <body class="bg-[#1F1F1F] text-white">
+    <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+        <%- include('../../views/partials/user/header') %>
+    </header>
+
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <div class="text-center mb-10">
             <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
@@ -120,111 +106,106 @@
                 </div>
 
                 <div id="cartItemsContainer" class="space-y-6">
-                    <% if (cartItems.items.length> 0) { %>
-                        <% cartItems.items.forEach(item=> { %>
+                    <% if (cartItems.items.length > 0) { %>
+                        <% cartItems.items.forEach(item => { %>
                             <div class="grid grid-cols-12 items-center py-4 border-b border-[#333] cart-item 
                                 <%= item.isOutOfStock ? 'out-of-stock-item' : '' %>
                                 <%= item.isUnlisted ? 'unlisted-item' : '' %>" data-item-id="<%= item._id %>">
 
                                 <% if (item.isUnlisted) { %>
                                     <div class="unlisted-badge">Product Unavailable</div>
-                                    <% } %>
+                                <% } %>
 
-                                        <div class="col-span-5 relative">
-                                            <div class="flex items-center gap-4">
-                                                <button
-                                                    class="text-gray-400 hover:text-red-500 transition delete-item-btn"
-                                                    data-item-id="<%= item._id %>">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                                        viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                                <a href="/productDetails?id=<%=item.productId._id%>"
-                                                    class="flex items-center gap-4 <%= item.isOutOfStock ? 'pointer-events-none' : '' %>">
-                                                    <img src="<%= item.productId.productImage[0]%>"
-                                                        alt="<%= item.productId.name %>"
-                                                        class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition <%= item.isOutOfStock ? 'opacity-70' : '' %>">
-                                                    <div>
-                                                        <h3
-                                                            class="font-medium <%= item.isOutOfStock ? 'text-gray-400' : '' %>">
-                                                            <%= item.productId.productName %>
-                                                        </h3>
-                                                        <p class="text-xs text-gray-400 mt-1">
-                                                            <%=item.productId.description%>
-                                                        </p>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                            <% if (item.isOutOfStock) { %>
-                                                <div class="mt-2 text-red-400 text-sm flex items-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
-                                                        viewBox="0 0 20 20" fill="currentColor">
-                                                        <path fill-rule="evenodd"
-                                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-                                                            clip-rule="evenodd" />
-                                                    </svg>
-                                                    Only <%= item.availableQuantity %> available (you have <%=
-                                                            item.quantity %> in cart)
-                                                </div>
-                                                <% } %>
-                                        </div>
-
-                                        <div class="col-span-2 text-center text-[#E8B888]"
-                                            data-price="<%= item.productId.regularPrice %>">
-                                            ₹<%= item.productId.regularPrice.toFixed(2) %>
-                                        </div>
-
-                                        <div class="col-span-3">
-                                            <div class="flex items-center justify-center">
-                                                <div
-                                                    class="flex items-center border border-[#444] rounded-full bg-[#2A2A2A] shadow-inner <%= item.isOutOfStock ? 'opacity-50' : '' %>">
-                                                    <button type="button"
-                                                        class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn <%= item.isOutOfStock ? 'cursor-not-allowed' : '' %>"
-                                                        data-action="decrement" <%=item.isOutOfStock ? 'disabled' : ''
-                                                        %>>−</button>
-                                                    <input type="number" name="quantity" value="<%= item.quantity %>"
-                                                        class="w-10 bg-transparent text-center py-1 focus:outline-none item-quantity no-spinner"
-                                                        min="1" max="<%= item.availableQuantity %>"
-                                                        data-item-id="<%= item._id %>" <%=item.isOutOfStock ? 'disabled'
-                                                        : '' %>>
-                                                    <button type="button"
-                                                        class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn <%= item.isOutOfStock ? 'cursor-not-allowed' : '' %>"
-                                                        data-action="increment" <%=item.isOutOfStock ? 'disabled' : ''
-                                                        %>>+</button>
-                                                </div>
-                                            </div>
-                                            <% if (item.isOutOfStock) { %>
-                                                <p class="text-red-400 text-xs text-center mt-1">
-                                                    Adjust quantity to <%= item.availableQuantity %> or remove
+                                <div class="col-span-5 relative">
+                                    <div class="flex items-center gap-4">
+                                        <button
+                                            class="text-gray-400 hover:text-red-500 transition delete-item-btn"
+                                            data-item-id="<%= item._id %>">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                        <a href="/productDetails?id=<%= item.productId._id %>"
+                                            class="flex items-center gap-4 <%= item.isOutOfStock ? 'pointer-events-none' : '' %>">
+                                            <img src="<%= item.productId.productImage[0] %>"
+                                                alt="<%= item.productId.name %>"
+                                                class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition <%= item.isOutOfStock ? 'opacity-70' : '' %>">
+                                            <div>
+                                                <h3 class="font-medium <%= item.isOutOfStock ? 'text-gray-400' : '' %>">
+                                                    <%= item.productId.productName %>
+                                                </h3>
+                                                <p class="text-xs text-gray-400 mt-1">
+                                                    <%= item.productId.description %>
                                                 </p>
-                                                <% } %>
-                                        </div>
-
-                                        <div class="col-span-2 text-right font-medium item-total">
-                                            ₹<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
-                                        </div>
-                            </div>
-                            <% }); %>
-                                <% } else { %>
-                                    <div class="text-center py-12">
-                                        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        <h3 class="mt-4 text-xl font-medium text-gray-200">Your cart is empty</h3>
-                                        <a href="/products"
-                                            class="mt-6 inline-block bg-[#E8B888] text-black px-6 py-2 rounded-full hover:bg-[#D9A76A] transition">
-                                            Continue Shopping
+                                            </div>
                                         </a>
                                     </div>
+                                    <% if (item.isOutOfStock) { %>
+                                        <div class="mt-2 text-red-400 text-sm flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
+                                                viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd"
+                                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                            Only <%= item.availableQuantity %> available (you have <%= item.quantity %> in cart)
+                                        </div>
                                     <% } %>
+                                </div>
+
+                                <div class="col-span-2 text-center text-[#E8B888]"
+                                    data-price="<%= item.productId.regularPrice %>">
+                                    ₹<%= item.productId.regularPrice.toFixed(2) %>
+                                </div>
+
+                                <div class="col-span-3">
+                                    <div class="flex items-center justify-center">
+                                        <div
+                                            class="flex items-center border border-[#444] rounded-full bg-[#2A2A2A] shadow-inner <%= item.isOutOfStock ? 'opacity-50' : '' %>">
+                                            <button type="button"
+                                                class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn <%= item.isOutOfStock ? 'cursor-not-allowed' : '' %>"
+                                                data-action="decrement" <%= item.isOutOfStock ? 'disabled' : '' %>>−</button>
+                                            <input type="number" name="quantity" value="<%= item.quantity %>"
+                                                class="w-10 bg-transparent text-center py-1 focus:outline-none item-quantity no-spinner"
+                                                min="1" max="<%= item.availableQuantity %>"
+                                                data-item-id="<%= item._id %>" <%= item.isOutOfStock ? 'disabled' : '' %>>
+                                            <button type="button"
+                                                class="px-3 py-1 text-gray-400 hover:text-[#E8B888] transition quantity-btn <%= item.isOutOfStock ? 'cursor-not-allowed' : '' %>"
+                                                data-action="increment" <%= item.isOutOfStock ? 'disabled' : '' %>>+</button>
+                                        </div>
+                                    </div>
+                                    <% if (item.isOutOfStock) { %>
+                                        <p class="text-red-400 text-xs text-center mt-1">
+                                            Adjust quantity to <%= item.availableQuantity %> or remove
+                                        </p>
+                                    <% } %>
+                                </div>
+
+                                <div class="col-span-2 text-right font-medium item-total">
+                                    ₹<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="text-center py-12">
+                            <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <h3 class="mt-4 text-xl font-medium text-gray-200">Your cart is empty</h3>
+                            <a href="/products"
+                                class="mt-6 inline-block bg-[#E8B888] text-black px-6 py-2 rounded-full hover:bg-[#D9A76A] transition">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
 
-                <% if (cartItems.items.length> 0) { %>
-                    <div class="mt-10 flex justify-between items-center">
+                <% if (cartItems.items.length > 0) { %>
+                    <div class="mt-10 flex justify-start items-center">
                         <a href="/products"
                             class="flex items-center text-gray-400 hover:text-[#E8B888] transition group">
                             <svg xmlns="http://www.w3.org/2000/svg"
@@ -235,15 +216,11 @@
                             </svg>
                             Continue Shopping
                         </a>
-                        <button id="updateCartBtn"
-                            class="bg-[#E8B888] hover:bg-[#ae8052] px-6 py-2 rounded-full transition shadow-md hover:shadow-lg">
-                            Update Cart
-                        </button>
                     </div>
-                    <% } %>
+                <% } %>
             </div>
 
-            <% if (cartItems.items.length> 0) { %>
+            <% if (cartItems.items.length > 0) { %>
                 <div class="lg:w-80 bg-[#252525] rounded-lg p-6 h-fit shadow-xl">
                     <h3 class="text-xl font-medium mb-6 border-b border-[#333] pb-2">Order Summary</h3>
                     <div class="space-y-4 mb-6">
@@ -257,8 +234,7 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-gray-400">Savings</span>
-                            <span class="text-green-500" id="cart-discount">-₹<%= cartItems.discountAmount.toFixed(2) %>
-                            </span>
+                            <span class="text-green-500" id="cart-discount">-₹<%= cartItems.discountAmount.toFixed(2) %></span>
                         </div>
 
                         <div class="border-t border-[#333] pt-4 mt-2">
@@ -267,13 +243,13 @@
                                 <div class="flex items-center">
                                     <input type="text" id="coupon-code" placeholder="Enter coupon code"
                                         class="bg-[#1F1F1F] text-white px-3 py-2 rounded-l-md border border-[#444] w-full focus:outline-none focus:border-[#E8B888]"
-                                        <%=appliedCoupon ? 'disabled' : '' %>
-                                    value="<%= appliedCoupon ? appliedCoupon.name : '' %>">
-                                        <button id="apply-coupon-btn"
-                                            class="bg-[#E8B888] hover:bg-[#D9A76A] text-black px-3 py-2 rounded-r-md transition"
-                                            <%=appliedCoupon ? 'disabled style="opacity: 0.5;"' : '' %>>
-                                            <%= appliedCoupon ? 'Applied' : 'Apply' %>
-                                        </button>
+                                        <%= appliedCoupon ? 'disabled' : '' %>
+                                        value="<%= appliedCoupon ? appliedCoupon.code : '' %>">
+                                    <button id="apply-coupon-btn"
+                                        class="bg-[#E8B888] hover:bg-[#D9A76A] text-black px-3 py-2 rounded-r-md transition"
+                                        <%= appliedCoupon ? 'disabled style="opacity: 0.5;"' : '' %>>
+                                        <%= appliedCoupon ? 'Applied' : 'Apply' %>
+                                    </button>
                                 </div>
                                 <div id="coupon-message" class="text-xs mt-1 hidden"></div>
                             </div>
@@ -284,19 +260,19 @@
                                     <div>
                                         <div class="flex items-center">
                                             <span class="text-[#E8B888] font-medium">
-                                                <%= appliedCoupon.name %>
+                                                <%= appliedCoupon.code %>
                                             </span>
-                                            <% if (appliedCoupon.discountType==='percentage' ) { %>
+                                            <% if (appliedCoupon.discountType === 'percentage') { %>
                                                 <span
                                                     class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">
                                                     <%= appliedCoupon.offerPrice %>% OFF
                                                 </span>
-                                                <% } else { %>
-                                                    <span
-                                                        class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹
-                                                        <%= appliedCoupon.offerPrice %> OFF
-                                                    </span>
-                                                    <% } %>
+                                            <% } else { %>
+                                                <span
+                                                    class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹
+                                                    <%= appliedCoupon.offerPrice %> OFF
+                                                </span>
+                                            <% } %>
                                         </div>
                                         <p class="text-xs text-gray-400 mt-1">
                                             <%= appliedCoupon.description || 'Coupon applied successfully' %>
@@ -313,62 +289,56 @@
                                 <% if (appliedCoupon) { %>
                                     <div class="flex justify-between items-center text-sm mb-3" id="coupon-discount-amount">
                                         <span class="text-gray-400">Coupon Discount</span>
-                                        <span class="text-green-500" id="coupon-discount">-₹<%=
-                                                couponDiscount.toFixed(2) %></span>
+                                        <span class="text-green-500" id="coupon-discount">-₹<%= couponDiscount.toFixed(2) %></span>
                                     </div>
-                                    <% } %>
-                                        <% } %>
+                                <% } %>
+                            <% } %>
 
-                                            <% if (applicableCoupons && applicableCoupons.length> 0 && !appliedCoupon) {
-                                                %>
-                                                <div class="mb-4">
-                                                    <div class="flex items-center justify-between">
-                                                        <h4 class="text-sm text-gray-300 mb-2">Available Coupons</h4>
-                                                        <button id="toggle-coupons-btn"
-                                                            class="text-[#E8B888] text-xs hover:underline">Show
-                                                            All</button>
+                            <% if (applicableCoupons && applicableCoupons.length > 0 && !appliedCoupon) { %>
+                                <div class="mb-4" id="coupon-section">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-sm text-gray-300 mb-2">Available Coupons</h4>
+                                        <button id="toggle-coupons-btn"
+                                            class="text-[#E8B888] text-xs hover:underline">Show All</button>
+                                    </div>
+                                    <div id="available-coupons" class="space-y-2 hidden">
+                                        <% applicableCoupons.forEach(coupon => { %>
+                                            <div class="bg-[#2A2A2A] p-2 rounded-md border border-[#444] hover:border-[#E8B888] transition cursor-pointer coupon-item"
+                                                data-coupon-id="<%= coupon._id %>"
+                                                data-coupon-code="<%= coupon.name %>"
+                                                data-min-price="<%= coupon.minimumPrice %>">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <div class="flex items-center">
+                                                            <span class="text-white font-medium">
+                                                                <%= coupon.name %>
+                                                            </span>
+                                                            <% if (coupon.discountType === 'percentage') { %>
+                                                                <span
+                                                                    class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">
+                                                                    <%= coupon.offerPrice %>% OFF
+                                                                </span>
+                                                            <% } else { %>
+                                                                <span
+                                                                    class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹
+                                                                    <%= coupon.offerPrice %> OFF
+                                                                </span>
+                                                            <% } %>
+                                                        </div>
+                                                        <p class="text-xs text-gray-400 mt-1">
+                                                            <%= coupon.description || `Min order: ₹${coupon.minimumPrice}` %>
+                                                        </p>
                                                     </div>
-                                                    <div id="available-coupons" class="space-y-2 hidden">
-                                                        <% applicableCoupons.forEach(coupon=> { %>
-                                                            <div class="bg-[#2A2A2A] p-2 rounded-md border border-[#444] hover:border-[#E8B888] transition cursor-pointer coupon-item"
-                                                                data-coupon-id="<%= coupon._id %>"
-                                                                data-coupon-code="<%= coupon.name %>"
-                                                                data-min-price="<%= coupon.minimumPrice %>">
-                                                                <div class="flex items-center justify-between">
-                                                                    <div>
-                                                                        <div class="flex items-center">
-                                                                            <span class="text-white font-medium">
-                                                                                <%= coupon.name %>
-                                                                            </span>
-                                                                            <% if (coupon.discountType==='percentage' )
-                                                                                { %>
-                                                                                <span
-                                                                                    class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">
-                                                                                    <%= coupon.offerPrice %>% OFF
-                                                                                </span>
-                                                                                <% } else { %>
-                                                                                    <span
-                                                                                        class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹
-                                                                                        <%= coupon.offerPrice %>
-                                                                                            OFF
-                                                                                    </span>
-                                                                                    <% } %>
-                                                                        </div>
-                                                                        <p class="text-xs text-gray-400 mt-1">
-                                                                            <%= coupon.description || `Min order:
-                                                                                ₹${coupon.minimumPrice}` %>
-                                                                        </p>
-                                                                    </div>
-                                                                    <button
-                                                                        class="text-[#E8B888] hover:text-[#D9A76A] text-xs apply-coupon-from-list">
-                                                                        APPLY
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            <% }); %>
-                                                    </div>
+                                                    <button
+                                                        class="text-[#E8B888] hover:text-[#D9A76A] text-xs apply-coupon-from-list">
+                                                        APPLY
+                                                    </button>
                                                 </div>
-                                                <% } %>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            <% } %>
                         </div>
 
                         <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
@@ -394,22 +364,22 @@
                                 Cannot checkout with out-of-stock items
                             </p>
                         </div>
-                        <% } %>
-                            <% if (cartItems.hasUnlistedItems) { %>
-                                <div class="mt-3 p-2 bg-yellow-900/20 border border-yellow-900/50 rounded-md">
-                                    <p class="text-yellow-400 text-sm text-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1"
-                                            viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                        Some products in your cart are no longer available
-                                    </p>
-                                </div>
-                                <% } %>
+                    <% } %>
+                    <% if (cartItems.hasUnlistedItems) { %>
+                        <div class="mt-3 p-2 bg-yellow-900/20 border border-yellow-900/50 rounded-md">
+                            <p class="text-yellow-400 text-sm text-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1"
+                                    viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd"
+                                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                                Some products in your cart are no longer available
+                            </p>
+                        </div>
+                    <% } %>
                 </div>
-                <% } %>
+            <% } %>
         </div>
     </div>
 
@@ -419,314 +389,185 @@
             <p class="text-white">Updating cart...</p>
         </div>
     </div>
-</body>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-        }
+    <script>
+        // Initial cart summary data from server
+        const initialCartSummary = {
+            subtotal: <%= cartItems.subtotal.toFixed(2) %>,
+            discountAmount: <%= cartItems.discountAmount.toFixed(2) %>,
+            shippingCharge: <%= cartItems.shippingCharge.toFixed(2) %>,
+            couponDiscount: <%= cartItems.couponDiscount ? cartItems.couponDiscount.toFixed(2) : 0 %>,
+            total: <%= cartItems.total.toFixed(2) %>
+        };
+        const initialApplicableCoupons = <%- JSON.stringify(applicableCoupons) %>;
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.add('hidden');
-        }
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize cart summary and coupons
+            updateCartSummary(initialCartSummary);
+            updateAvailableCoupons(initialApplicableCoupons);
 
-        function showToast(message, type = 'success', duration = 3000) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: duration,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
-
-            Toast.fire({
-                icon: type,
-                title: message,
-                background: '#252525',
-                color: '#fff'
-            });
-        }
-
-        function updateCartSummary(summary) {
-            if (!summary) return;
-
-            const subtotal = parseFloat(summary.subtotal || 0);
-            const discountAmount = parseFloat(summary.discountAmount || 0);
-            const shippingCharge = parseFloat(summary.shippingCharge || 0);
-            const couponDiscount = parseFloat(summary.couponDiscount || 0);
-            const total = parseFloat(summary.total || 0);
-
-            document.getElementById('cart-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
-            document.getElementById('cart-discount').textContent = `-₹${discountAmount.toFixed(2)}`;
-            document.getElementById('cart-shipping').textContent = `₹${shippingCharge.toFixed(2)}`;
-            document.getElementById('cart-total').textContent = `₹${total.toFixed(2)}`;
-
-            if (couponDiscount > 0) {
-                document.getElementById('coupon-discount').textContent = `-₹${couponDiscount.toFixed(2)}`;
+            function showLoading() {
+                document.getElementById('loadingOverlay').classList.remove('hidden');
             }
-        }
 
-        document.querySelectorAll('.quantity-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                if (this.disabled) return;
+            function hideLoading() {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+            }
 
-                const input = this.parentNode.querySelector('input');
-                let value = parseInt(input.value) || 1;
-                const max = parseInt(input.max) || 10;
-
-                if (this.dataset.action === 'increment') {
-                    value = Math.min(value + 1, max);
-                } else {
-                    value = Math.max(value - 1, 1);
-                }
-                input.value = value;
-            });
-        });
-
-        document.querySelectorAll('.delete-item-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const itemId = this.dataset.itemId;
-                showLoading();
-
-                fetch(`/deleteCartProduct?id=${itemId}`, {
-                    method: 'GET',
-                    headers: { 'Accept': 'application/json' }
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.json().then(err => { throw err; });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        hideLoading();
-                        if (data.success) {
-                            const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-                            if (itemElement) itemElement.remove();
-
-                            updateCartSummary(data.cartSummary);
-
-                            if (data.message && data.message.includes('Coupon removed')) {
-                                const couponContainer = document.getElementById('applied-coupon-container');
-                                if (couponContainer) {
-                                    couponContainer.classList.add('coupon-removed');
-                                    setTimeout(() => {
-                                        couponContainer.remove();
-                                        document.getElementById('coupon-code').value = '';
-                                        document.getElementById('coupon-code').disabled = false;
-                                        document.getElementById('apply-coupon-btn').disabled = false;
-                                        document.getElementById('apply-coupon-btn').textContent = 'Apply';
-
-                                        const couponDiscountElement = document.getElementById('coupon-discount-amount');
-                                        if (couponDiscountElement) {
-                                            couponDiscountElement.style.opacity = '0.0';
-                                            couponDiscountElement.style.pointerEvents = 'none';
-                                        }
-                                    }, 1000);
-
-                                }
-                            }
-
-                            if (data.itemCount === 0) {
-                                location.reload();
-                            }
-
-                            showToast(data.message || 'Item removed successfully', 'success');
-                        } else {
-                            throw new Error(data?.message || 'Unknown error occurred');
-                        }
-                    })
-                    .catch(err => {
-                        hideLoading();
-                        console.error('Delete error:', err);
-                        showToast(err.message || 'Unable to remove item', 'error');
-                    });
-            });
-        });
-
-        document.getElementById('updateCartBtn')?.addEventListener('click', function () {
-            showLoading();
-            const items = Array.from(document.querySelectorAll('.cart-item')).map(item => ({
-                id: item.dataset.itemId,
-                quantity: item.querySelector('input').value
-            }));
-
-            fetch('/updateCartQuantity', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    itemIds: items.map(i => i.id),
-                    quantities: items.map(i => i.quantity)
-                })
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => { throw err; });
+            function showToast(message, type = 'success', duration = 3000) {
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: duration,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    hideLoading();
-                    if (data.success) {
-                        items.forEach((item, index) => {
-                            const priceElement = document.querySelector(`[data-item-id="${item.id}"] [data-price]`);
-                            if (priceElement) {
-                                const price = parseFloat(priceElement.dataset.price);
-                                const quantity = parseInt(item.quantity);
-                                const itemTotalElement = document.querySelector(`[data-item-id="${item.id}"] .item-total`);
-                                if (itemTotalElement) {
-                                    itemTotalElement.textContent = `₹${(price * quantity).toFixed(2)}`;
-                                }
-                            }
-                        });
-
-                        updateCartSummary(data.cartSummary);
-
-                        if (data.message && data.message.includes('Coupon removed')) {
-                            const couponContainer = document.getElementById('applied-coupon-container');
-                            if (couponContainer) {
-                                couponContainer.classList.add('coupon-removed');
-                                setTimeout(() => {
-                                    couponContainer.remove();
-                                    document.getElementById('coupon-code').value = '';
-                                    document.getElementById('coupon-code').disabled = false;
-                                    document.getElementById('apply-coupon-btn').disabled = false;
-                                    document.getElementById('apply-coupon-btn').textContent = 'Apply';
-
-                                    const couponDiscountElement = document.getElementById('coupon-discount-amount');
-                                    if (couponDiscountElement) {
-                                        couponDiscountElement.style.opacity = '0.0';
-                                        couponDiscountElement.style.pointerEvents = 'none';
-                                    }
-                                }, 1000);
-
-                            }
-                        }
-
-                        showToast(data.message || 'Cart updated successfully', 'success');
-
-                        if (data.stockUpdated) {
-                            setTimeout(() => location.reload(), 1000);
-                        }
-                    } else {
-                        showToast(data.message || 'Failed to update cart', 'error');
-                    }
-                })
-                .catch(err => {
-                    hideLoading();
-                    console.error("Update error:", err);
-                    showToast(err.message || 'Unable to update cart', 'error');
                 });
-        });
 
-        document.getElementById('checkoutBtn')?.addEventListener('click', function (e) {
-            if (this.classList.contains('pointer-events-none')) {
-                e.preventDefault();
-                let message = 'Your cart contains:';
-
-                if (cartItems.hasOutOfStockItems && cartItems.hasUnlistedItems) {
-                    message += '<br>- Out of stock items<br>- Unavailable products';
-                } else if (cartItems.hasOutOfStockItems) {
-                    message += '<br>- Out of stock items';
-                } else if (cartItems.hasUnlistedItems) {
-                    message += '<br>- Products that are no longer available';
-                }
-
-                message += '<br><br>Please adjust your cart to proceed.';
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Cannot Proceed to Checkout',
-                    html: message,
-                    confirmButtonColor: '#E8B888',
+                Toast.fire({
+                    icon: type,
+                    title: message,
                     background: '#252525',
                     color: '#fff'
                 });
             }
-        });
 
-        function showCouponMessage(message, type) {
-            const messageElement = document.getElementById('coupon-message');
-            messageElement.textContent = message;
-            messageElement.className = `text-xs mt-1 ${type === 'error' ? 'text-red-400' : 'text-green-500'}`;
-            messageElement.classList.remove('hidden');
+            function showCouponMessage(message, type) {
+                const messageElement = document.getElementById('coupon-message');
+                messageElement.textContent = message;
+                messageElement.className = `text-xs mt-1 ${type === 'error' ? 'text-red-400' : 'text-green-500'}`;
+                messageElement.classList.remove('hidden');
 
-            setTimeout(() => {
-                messageElement.classList.add('hidden');
-            }, 5000);
-        }
-
-        document.getElementById('toggle-coupons-btn')?.addEventListener('click', function () {
-            const couponsContainer = document.getElementById('available-coupons');
-            if (couponsContainer.classList.contains('hidden')) {
-                couponsContainer.classList.remove('hidden');
-                this.textContent = 'Hide';
-            } else {
-                couponsContainer.classList.add('hidden');
-                this.textContent = 'Show All';
-            }
-        });
-
-        document.getElementById('apply-coupon-btn')?.addEventListener('click', function () {
-            const couponCode = document.getElementById('coupon-code').value.trim();
-            if (!couponCode) {
-                showCouponMessage('Please enter a coupon code', 'error');
-                return;
+                setTimeout(() => {
+                    messageElement.classList.add('hidden');
+                }, 5000);
             }
 
-            showLoading();
+            function updateCartSummary(summary) {
+                if (!summary) return;
 
-            fetch('/validate-coupon', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code: couponCode })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        return fetch('/apply-coupon', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ couponId: data.coupon.id })
-                        });
-                    } else {
-                        hideLoading();
-                        showCouponMessage(data.message || 'Invalid coupon code', 'error');
-                        throw new Error(data.message || 'Invalid coupon code');
+                const subtotal = parseFloat(summary.subtotal || 0);
+                const discountAmount = parseFloat(summary.discountAmount || 0);
+                const shippingCharge = parseFloat(summary.shippingCharge || 0);
+                const couponDiscount = parseFloat(summary.couponDiscount || 0);
+                const total = parseFloat(summary.total || 0);
+
+                document.getElementById('cart-subtotal').textContent = `₹${subtotal.toFixed(2)}`;
+                document.getElementById('cart-discount').textContent = `-₹${discountAmount.toFixed(2)}`;
+                document.getElementById('cart-shipping').textContent = `₹${shippingCharge.toFixed(2)}`;
+                document.getElementById('cart-total').textContent = `₹${total.toFixed(2)}`;
+
+                if (couponDiscount > 0) {
+                    const couponDiscountElement = document.getElementById('coupon-discount-amount');
+                    if (couponDiscountElement) {
+                        couponDiscountElement.style.opacity = '1';
+                        couponDiscountElement.style.pointerEvents = 'auto';
+                        document.getElementById('coupon-discount').textContent = `-₹${couponDiscount.toFixed(2)}`;
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoading();
-                    if (data.success) {
-                        showToast('Coupon applied successfully', 'success');
-                        setTimeout(() => window.location.reload(), 1000);
-                    } else {
-                        showCouponMessage(data.message || 'Failed to apply coupon', 'error');
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    console.error('Coupon application error:', error);
+                }
+            }
+
+            function updateAvailableCoupons(coupons) {
+                const couponsContainer = document.getElementById('available-coupons');
+                const toggleButton = document.getElementById('toggle-coupons-btn');
+                const couponSection = document.getElementById('coupon-section');
+
+                if (!couponsContainer || !couponSection || !coupons || coupons.length === 0 || document.getElementById('applied-coupon-container')) {
+                    if (couponSection) couponSection.style.display = 'none';
+                    return;
+                }
+
+                couponSection.style.display = 'block';
+                couponsContainer.innerHTML = '';
+                coupons.forEach(coupon => {
+                    const couponDiv = document.createElement('div');
+                    couponDiv.className = 'bg-[#2A2A2A] p-2 rounded-md border border-[#444] hover:border-[#E8B888] transition cursor-pointer coupon-item';
+                    couponDiv.dataset.couponId = coupon._id;
+                    couponDiv.dataset.couponCode = coupon.name;
+                    couponDiv.dataset.minPrice = coupon.minimumPrice;
+                    couponDiv.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="flex items-center">
+                                    <span class="text-white font-medium">${coupon.name}</span>
+                                    ${
+                                        coupon.discountType === 'percentage'
+                                            ? `<span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">${coupon.offerPrice}% OFF</span>`
+                                            : `<span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">₹${coupon.offerPrice} OFF</span>`
+                                    }
+                                </div>
+                                <p class="text-xs text-gray-400 mt-1">
+                                    ${coupon.description || `Min order: ₹${coupon.minimumPrice}`}
+                                </p>
+                            </div>
+                            <button class="text-[#E8B888] hover:text-[#D9A76A] text-xs apply-coupon-from-list">APPLY</button>
+                        </div>
+                    `;
+                    couponsContainer.appendChild(couponDiv);
                 });
-        });
 
-        document.querySelectorAll('.apply-coupon-from-list').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const couponItem = this.closest('.coupon-item');
-                const couponId = couponItem.dataset.couponId;
-                const minPrice = parseFloat(couponItem.dataset.minPrice);
-                const currentSubtotal = parseFloat(document.getElementById('cart-subtotal').textContent.replace('₹', ''));
+                document.querySelectorAll('.coupon-item').forEach(item => {
+                    item.addEventListener('click', function (e) {
+                        if (!e.target.classList.contains('apply-coupon-from-list')) {
+                            const couponCode = this.dataset.couponCode;
+                            document.getElementById('coupon-code').value = couponCode;
+                        }
+                    });
+                });
 
+                document.querySelectorAll('.apply-coupon-from-list').forEach(button => {
+                    button.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const couponItem = this.closest('.coupon-item');
+                        const couponId = couponItem.dataset.couponId;
+                        const minPrice = parseFloat(couponItem.dataset.minPrice);
+
+                        applyCoupon(couponId, minPrice);
+                    });
+                });
+
+                if (toggleButton) {
+                    couponsContainer.classList.add('hidden');
+                    toggleButton.textContent = 'Show All';
+                }
+            }
+
+            // Fetch latest cart state from server
+            async function fetchCartState() {
+                try {
+                    showLoading();
+                    const response = await fetch('/get-cart-state', {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await response.json();
+                    hideLoading();
+
+                    if (data.success) {
+                        updateCartSummary(data.cartSummary);
+                        updateAvailableCoupons(data.applicableCoupons);
+                        return data.cartSummary;
+                    } else {
+                        showToast(data.message || 'Failed to fetch cart state', 'error');
+                        return null;
+                    }
+                } catch (error) {
+                    hideLoading();
+                    console.error('Fetch cart state error:', error);
+                    showToast('Failed to fetch cart state', 'error');
+                    return null;
+                }
+            }
+
+            // Apply coupon with validation
+            async function applyCoupon(couponId, minPrice) {
+                const cartSummary = await fetchCartState();
+                if (!cartSummary) return;
+
+                const currentSubtotal = parseFloat(cartSummary.subtotal);
                 if (currentSubtotal < minPrice) {
                     showCouponMessage(`Minimum order of ₹${minPrice} required for this coupon`, 'error');
                     return;
@@ -734,67 +575,327 @@
 
                 showLoading();
 
-                fetch('/apply-coupon', {
+                try {
+                    const response = await fetch('/apply-coupon', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ couponId })
+                    });
+                    const data = await response.json();
+                    hideLoading();
+
+                    if (data.success) {
+                        showToast('Coupon applied successfully', 'success');
+                        setTimeout(() => window.location.reload(), 1000);
+                    } else {
+                        showCouponMessage(data.message || 'Failed to apply coupon', 'error');
+                    }
+                } catch (error) {
+                    hideLoading();
+                    console.error('Coupon application error:', error);
+                    showCouponMessage('Failed to apply coupon', 'error');
+                }
+            }
+
+            let updateCartTimeout = null;
+            function updateCartQuantity(itemId, quantity) {
+                if (updateCartTimeout) {
+                    clearTimeout(updateCartTimeout);
+                }
+
+                showLoading();
+
+                updateCartTimeout = setTimeout(() => {
+                    fetch('/updateCartQuantity', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            itemIds: [itemId],
+                            quantities: [quantity]
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => { throw err; });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            hideLoading();
+                            if (data.success) {
+                                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                                if (itemElement) {
+                                    const priceElement = itemElement.querySelector('[data-price]');
+                                    const price = parseFloat(priceElement.dataset.price);
+                                    const itemTotalElement = itemElement.querySelector('.item-total');
+                                    if (itemTotalElement) {
+                                        itemTotalElement.textContent = `₹${(price * quantity).toFixed(2)}`;
+                                    }
+                                }
+
+                                updateCartSummary(data.cartSummary);
+                                updateAvailableCoupons(data.applicableCoupons);
+
+                                if (data.message && data.message.includes('Coupon removed')) {
+                                    const couponContainer = document.getElementById('applied-coupon-container');
+                                    if (couponContainer) {
+                                        couponContainer.classList.add('coupon-removed');
+                                        setTimeout(() => {
+                                            couponContainer.remove();
+                                            document.getElementById('coupon-code').value = '';
+                                            document.getElementById('coupon-code').disabled = false;
+                                            document.getElementById('apply-coupon-btn').disabled = false;
+                                            document.getElementById('apply-coupon-btn').textContent = 'Apply';
+                                            document.getElementById('apply-coupon-btn').style.opacity = '1';
+
+                                            const couponDiscountElement = document.getElementById('coupon-discount-amount');
+                                            if (couponDiscountElement) {
+                                                couponDiscountElement.style.opacity = '0.0';
+                                                couponDiscountElement.style.pointerEvents = 'none';
+                                            }
+                                        }, 1000);
+                                    }
+                                }
+
+                                showToast(data.message || 'Cart updated successfully', 'success');
+
+                                if (data.hasOutOfStockItems || data.hasUnlistedItems) {
+                                    setTimeout(() => location.reload(), 1000);
+                                }
+                            } else {
+                                const input = document.querySelector(`.item-quantity[data-item-id="${itemId}"]`);
+                                if (input && data.originalQuantity) {
+                                    input.value = data.originalQuantity;
+                                }
+                                showToast(data.message || 'Failed to update cart', 'error');
+                            }
+                        })
+                        .catch(err => {
+                            hideLoading();
+                            console.error("Update error:", err);
+                            showToast(err.message || 'Unable to update cart', 'error');
+                            setTimeout(() => location.reload(), 2000);
+                        });
+                }, 300);
+            }
+
+            document.querySelectorAll('.quantity-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (this.disabled) return;
+
+                    const input = this.parentNode.querySelector('input');
+                    const itemId = input.dataset.itemId;
+                    let value = parseInt(input.value) || 1;
+                    const max = parseInt(input.max) || 10;
+
+                    if (this.dataset.action === 'increment') {
+                        value = Math.min(value + 1, max);
+                    } else {
+                        value = Math.max(value - 1, 1);
+                    }
+                    input.value = value;
+
+                    const buttons = this.parentNode.querySelectorAll('.quantity-btn');
+                    buttons.forEach(btn => btn.disabled = true);
+
+                    updateCartQuantity(itemId, value);
+
+                    setTimeout(() => {
+                        buttons.forEach(btn => btn.disabled = false);
+                    }, 500);
+                });
+            });
+
+            document.querySelectorAll('.item-quantity').forEach(input => {
+                input.addEventListener('change', function () {
+                    if (this.disabled) return;
+
+                    const itemId = this.dataset.itemId;
+                    let value = parseInt(this.value) || 1;
+                    const max = parseInt(this.max) || 10;
+
+                    value = Math.max(1, Math.min(value, max));
+                    this.value = value;
+
+                    updateCartQuantity(itemId, value);
+                });
+            });
+
+            document.querySelectorAll('.delete-item-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const itemId = this.dataset.itemId;
+                    showLoading();
+
+                    fetch(`/deleteCartProduct?id=${itemId}`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.json().then(err => { throw err; });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            hideLoading();
+                            if (data.success) {
+                                const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
+                                if (itemElement) itemElement.remove();
+
+                                updateCartSummary(data.cartSummary);
+                                updateAvailableCoupons(data.applicableCoupons);
+
+                                if (data.message && data.message.includes('Coupon removed')) {
+                                    const couponContainer = document.getElementById('applied-coupon-container');
+                                    if (couponContainer) {
+                                        couponContainer.classList.add('coupon-removed');
+                                        setTimeout(() => {
+                                            couponContainer.remove();
+                                            document.getElementById('coupon-code').value = '';
+                                            document.getElementById('coupon-code').disabled = false;
+                                            document.getElementById('apply-coupon-btn').disabled = false;
+                                            document.getElementById('apply-coupon-btn').textContent = 'Apply';
+                                            document.getElementById('apply-coupon-btn').style.opacity = '1';
+
+                                            const couponDiscountElement = document.getElementById('coupon-discount-amount');
+                                            if (couponDiscountElement) {
+                                                couponDiscountElement.style.opacity = '0.0';
+                                                couponDiscountElement.style.pointerEvents = 'none';
+                                            }
+                                        }, 1000);
+                                    }
+                                }
+
+                                if (data.itemCount === 0) {
+                                    location.reload();
+                                }
+
+                                showToast(data.message || 'Item removed successfully', 'success');
+                            } else {
+                                throw new Error(data?.message || 'Unknown error occurred');
+                            }
+                        })
+                        .catch(err => {
+                            hideLoading();
+                            console.error('Delete error:', err);
+                            showToast(err.message || 'Unable to remove item', 'error');
+                        });
+                });
+            });
+
+            document.getElementById('checkoutBtn')?.addEventListener('click', function (e) {
+                if (this.classList.contains('pointer-events-none')) {
+                    e.preventDefault();
+                    let message = 'Your cart contains:';
+
+                    if (cartItems.hasOutOfStockItems && cartItems.hasUnlistedItems) {
+                        message += '<br>- Out of stock items<br>- Unavailable products';
+                    } else if (cartItems.hasOutOfStockItems) {
+                        message += '<br>- Out of stock items';
+                    } else if (cartItems.hasUnlistedItems) {
+                        message += '<br>- Products that are no longer available';
+                    }
+
+                    message += '<br><br>Please adjust your cart to proceed.';
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Cannot Proceed to Checkout',
+                        html: message,
+                        confirmButtonColor: '#E8B888',
+                        background: '#252525',
+                        color: '#fff'
+                    });
+                }
+            });
+
+            document.getElementById('toggle-coupons-btn')?.addEventListener('click', function () {
+                const couponsContainer = document.getElementById('available-coupons');
+                if (couponsContainer.classList.contains('hidden')) {
+                    couponsContainer.classList.remove('hidden');
+                    this.textContent = 'Hide';
+                } else {
+                    couponsContainer.classList.add('hidden');
+                    this.textContent = 'Show All';
+                }
+            });
+
+            document.getElementById('apply-coupon-btn')?.addEventListener('click', async function () {
+                const couponCode = document.getElementById('coupon-code').value.trim();
+                if (!couponCode) {
+                    showCouponMessage('Please enter a coupon code', 'error');
+                    return;
+                }
+
+                showLoading();
+
+                try {
+                    const response = await fetch('/validate-coupon', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code: couponCode })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const cartSummary = await fetchCartState();
+                        if (!cartSummary) return;
+
+                        const currentSubtotal = parseFloat(cartSummary.subtotal);
+                        const minPrice = data.coupon.minimumPrice;
+
+                        if (currentSubtotal < minPrice) {
+                            hideLoading();
+                            showCouponMessage(`Minimum order of ₹${minPrice} required for this coupon`, 'error');
+                            return;
+                        }
+
+                        await applyCoupon(data.coupon.id, minPrice);
+                    } else {
+                        hideLoading();
+                        showCouponMessage(data.message || 'Invalid coupon code', 'error');
+                    }
+                } catch (error) {
+                    hideLoading();
+                    console.error('Coupon application error:', error);
+                    showCouponMessage('Failed to apply coupon', 'error');
+                }
+            });
+
+            document.getElementById('remove-coupon-btn')?.addEventListener('click', function () {
+                showLoading();
+
+                fetch('/remove-coupon', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ couponId })
+                    headers: { 'Content-Type': 'application/json' }
                 })
                     .then(response => response.json())
                     .then(data => {
                         hideLoading();
                         if (data.success) {
-                            showToast('Coupon applied successfully', 'success');
-                            setTimeout(() => window.location.reload(), 1000);
+                            const couponContainer = document.getElementById('applied-coupon-container');
+                            if (couponContainer) {
+                                couponContainer.classList.add('coupon-removed');
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 500);
+                            }
                         } else {
-                            showCouponMessage(data.message || 'Failed to apply coupon', 'error');
+                            showToast(data.message || 'Failed to remove coupon', 'error');
                         }
                     })
                     .catch(error => {
                         hideLoading();
-                        console.error('Coupon application error:', error);
-                        showCouponMessage('Failed to apply coupon', 'error');
+                        console.error('Coupon removal error:', error);
+                        showToast('Failed to remove coupon', 'error');
                     });
             });
         });
+    </script>
 
-        document.querySelectorAll('.coupon-item').forEach(item => {
-            item.addEventListener('click', function (e) {
-                if (!e.target.classList.contains('apply-coupon-from-list')) {
-                    const couponCode = this.dataset.couponCode;
-                    document.getElementById('coupon-code').value = couponCode;
-                }
-            });
-        });
-
-        document.getElementById('remove-coupon-btn')?.addEventListener('click', function () {
-            showLoading();
-
-            fetch('/remove-coupon', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
-            })
-                .then(response => response.json())
-                .then(data => {
-                    hideLoading();
-                    if (data.success) {
-                        const couponContainer = document.getElementById('applied-coupon-container');
-                        if (couponContainer) {
-                            couponContainer.classList.add('coupon-removed');
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 500);
-                        }
-                    } else {
-                        showToast(data.message || 'Failed to remove coupon', 'error');
-                    }
-                })
-                .catch(error => {
-                    hideLoading();
-                    console.error('Coupon removal error:', error);
-                    showToast('Failed to remove coupon', 'error');
-                });
-        });
-    });
-</script>
-
-<%- include('../../views/partials/user/footer') %>
+    <%- include('../../views/partials/user/footer') %>
+</body>
+</html>

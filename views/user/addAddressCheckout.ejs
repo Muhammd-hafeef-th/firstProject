@@ -1,65 +1,89 @@
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
     <%- include('../../views/partials/user/header')%>
-</header><script src="https://cdn.tailwindcss.com"></script>
+</header>
+<script src="https://cdn.tailwindcss.com"></script>
 
 <body class="bg-[#1F1F1F] text-white">
-    <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-        <div class="flex-1 flex justify-center p-4 md:p-10">
-            <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
-                <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-col min-h-screen">
+        <!-- Mobile back button -->
+        <div class="md:hidden flex items-center p-4 border-b border-gray-700">
+            <button onclick="history.back()" class="mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <h1 class="text-lg font-semibold">Add New Address</h1>
+        </div>
+
+        <div class="flex-1 p-4 md:p-6 lg:p-8">
+            <div class="max-w-3xl mx-auto bg-[#1F1F1F] rounded-lg border border-gray-700 overflow-hidden">
+                <!-- Desktop title -->
+                <div class="hidden md:flex justify-between items-center p-6 border-b border-gray-700">
                     <h2 class="text-xl font-bold">ADD ADDRESS</h2>
                 </div>
-                <form action="/add-address-checkout" method="POST" onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-300 mb-1">Name</label>
-                        <input type="text" name="name" id="name"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your name">
-                        <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
+
+                <form action="/add-address-checkout" method="POST" onsubmit="return handleFormSubmit(event)" class="p-4 md:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Name</label>
+                            <input type="text" name="name" id="name"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your name">
+                            <div id="name-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">State</label>
+                            <input type="text" name="state" id="state"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your state">
+                            <div id="state-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Country</label>
+                            <input type="text" name="country" id="country"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your country">
+                            <div id="country-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Town / City</label>
+                            <input type="text" name="city" id="city"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your town/city">
+                            <div id="city-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="md:col-span-2 space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Street Address</label>
+                            <input type="text" name="landMark" id="landMark" placeholder="House number and street name"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            <div id="landMark-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Postcode / ZIP *</label>
+                            <input type="text" name="pincode" id="pincode"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your postcode/ZIP">
+                            <div id="pincode-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Phone</label>
+                            <input type="text" name="phone" id="phone"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter your phone number">
+                            <div id="phone-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-gray-300 text-sm md:text-base">Alternative Phone</label>
+                            <input type="text" name="altPhone" id="altPhone"
+                                class="w-full p-3 text-sm md:text-base border border-gray-600 rounded-lg bg-[#2A2A2A] text-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                placeholder="Enter alternative phone number">
+                            <div id="altPhone-error" class="text-red-500 text-xs md:text-sm mt-1 hidden"></div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">State</label>
-                        <input type="text" name="state" id="state"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your state">
-                        <div id="state-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">Country</label>
-                        <input type="text" name="country" id="country"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your country">
-                        <div id="country-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">Town / City</label>
-                        <input type="text" name="city" id="city"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your town/city">
-                        <div id="city-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-gray-300 mb-1">Street Address</label>
-                        <input type="text" name="landMark" id="landMark" placeholder="House number and street name"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white">
-                        <div id="landMark-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">Postcode / ZIP *</label>
-                        <input type="text" name="pincode" id="pincode"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your postcode/ZIP">
-                        <div id="pincode-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">Phone</label>
-                        <input type="text" name="phone" id="phone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your phone number">
-                        <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 mb-1">Alternative Phone</label>
-                        <input type="text" name="altPhone" id="altPhone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white" placeholder="Enter your alternative phone number">
-                        <div id="altPhone-error" class="text-red-500 text-sm mt-1 hidden"></div>
-                    </div>
-                    <div class="md:col-span-2 flex justify-center mt-4">
-                        <button type="submit" id="submitButton" class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
+                    
+                    <div class="mt-6 md:mt-8 flex justify-center">
+                        <button type="submit" id="submitButton" 
+                            class="w-full md:w-auto bg-yellow-500 hover:bg-yellow-600 text-black px-6 py-3 rounded-lg font-semibold text-sm md:text-base transition-colors duration-200">
                             Add Address
                         </button>
                     </div>
@@ -78,10 +102,12 @@
             if (isSubmitting) return;
             isSubmitting = true;
             submitButton.disabled = true;
+            submitButton.classList.add('opacity-75');
 
             if (!validateForm()) {
                 isSubmitting = false;
                 submitButton.disabled = false;
+                submitButton.classList.remove('opacity-75');
                 return false;
             }
 
@@ -150,10 +176,10 @@
             if (altPhone && !/^\d{10}$/.test(altPhone)) {
                 displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
                 isValid = false;
-            }else if (!/^[6-9]/.test(phone)) {
+            } else if (altPhone && !/^[6-9]/.test(altPhone)) {
                 displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
                 isValid = false;
-            } else if (/^(\d)\1{9}$/.test(phone)) {
+            } else if (altPhone && /^(\d)\1{9}$/.test(altPhone)) {
                 displayErrorMessage("altPhone-error", "All digits cannot be the same");
                 isValid = false;
             }
@@ -166,6 +192,11 @@
             errorElement.innerText = message;
             errorElement.classList.remove("hidden");
             errorElement.classList.add("block");
+            
+            // Scroll to the first error message on mobile
+            if (window.innerWidth < 768) {
+                errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function clearErrorMessages() {

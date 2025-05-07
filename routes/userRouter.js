@@ -144,6 +144,7 @@ router.post('/addToCart', userController.addToCartAPI);
 router.get('/cart',userController.cart)
 router.get("/deleteCartProduct",userController.deleteCartProduct);
 router.post('/updateCartQuantity', userController.updateCartQuantity);
+router.get('/get-cart-state',userController.getCartState)
 
 
 //address management

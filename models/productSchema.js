@@ -21,11 +21,6 @@ const productSchema = new Schema({
         required:false,
         min:0
     },
-    shipingCharge:{
-        type:Number,
-        required:true,
-        min:0
-    },
     brand: {
         type: Schema.Types.ObjectId,
         ref: 'Brand',

@@ -1,6 +1,3 @@
-<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
-    <%- include('../../views/partials/user/header')%>
-</header>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,6 +18,10 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
+        .address-card:active {
+            transform: scale(0.98);
+        }
+
         .selected-address {
             border-color: #f59e0b;
             background-color: rgba(245, 158, 11, 0.05);
@@ -33,153 +34,139 @@
 </head>
 
 <body class="bg-[#1F1F1F] text-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-3"></div>
-        <div class="relative flex justify-center items-center mb-6">
-            <h2 class="text-white text-2xl font-sans">CHECKOUT</h2>
+    <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+        <%- include('../../views/partials/user/header') %>
+    </header>
+
+    <div class="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
+        <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-3 sm:mb-4"></div>
+        <div class="relative flex justify-center items-center mb-6 sm:mb-8">
+            <h2 class="text-white text-2xl sm:text-3xl font-sans">CHECKOUT</h2>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-8">
-                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-xl font-semibold text-yellow-400">SELECT ADDRESS</h3>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div class="lg:col-span-2 space-y-6 sm:space-y-8">
+                <div class="bg-[#2b2a2a] rounded-xl p-4 sm:p-6 shadow-lg">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                        <h3 class="text-lg sm:text-xl font-semibold text-yellow-400">SELECT ADDRESS</h3>
                         <a href="/addAddressCheckout"
-                            class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                           class="bg-yellow-400 hover:bg-yellow-500 text-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105">
                             + Add New Address
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <% if (addresses && addresses.length> 0) { %>
-                            <% addresses.forEach((address, index)=> { %>
-                                <div
-                                    class="address-card <%= index === 0 ? 'selected-address border-2 border-yellow-400' : 'border-2 border-gray-700' %> bg-gray-750 p-4 rounded-lg transition-all duration-300 cursor-pointer">
-
-                                    <% if (index===0) { %>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                        <% if (addresses && addresses.length > 0) { %>
+                            <% addresses.forEach((address, index) => { %>
+                                <div class="address-card <%= index === 0 ? 'selected-address border-2 border-yellow-400' : 'border-2 border-gray-700' %> bg-gray-750 p-4 sm:p-5 rounded-lg transition-all duration-300 cursor-pointer">
+                                    <% if (index === 0) { %>
                                         <div class="flex items-start mb-2">
-                                            <span
-                                                class="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full mr-2">Default</span>
-                                            <p class="font-medium text-white">
+                                            <span class="bg-yellow-400 text-black text-xs px-2 py-0.5 rounded-full mr-2">Default</span>
+                                            <p class="font-medium text-white text-sm sm:text-base">
                                                 <%= address.name %>
                                             </p>
                                         </div>
-                                        <% } else { %>
-                                            <p class="font-medium text-white mb-2">
-                                                <%= address.name %>
-                                            </p>
-                                            <% } %>
-
-                                                <p class="text-sm text-gray-300 mb-1">
-                                                    <%= address.landMark %>
-                                                </p>
-                                                <p class="text-sm text-gray-300">
-                                                    <%= address.city %>, <%= address.state %>
-                                                </p>
-                                                <p class="text-sm text-gray-300 mb-3">
-                                                    <%= address.country %> - <%= address.pincode %>
-                                                </p>
-                                                <p class="text-sm text-gray-300">Phone: <%= address.phone %>
-                                                </p>
-
-                                                <div class="flex gap-2 mt-4">
-                                                    <% if (index !==0) { %>
-                                                        <form method="POST"
-                                                            action="/setDefaultAddress/<%= address._id %>"
-                                                            class="set-default-form">
-                                                            <button type="submit"
-                                                                class="w-20 h-9 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg font-medium transition">
-                                                                Set Default
-                                                            </button>
-                                                        </form>
-                                                        <% } %>
-
-                                                            <a href="/editAddress-checkout?id=<%= address._id %>"
-                                                                class="w-28 h-9 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded-lg font-medium transition flex items-center justify-center">
-                                                                Edit
-                                                            </a>
-                                                </div>
-
-
-                                </div>
-                                <% }); %>
                                     <% } else { %>
-                                        <div class="col-span-3 text-center py-4">
-                                            <p class="text-gray-400">No addresses found. Please add an address to
-                                                continue.</p>
-                                            <a href="/addAddressCheckout"
-                                                class="mt-2 inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-lg text-sm font-medium">
-                                                Add Address
-                                            </a>
-                                        </div>
-                                        <% } %>
+                                        <p class="font-medium text-white mb-2 text-sm sm:text-base">
+                                            <%= address.name %>
+                                        </p>
+                                    <% } %>
 
+                                    <p class="text-xs sm:text-sm text-gray-300 mb-1">
+                                        <%= address.landMark %>
+                                    </p>
+                                    <p class="text-xs sm:text-sm text-gray-300">
+                                        <%= address.city %>, <%= address.state %>
+                                    </p>
+                                    <p class="text-xs sm:text-sm text-gray-300 mb-2 sm:mb-3">
+                                        <%= address.country %> - <%= address.pincode %>
+                                    </p>
+                                    <p class="text-xs sm:text-sm text-gray-300">Phone: <%= address.phone %></p>
+
+                                    <div class="flex gap-2 mt-3 sm:mt-4">
+                                        <% if (index !== 0) { %>
+                                            <form method="POST" action="/setDefaultAddress/<%= address._id %>" class="set-default-form">
+                                                <button type="submit"
+                                                        class="w-20 sm:w-24 h-9 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm rounded-lg font-medium transition hover:scale-105">
+                                                    Set Default
+                                                </button>
+                                            </form>
+                                        <% } %>
+                                        <a href="/editAddress-checkout?id=<%= address._id %>"
+                                           class="w-20 sm:w-24 h-9 bg-yellow-400 hover:bg-yellow-500 text-black text-xs sm:text-sm rounded-lg font-medium transition flex items-center justify-center hover:scale-105">
+                                            Edit
+                                        </a>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-4 sm:py-6">
+                                <p class="text-gray-400 text-sm sm:text-base">No addresses found. Please add an address to continue.</p>
+                                <a href="/addAddressCheckout"
+                                   class="mt-2 sm:mt-3 inline-block bg-yellow-400 hover:bg-yellow-500 text-black px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg text-sm font-medium transition hover:scale-105">
+                                    Add Address
+                                </a>
+                            </div>
+                        <% } %>
                     </div>
                 </div>
 
-                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                    <h4 class="text-lg font-semibold text-yellow-400 mb-3">DELIVERY INFORMATION</h4>
-                    <div class="flex items-center gap-4">
-                        <div class="bg-gray-750 p-3 rounded-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-400" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                <div class="bg-[#2b2a2a] rounded-xl p-4 sm:p-6 shadow-lg">
+                    <h4 class="text-base sm:text-lg font-semibold text-yellow-400 mb-3 sm:mb-4">DELIVERY INFORMATION</h4>
+                    <div class="flex items-center gap-3 sm:gap-4">
+                        <div class="bg-gray-750 p-2 sm:p-3 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 sm:h-8 w-7 sm:w-8 text-yellow-400" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-400">Estimated Delivery</p>
-                            <p class="font-medium" id="deliveryDate">
-
-                            </p>
+                            <p class="text-xs sm:text-sm text-gray-400">Estimated Delivery</p>
+                            <p class="font-medium text-sm sm:text-base" id="deliveryDate"></p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg">
-                    <h4 class="text-lg font-semibold text-yellow-400 mb-6">YOUR ORDER</h4>
-
-                    <div class="space-y-4">
-                        <% cartItems.forEach(item=> { %>
-                            <div
-                                class="product-card flex items-center gap-4 p-4 rounded-lg transition-all duration-200">
-                                <img src="<%= item.productId.productImage[0]%>" alt="<%= item.productId.name %>"
-                                    class="w-16 h-16 object-cover rounded-lg" />
+                <div class="bg-[#2b2a2a] rounded-xl p-4 sm:p-6 shadow-lg">
+                    <h4 class="text-base sm:text-lg font-semibold text-yellow-400 mb-4 sm:mb-6">YOUR ORDER</h4>
+                    <div class="space-y-3 sm:space-y-4">
+                        <% cartItems.forEach(item => { %>
+                            <div class="product-card flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-lg transition-all duration-200">
+                                <img src="<%= item.productId.productImage[0] %>" alt="<%= item.productId.name %>"
+                                     class="w-16 sm:w-20 h-16 sm:h-20 object-cover rounded-lg" />
                                 <div class="flex-1">
-                                    <h5 class="font-medium">
+                                    <h5 class="font-medium text-sm sm:text-base">
                                         <%= item.productId.productName %>
                                     </h5>
-                                    <p class="text-sm text-gray-400">
+                                    <p class="text-xs sm:text-sm text-gray-400">
                                         <% if (item.productId.color) { %>Color: <%= item.productId.color %> | <% } %>
-                                                    Qty: <%= item.quantity %>
+                                        Qty: <%= item.quantity %>
                                     </p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-white font-medium">₹<%= (item.productId.salePrice *
-                                            item.quantity).toFixed(2) %>
+                                    <p class="text-white font-medium text-sm sm:text-base">
+                                        ₹<%= (item.productId.salePrice * item.quantity).toFixed(2) %>
                                     </p>
                                     <% if (item.productId.regularPrice) { %>
-                                        <p class="text-xs text-gray-500 line-through">₹<%= (item.productId.regularPrice
-                                                * item.quantity).toFixed(2) %>
+                                        <p class="text-xs text-gray-500 line-through">
+                                            ₹<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
                                         </p>
-                                        <% } %>
+                                    <% } %>
                                 </div>
                             </div>
-                            <% }); %>
+                        <% }); %>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-[#2b2a2a] rounded-xl p-6 shadow-lg h-fit sticky top-6">
-                <h4 class="text-xl font-semibold text-center text-yellow-400 mb-6">ORDER SUMMARY</h4>
-
-                <div class="space-y-3 text-sm mb-6">
+            <div class="bg-[#2b2a2a] rounded-xl p-4 sm:p-6 shadow-lg h-fit sticky top-6">
+                <h4 class="text-lg sm:text-xl font-semibold text-center text-yellow-400 mb-4 sm:mb-6">ORDER SUMMARY</h4>
+                <div class="space-y-3 sm:space-y-4 text-sm sm:text-base mb-4 sm:mb-6">
                     <div class="flex justify-between">
-                        <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item)=> total +
-                                item.quantity, 0) %> items)</span>
+                        <span class="text-gray-400">Subtotal (<%= cartItems.reduce((total, item) => total + item.quantity, 0) %> items)</span>
                         <span>₹<%= subtotal.toFixed(2) %></span>
                     </div>
-
                     <div class="flex justify-between">
                         <span class="text-gray-400">Shipping</span>
                         <span class="text-white">₹<%= shippingCharge.toFixed(2) %></span>
@@ -189,54 +176,49 @@
                         <span class="text-green-400">-₹<%= discountAmount.toFixed(2) %></span>
                     </div>
                     <% if (typeof couponDiscount !== 'undefined' && couponDiscount > 0) { %>
-                    <div class="flex justify-between">
-                        <span class="text-gray-400">Coupon Discount</span>
-                        <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
-                    </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Coupon Discount</span>
+                            <span class="text-green-400">-₹<%= couponDiscount.toFixed(2) %></span>
+                        </div>
                     <% } %>
-
-                    <hr class="border-gray-700 my-4" />
-
-                    <div class="flex justify-between text-lg font-bold mb-6">
+                    <hr class="border-gray-700 my-3 sm:my-4" />
+                    <div class="flex justify-between text-base sm:text-lg font-bold mb-4 sm:mb-6">
                         <span>Total</span>
                         <span>₹<%= (subtotal - discountAmount - (couponDiscount || 0) + shippingCharge).toFixed(2) %></span>
                     </div>
                     <% if (addresses && addresses.length > 0) { %>
                         <form action="/proceed-payment" method="get">
                             <button type="submit"
-                                class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 rounded-lg transition-all duration-200 flex items-center justify-center gap-2">
+                                    class="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base hover:scale-105">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd"
-                                        d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                        clip-rule="evenodd" />
+                                          d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                          clip-rule="evenodd" />
                                 </svg>
                                 PROCEED TO PAYMENT
                             </button>
                         </form>
                     <% } else { %>
-                        <div class="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg flex items-center justify-center gap-2 opacity-50 cursor-not-allowed blur-sm">
+                        <div class="w-full bg-yellow-400 text-black font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-lg flex items-center justify-center gap-2 text-sm sm:text-base opacity-50 cursor-not-allowed blur-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd"
-                                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                    clip-rule="evenodd" />
+                                      d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                      clip-rule="evenodd" />
                             </svg>
                             PROCEED TO PAYMENT
                         </div>
-                        <p class="text-sm text-red-500 mt-2 text-center">Please add an address to continue.</p>
+                        <p class="text-xs sm:text-sm text-red-500 mt-2 text-center">Please add an address to continue.</p>
                     <% } %>
-                    
-
-                    <div class="mt-4 text-xs text-gray-500 text-center">
-                        <p>By placing your order, you agree to our <a href="#"
-                                class="text-yellow-400 hover:underline">Terms
-                                of Service</a></p>
+                    <div class="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 text-center">
+                        <p>By placing your order, you agree to our <a href="#" class="text-yellow-400 hover:underline">Terms of Service</a></p>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('.set-default-form').forEach(form => {
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -254,6 +236,10 @@
                             reverseButtons: true,
                             allowOutsideClick: false,
                             showLoaderOnConfirm: true,
+                            width: window.innerWidth < 640 ? '90%' : 'auto',
+                            customClass: {
+                                popup: 'max-w-sm sm:max-w-md'
+                            },
                             preConfirm: async () => {
                                 try {
                                     const response = await fetch(form.action, {
@@ -283,7 +269,11 @@
                                 text: 'Default address updated',
                                 icon: 'success',
                                 timer: 1500,
-                                showConfirmButton: false
+                                showConfirmButton: false,
+                                width: window.innerWidth < 640 ? '90%' : 'auto',
+                                customClass: {
+                                    popup: 'max-w-sm sm:max-w-md'
+                                }
                             });
                             window.location.reload();
                         }
@@ -292,7 +282,11 @@
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'An unexpected error occurred'
+                            text: 'An unexpected error occurred',
+                            width: window.innerWidth < 640 ? '90%' : 'auto',
+                            customClass: {
+                                popup: 'max-w-sm sm:max-w-md'
+                            }
                         });
                     }
                 });
@@ -306,9 +300,9 @@
             const formattedDate = deliveryDate.toLocaleDateString('en-US', options);
 
             document.getElementById('deliveryDate').textContent = formattedDate;
+        });
+    </script>
 
-        </script>
+    <%- include('../../views/partials/user/footer') %>
 </body>
-
 </html>
-<%- include('../../views/partials/user/footer') %>

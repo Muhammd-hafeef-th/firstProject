@@ -1,94 +1,126 @@
-<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
-    <%- include('../../views/partials/user/header')%>
-</header>
-<script src="https://cdn.tailwindcss.com"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Address</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus {
+            outline: none;
+            ring: 2px solid #E8B888;
+            border-color: #E8B888;
+        }
+
+        input:hover {
+            border-color: #E8B888;
+        }
+
+        .error-message {
+            color: #F87171;
+            font-size: 0.875rem;
+            margin-top: 0.375rem;
+        }
+    </style>
+</head>
 
 <body class="bg-[#1F1F1F] text-white">
-    <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-        <div class="flex-1 flex justify-center p-4 md:p-10">
-            <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold">EDIT ADDRESS</h2>
+    <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+        <%- include('../../views/partials/user/header') %>
+    </header>
+
+    <div class="flex flex-col min-h-screen p-4 md:p-8">
+        <div class="flex-1 flex justify-center">
+            <div class="w-full max-w-4xl bg-[#2A2A2A] p-6 md:p-8 rounded-lg shadow-lg border border-[#444]">
+                <div class="text-center mb-6 md:mb-8">
+                    <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
+                    <h2 class="text-xl md:text-2xl font-semibold">Edit Address</h2>
                 </div>
                 <form action="/edit-address-checkout/<%= addressDocs.address[0]._id %>" method="POST"
-                    onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    onsubmit="return handleFormSubmit(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <input type="hidden" name="_method" value="PATCH">
 
                     <div>
-                        <label class="block text-gray-300 mb-1">Name</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Name</label>
                         <input type="text" name="name" value="<%= addressDocs.address[0].name %>" id="name"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your name">
-                        <div id="name-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                        <div id="name-error" class="error-message hidden"></div>
                     </div>
+
                     <div>
-                        <label class="block text-gray-300 mb-1">State</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">State</label>
                         <input type="text" name="state" value="<%= addressDocs.address[0].state %>" id="state"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your state">
-                        <div id="state-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                        <div id="state-error" class="error-message hidden"></div>
                     </div>
+
                     <div>
-                        <label class="block text-gray-300 mb-1">Country</label>
-                        <input type="text" name="country" value="<%= addressDocs.address[0].country%>" id="country"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Country</label>
+                        <input type="text" name="country" value="<%= addressDocs.address[0].country %>" id="country"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your country">
-                        <div id="country-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                        <div id="country-error" class="error-message hidden"></div>
                     </div>
+
                     <div>
-                        <label class="block text-gray-300 mb-1">Town / City</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Town / City</label>
                         <input type="text" name="city" value="<%= addressDocs.address[0].city %>" id="city"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your town/city">
-                        <div id="city-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                        <div id="city-error" class="error-message hidden"></div>
                     </div>
+
                     <div class="md:col-span-2">
-                        <label class="block text-gray-300 mb-1">Street Address</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Street Address</label>
                         <input type="text" name="landMark" placeholder="House number and street name"
                             value="<%= addressDocs.address[0].landMark %>" id="landMark"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white">
-                        <div id="landMark-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200">
+                        <div id="landMark-error" class="error-message hidden"></div>
                     </div>
 
                     <div>
-                        <label class="block text-gray-300 mb-1">Postcode / ZIP *</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Postcode / ZIP *</label>
                         <input type="text" name="pincode" value="<%= addressDocs.address[0].pincode %>" id="pincode"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your postcode/ZIP">
-                        <div id="pincode-error" class="text-red-500 text-sm mt-1 hidden"></div>
-
+                        <div id="pincode-error" class="error-message hidden"></div>
                     </div>
+
                     <div>
-                        <label class="block text-gray-300 mb-1">Phone</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Phone</label>
                         <input type="text" name="phone" value="<%= addressDocs.address[0].phone %>" id="phone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your phone number">
-                        <div id="phone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        <div id="phone-error" class="error-message hidden"></div>
+                    </div>
 
-                    </div>
                     <div>
-                        <label class="block text-gray-300 mb-1">Alternative Phone</label>
+                        <label class="block text-gray-300 mb-1.5 text-sm md:text-base">Alternative Phone</label>
                         <input type="text" name="altPhone" value="<%= addressDocs.address[0].altPhone %>" id="altPhone"
-                            class="w-full p-2 border border-gray-600 rounded bg-transparent text-white"
+                            class="w-full p-2 md:p-3 border border-[#444] rounded-lg bg-transparent text-white text-sm md:text-base placeholder-gray-500 transition-all duration-200"
                             placeholder="Enter your alternative phone number">
-                        <div id="altPhone-error" class="text-red-500 text-sm mt-1 hidden"></div>
+                        <div id="altPhone-error" class="error-message hidden"></div>
                     </div>
-                    <div class="md:col-span-2 flex justify-center mt-4">
-                        <button type="submit" class="bg-yellow-500 text-black px-6 py-2 rounded-md font-semibold">
-                            Edit Address
+
+                    <div class="md:col-span-2 flex justify-center mt-4 md:mt-6">
+                        <button type="submit"
+                            class="bg-[#E8B888] text-black px-6 py-2 md:px-8 md:py-3 rounded-lg font-semibold text-sm md:text-base hover:bg-[#D9A76A] transition-all duration-200 hover:scale-105 shadow-md">
+                            Save Address
                         </button>
                     </div>
                 </form>
             </div>
-
         </div>
-
     </div>
+
     <script>
         let isSubmitting = false;
 
@@ -103,7 +135,67 @@
                 return false;
             }
 
-            event.target.submit();
+            const form = event.target;
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    isSubmitting = false;
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Address Updated',
+                            text: 'Your address has been successfully updated.',
+                            confirmButtonColor: '#E8B888',
+                            background: '#2A2A2A',
+                            color: '#fff',
+                            width: window.innerWidth < 640 ? '90%' : 'auto',
+                            customClass: {
+                                popup: 'max-w-sm sm:max-w-md'
+                            }
+                        }).then(() => {
+                            window.location.href = '/checkout'; // Redirect to checkout or appropriate page
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message || 'Failed to update address.',
+                            confirmButtonColor: '#E8B888',
+                            background: '#2A2A2A',
+                            color: '#fff',
+                            width: window.innerWidth < 640 ? '90%' : 'auto',
+                            customClass: {
+                                popup: 'max-w-sm sm:max-w-md'
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    isSubmitting = false;
+                    console.error('Submission error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while updating the address.',
+                        confirmButtonColor: '#E8B888',
+                        background: '#2A2A2A',
+                        color: '#fff',
+                        width: window.innerWidth < 640 ? '90%' : 'auto',
+                        customClass: {
+                            popup: 'max-w-sm sm:max-w-md'
+                        }
+                    });
+                });
+
+            return false;
         }
 
         function validateForm() {
@@ -165,15 +257,17 @@
             }
 
             const altPhone = document.getElementById('altPhone').value.trim();
-            if (altPhone && !/^\d{10}$/.test(altPhone)) {
-                displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
-                isValid = false;
-            } else if (!/^[6-9]/.test(phone)) {
-                displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
-                isValid = false;
-            } else if (/^(\d)\1{9}$/.test(phone)) {
-                displayErrorMessage("altPhone-error", "All digits cannot be the same");
-                isValid = false;
+            if (altPhone) {
+                if (!/^\d{10}$/.test(altPhone)) {
+                    displayErrorMessage("altPhone-error", "Please enter a valid 10-digit alternative phone number");
+                    isValid = false;
+                } else if (!/^[6-9]/.test(altPhone)) {
+                    displayErrorMessage("altPhone-error", "Phone number must start with 6, 7, 8, or 9");
+                    isValid = false;
+                } else if (/^(\d)\1{9}$/.test(altPhone)) {
+                    displayErrorMessage("altPhone-error", "All digits cannot be the same");
+                    isValid = false;
+                }
             }
 
             return isValid;
@@ -186,12 +280,12 @@
         }
 
         function clearErrorMessages() {
-            const errorElements = document.querySelectorAll('[id$="-error"]');
+            const errorElements = document.querySelectorAll('.error-message');
             errorElements.forEach(el => {
                 el.textContent = "";
                 el.classList.add("hidden");
             });
         }
     </script>
-
 </body>
+</html>
