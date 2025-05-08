@@ -81,6 +81,79 @@
             0% { opacity: 1; transform: translateX(0); }
             100% { opacity: 0; transform: translateX(100%); }
         }
+        /* Mobile-specific styles */
+        @media (max-width: 767px) {
+            .cart-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 1.5rem 0;
+                position: relative;
+            }
+            .cart-item .col-span-5 {
+                grid-column: span 12;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid #333;
+            }
+            .cart-item .col-span-2, 
+            .cart-item .col-span-3 {
+                grid-column: span 4;
+                text-align: center;
+            }
+            .cart-item .col-span-2:last-child {
+                text-align: right;
+                padding-right: 0.5rem;
+            }
+            .cart-item .delete-item-btn {
+                position: absolute;
+                top: 0.5rem;
+                right: 0;
+            }
+            .cart-item .product-info {
+                margin-left: 1.5rem;
+            }
+            .cart-header {
+                display: none;
+            }
+            .order-summary {
+                width: 100%;
+                margin-top: 2rem;
+            }
+            .quantity-control {
+                width: 100%;
+                justify-content: center;
+            }
+            .product-image {
+                width: 80px;
+                height: 80px;
+            }
+            .empty-cart-message {
+                padding: 1rem;
+            }
+            .empty-cart-message svg {
+                height: 4rem;
+                width: 4rem;
+            }
+            .continue-shopping-btn {
+                width: 100%;
+                text-align: center;
+                padding: 0.75rem;
+            }
+            .coupon-input-container {
+                flex-direction: column;
+            }
+            .coupon-input-container input {
+                border-radius: 0.375rem;
+                margin-bottom: 0.5rem;
+            }
+            .coupon-input-container button {
+                border-radius: 0.375rem;
+                width: 100%;
+            }
+            .available-coupons {
+                max-height: 200px;
+                overflow-y: auto;
+            }
+        }
     </style>
 </head>
 <body class="bg-[#1F1F1F] text-white">
@@ -89,14 +162,14 @@
     </header>
 
     <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <div class="text-center mb-10">
+        <div class="text-center mb-6 md:mb-10">
             <div class="w-16 h-[2px] bg-[#E8B888] mx-auto mb-4"></div>
-            <h2 class="text-3xl font-medium">Shopping Cart</h2>
+            <h2 class="text-2xl md:text-3xl font-medium">Shopping Cart</h2>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-8">
             <div class="flex-grow">
-                <div class="border-b border-[#333] pb-3 mb-4">
+                <div class="border-b border-[#333] pb-3 mb-4 cart-header">
                     <div class="grid grid-cols-12 text-sm text-gray-400 font-medium">
                         <div class="col-span-5 pl-2">PRODUCT</div>
                         <div class="col-span-2 text-center">PRICE</div>
@@ -131,19 +204,19 @@
                                             class="flex items-center gap-4 <%= item.isOutOfStock ? 'pointer-events-none' : '' %>">
                                             <img src="<%= item.productId.productImage[0] %>"
                                                 alt="<%= item.productId.name %>"
-                                                class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition <%= item.isOutOfStock ? 'opacity-70' : '' %>">
-                                            <div>
-                                                <h3 class="font-medium <%= item.isOutOfStock ? 'text-gray-400' : '' %>">
+                                                class="w-20 h-20 object-cover rounded-md shadow-md hover:shadow-lg transition product-image <%= item.isOutOfStock ? 'opacity-70' : '' %>">
+                                            <div class="product-info">
+                                                <h3 class="font-medium text-sm md:text-base <%= item.isOutOfStock ? 'text-gray-400' : '' %>">
                                                     <%= item.productId.productName %>
                                                 </h3>
-                                                <p class="text-xs text-gray-400 mt-1">
+                                                <p class="text-xs text-gray-400 mt-1 hidden md:block">
                                                     <%= item.productId.description %>
                                                 </p>
                                             </div>
                                         </a>
                                     </div>
                                     <% if (item.isOutOfStock) { %>
-                                        <div class="mt-2 text-red-400 text-sm flex items-center">
+                                        <div class="mt-2 text-red-400 text-xs md:text-sm flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1"
                                                 viewBox="0 0 20 20" fill="currentColor">
                                                 <path fill-rule="evenodd"
@@ -155,13 +228,13 @@
                                     <% } %>
                                 </div>
 
-                                <div class="col-span-2 text-center text-[#E8B888]"
+                                <div class="col-span-2 text-center text-[#E8B888] text-sm md:text-base"
                                     data-price="<%= item.productId.regularPrice %>">
                                     ₹<%= item.productId.regularPrice.toFixed(2) %>
                                 </div>
 
                                 <div class="col-span-3">
-                                    <div class="flex items-center justify-center">
+                                    <div class="flex items-center justify-center quantity-control">
                                         <div
                                             class="flex items-center border border-[#444] rounded-full bg-[#2A2A2A] shadow-inner <%= item.isOutOfStock ? 'opacity-50' : '' %>">
                                             <button type="button"
@@ -183,21 +256,21 @@
                                     <% } %>
                                 </div>
 
-                                <div class="col-span-2 text-right font-medium item-total">
+                                <div class="col-span-2 text-right font-medium text-sm md:text-base item-total">
                                     ₹<%= (item.productId.regularPrice * item.quantity).toFixed(2) %>
                                 </div>
                             </div>
                         <% }); %>
                     <% } else { %>
-                        <div class="text-center py-12">
-                            <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor"
+                        <div class="text-center py-8 md:py-12 empty-cart-message">
+                            <svg class="mx-auto h-16 md:h-24 w-16 md:w-24 text-gray-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            <h3 class="mt-4 text-xl font-medium text-gray-200">Your cart is empty</h3>
+                            <h3 class="mt-4 text-lg md:text-xl font-medium text-gray-200">Your cart is empty</h3>
                             <a href="/products"
-                                class="mt-6 inline-block bg-[#E8B888] text-black px-6 py-2 rounded-full hover:bg-[#D9A76A] transition">
+                                class="mt-4 md:mt-6 inline-block bg-[#E8B888] text-black px-4 md:px-6 py-2 rounded-full hover:bg-[#D9A76A] transition continue-shopping-btn">
                                 Continue Shopping
                             </a>
                         </div>
@@ -205,9 +278,9 @@
                 </div>
 
                 <% if (cartItems.items.length > 0) { %>
-                    <div class="mt-10 flex justify-start items-center">
+                    <div class="mt-6 md:mt-10 flex justify-start items-center">
                         <a href="/products"
-                            class="flex items-center text-gray-400 hover:text-[#E8B888] transition group">
+                            class="flex items-center text-gray-400 hover:text-[#E8B888] transition group text-sm md:text-base">
                             <svg xmlns="http://www.w3.org/2000/svg"
                                 class="h-5 w-5 mr-2 group-hover:transform group-hover:-translate-x-1 transition-transform"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,32 +294,32 @@
             </div>
 
             <% if (cartItems.items.length > 0) { %>
-                <div class="lg:w-80 bg-[#252525] rounded-lg p-6 h-fit shadow-xl">
-                    <h3 class="text-xl font-medium mb-6 border-b border-[#333] pb-2">Order Summary</h3>
-                    <div class="space-y-4 mb-6">
-                        <div class="flex justify-between items-center">
+                <div class="lg:w-80 w-full bg-[#252525] rounded-lg p-4 md:p-6 h-fit shadow-xl order-summary">
+                    <h3 class="text-lg md:text-xl font-medium mb-4 md:mb-6 border-b border-[#333] pb-2">Order Summary</h3>
+                    <div class="space-y-3 md:space-y-4 mb-4 md:mb-6">
+                        <div class="flex justify-between items-center text-sm md:text-base">
                             <span class="text-gray-400">Subtotal</span>
                             <span class="font-medium" id="cart-subtotal">₹<%= cartItems.subtotal.toFixed(2) %></span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center text-sm md:text-base">
                             <span class="text-gray-400">Shipping</span>
                             <span id="cart-shipping">₹<%= cartItems.shippingCharge.toFixed(2) %></span>
                         </div>
-                        <div class="flex justify-between items-center">
+                        <div class="flex justify-between items-center text-sm md:text-base">
                             <span class="text-gray-400">Savings</span>
                             <span class="text-green-500" id="cart-discount">-₹<%= cartItems.discountAmount.toFixed(2) %></span>
                         </div>
 
-                        <div class="border-t border-[#333] pt-4 mt-2">
-                            <div class="mb-4">
-                                <label for="coupon-code" class="text-gray-300 text-sm mb-1 block">Apply Coupon</label>
-                                <div class="flex items-center">
+                        <div class="border-t border-[#333] pt-3 md:pt-4 mt-2">
+                            <div class="mb-3 md:mb-4">
+                                <label for="coupon-code" class="text-gray-300 text-xs md:text-sm mb-1 block">Apply Coupon</label>
+                                <div class="flex items-center coupon-input-container">
                                     <input type="text" id="coupon-code" placeholder="Enter coupon code"
-                                        class="bg-[#1F1F1F] text-white px-3 py-2 rounded-l-md border border-[#444] w-full focus:outline-none focus:border-[#E8B888]"
+                                        class="bg-[#1F1F1F] text-white px-3 py-2 rounded-md border border-[#444] w-full focus:outline-none focus:border-[#E8B888] text-sm md:text-base"
                                         <%= appliedCoupon ? 'disabled' : '' %>
                                         value="<%= appliedCoupon ? appliedCoupon.code : '' %>">
                                     <button id="apply-coupon-btn"
-                                        class="bg-[#E8B888] hover:bg-[#D9A76A] text-black px-3 py-2 rounded-r-md transition"
+                                        class="bg-[#E8B888] hover:bg-[#D9A76A] text-black px-3 py-2 rounded-md transition text-sm md:text-base ml-0 md:ml-2"
                                         <%= appliedCoupon ? 'disabled style="opacity: 0.5;"' : '' %>>
                                         <%= appliedCoupon ? 'Applied' : 'Apply' %>
                                     </button>
@@ -259,7 +332,7 @@
                                     class="flex items-center justify-between bg-[#2A2A2A] p-2 rounded-md mb-3 coupon-applied">
                                     <div>
                                         <div class="flex items-center">
-                                            <span class="text-[#E8B888] font-medium">
+                                            <span class="text-[#E8B888] font-medium text-sm md:text-base">
                                                 <%= appliedCoupon.code %>
                                             </span>
                                             <% if (appliedCoupon.discountType === 'percentage') { %>
@@ -287,7 +360,7 @@
                                     </button>
                                 </div>
                                 <% if (appliedCoupon) { %>
-                                    <div class="flex justify-between items-center text-sm mb-3" id="coupon-discount-amount">
+                                    <div class="flex justify-between items-center text-xs md:text-sm mb-3" id="coupon-discount-amount">
                                         <span class="text-gray-400">Coupon Discount</span>
                                         <span class="text-green-500" id="coupon-discount">-₹<%= couponDiscount.toFixed(2) %></span>
                                     </div>
@@ -295,13 +368,13 @@
                             <% } %>
 
                             <% if (applicableCoupons && applicableCoupons.length > 0 && !appliedCoupon) { %>
-                                <div class="mb-4" id="coupon-section">
+                                <div class="mb-3 md:mb-4" id="coupon-section">
                                     <div class="flex items-center justify-between">
-                                        <h4 class="text-sm text-gray-300 mb-2">Available Coupons</h4>
+                                        <h4 class="text-xs md:text-sm text-gray-300 mb-2">Available Coupons</h4>
                                         <button id="toggle-coupons-btn"
                                             class="text-[#E8B888] text-xs hover:underline">Show All</button>
                                     </div>
-                                    <div id="available-coupons" class="space-y-2 hidden">
+                                    <div id="available-coupons" class="space-y-2 hidden available-coupons">
                                         <% applicableCoupons.forEach(coupon => { %>
                                             <div class="bg-[#2A2A2A] p-2 rounded-md border border-[#444] hover:border-[#E8B888] transition cursor-pointer coupon-item"
                                                 data-coupon-id="<%= coupon._id %>"
@@ -310,7 +383,7 @@
                                                 <div class="flex items-center justify-between">
                                                     <div>
                                                         <div class="flex items-center">
-                                                            <span class="text-white font-medium">
+                                                            <span class="text-white font-medium text-sm md:text-base">
                                                                 <%= coupon.name %>
                                                             </span>
                                                             <% if (coupon.discountType === 'percentage') { %>
@@ -341,20 +414,20 @@
                             <% } %>
                         </div>
 
-                        <div class="pt-4 border-t border-[#333] flex justify-between font-medium text-lg">
+                        <div class="pt-3 md:pt-4 border-t border-[#333] flex justify-between font-medium text-base md:text-lg">
                             <span>Total</span>
                             <span class="text-[#E8B888]" id="cart-total">₹<%= cartItems.total.toFixed(2) %></span>
                         </div>
                     </div>
-                    <a href="/checkout" id="checkoutBtn" class="block bg-[#E8B888] hover:bg-[#D9A76A] text-black font-medium py-3 px-4 rounded-md text-center transition shadow-md hover:shadow-lg 
+                    <a href="/checkout" id="checkoutBtn" class="block bg-[#E8B888] hover:bg-[#D9A76A] text-black font-medium py-2 md:py-3 px-4 rounded-md text-center transition shadow-md hover:shadow-lg text-sm md:text-base
                         <% if (cartItems.hasOutOfStockItems || cartItems.hasUnlistedItems) { %> 
                             opacity-50 cursor-not-allowed pointer-events-none 
                         <% } %>">
                         Proceed to Checkout
                     </a>
                     <% if (cartItems.hasOutOfStockItems) { %>
-                        <div class="mt-3 p-2 bg-red-900/20 border border-red-900/50 rounded-md">
-                            <p class="text-red-400 text-sm text-center">
+                        <div class="mt-2 md:mt-3 p-2 bg-red-900/20 border border-red-900/50 rounded-md">
+                            <p class="text-red-400 text-xs md:text-sm text-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path fill-rule="evenodd"
@@ -366,8 +439,8 @@
                         </div>
                     <% } %>
                     <% if (cartItems.hasUnlistedItems) { %>
-                        <div class="mt-3 p-2 bg-yellow-900/20 border border-yellow-900/50 rounded-md">
-                            <p class="text-yellow-400 text-sm text-center">
+                        <div class="mt-2 md:mt-3 p-2 bg-yellow-900/20 border border-yellow-900/50 rounded-md">
+                            <p class="text-yellow-400 text-xs md:text-sm text-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1"
                                     viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd"
@@ -384,9 +457,9 @@
     </div>
 
     <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-[#252525] p-6 rounded-lg shadow-xl flex flex-col items-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E8B888] mb-4"></div>
-            <p class="text-white">Updating cart...</p>
+        <div class="bg-[#252525] p-4 md:p-6 rounded-lg shadow-xl flex flex-col items-center">
+            <div class="animate-spin rounded-full h-10 md:h-12 w-10 md:w-12 border-t-2 border-b-2 border-[#E8B888] mb-3 md:mb-4"></div>
+            <p class="text-white text-sm md:text-base">Updating cart...</p>
         </div>
     </div>
 
@@ -492,7 +565,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="flex items-center">
-                                    <span class="text-white font-medium">${coupon.name}</span>
+                                    <span class="text-white font-medium text-sm md:text-base">${coupon.name}</span>
                                     ${
                                         coupon.discountType === 'percentage'
                                             ? `<span class="ml-2 bg-green-900/30 text-green-500 rounded-full text-xs px-2 py-0.5">${coupon.offerPrice}% OFF</span>`

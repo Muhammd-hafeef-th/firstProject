@@ -659,12 +659,27 @@ const productDetails = async (req, res, next) => {
     try {
         let productId = req.query.id;
         let productDe = await Product.findById(productId);
+        
+        // Check if product exists
+        if (!productDe) {
+            return res.redirect('/products?error=Product not available');
+        }
+        
+        // Check if product is unlisted
+        if (!productDe.isListed) {
+            return res.redirect('/products?error=This product is not available');
+        }
+        
         let brandId = productDe.brand;
         let brand = await Brand.findOne({ _id: brandId });
+        
+        // Check if brand is unlisted
+        if (!brand || !brand.isListed) {
+            return res.redirect('/products?error=This product is not available');
+        }
 
         let brandOffer = brand?.brandOffer || 0;
         let productOffer = productDe.discount
-
 
         let newOffer = productOffer;
 

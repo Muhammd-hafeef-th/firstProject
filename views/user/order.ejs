@@ -2,6 +2,7 @@
     <%- include('../../views/partials/user/header')%>
 </header>
     <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         .arrow-button {
             border: 2px solid #d7c5c5;
@@ -46,14 +47,37 @@
             .grid-cols-12>div {
                 padding: 0.5rem;
             }
+            .pagination-container {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.75rem;
+            }
+            .pagination-numbers {
+                order: 1;
+                width: 100%;
+                justify-content: center;
+                margin: 0.5rem 0;
+            }
+            .pagination-prev, .pagination-next {
+                flex: 1;
+                min-width: 100px;
+                justify-content: center;
+            }
         }
     </style>
 
     <body class="bg-[#1F1F1F] text-white">
-        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
-            <div class="w-full md:w-64 bg-[#1F1F1F] p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
-                <h2 class="text-xl font-bold mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
-                <ul class="space-y-3">
+        <div class="flex flex-col md:flex-row min-h-screen p-2 sm:p-4 md:p-0">
+            <div class="w-full md:w-64 bg-[#1F1F1F] p-4 sm:p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
+                <div class="flex justify-between items-center md:block">
+                    <h2 class="text-lg sm:text-xl font-bold mb-4 md:mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
+                    <button id="toggleSidebar" class="md:hidden bg-[#333] p-2 rounded">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+                <ul class="space-y-3" id="sidebarMenu">
                     <li>
                         <a href="/profile" class="flex items-center p-2 rounded-lg hover:bg-[#333] transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -109,19 +133,20 @@
                     <% } %>
                 </div>
             </div>
-            <div class="flex-1 flex justify-center p-4 md:p-10">
+            <div class="flex-1 flex justify-center p-2 sm:p-4 md:p-10">
                 <div
-                    class="w-full max-w-6xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700 shadow-2xl shadow-black/50">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2
-                            class="text-2xl font-bold bg-gradient-to-r text-white bg-clip-text text-transparent">
+                    class="w-full max-w-6xl bg-[#1F1F1F] p-4 sm:p-6 rounded-lg border border-gray-700 shadow-2xl shadow-black/50">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#88903F]">
                             ORDER HISTORY</h2>
-                            <form action="/orders" method="get" class="relative flex items-center gap-2">
-    <div class="relative">
+                            <form action="/orders" method="get" class="relative flex items-center gap-2 w-full sm:w-auto">
+    <div class="relative w-full sm:w-auto">
         <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
-            class="bg-[#2b2929] border border-gray-700 rounded-full py-2 px-4 text-white focus:outline-none focus:ring-2 focus:ring-yellow-500 transition-all duration-300 w-48 md:w-64">
-        <button type="submit"
-            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+            class="bg-[#2b2929] border border-gray-700 text-white rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-[#88903F] focus:border-[#88903F]">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
             <i class="fas fa-search"></i>
         </button>
     </div>
@@ -137,26 +162,26 @@
 
                     </div>
 
-                    <div class="p-4 md:p-6 bg-[#1F1F1F] text-white">
+                    <div class="p-3 sm:p-4 md:p-6 bg-[#1F1F1F] text-white">
                         <div
                             class="bg-gradient-to-r bg-[#88903F] text-black font-semibold rounded-t-lg overflow-hidden shadow-md">
-                            <div class="grid grid-cols-12 gap-4 p-4 items-center">
-                                <div class="col-span-3 md:col-span-2">Order ID</div>
-                                <div class="col-span-3 md:col-span-2">Amount</div>
-                                <div class="hidden md:block md:col-span-2">Date</div>
-                                <div class="col-span-3 md:col-span-3">Status</div>
-                                <div class="col-span-3 md:col-span-3">Items</div>
+                            <div class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 text-xs sm:text-sm md:text-base">
+                                <div class="col-span-6 lg:col-span-2">Order ID</div>
+                                <div class="hidden lg:block lg:col-span-2">Amount</div>
+                                <div class="hidden lg:block lg:col-span-2">Date</div>
+                                <div class="col-span-4 lg:col-span-3">Status</div>
+                                <div class="col-span-2 lg:col-span-3">Items</div>
                             </div>
                         </div>
 
                         <div class="bg-[#2b2929] divide-y divide-gray-700 rounded-b-lg shadow-lg overflow-hidden">
                             <% if (orders.length===0) { %>
-                                <div class="bg-[#2b2929] p-8 text-center rounded-lg">
-                                    <i class="fas fa-box-open text-4xl text-yellow-500 mb-4"></i>
-                                    <h3 class="text-xl font-semibold mb-2">No orders found</h3>
-                                    <p class="text-gray-400 mb-4">You haven't placed any orders yet.</p>
-                                    <a href="/products"
-                                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-6 rounded-lg transition-all duration-300">
+                                <div class="bg-[#2b2929] p-4 sm:p-8 text-center rounded-lg">
+                                    <i class="fas fa-box-open text-3xl sm:text-4xl text-yellow-500 mb-3 sm:mb-4"></i>
+                                    <h3 class="text-lg sm:text-xl font-semibold mb-2">No Orders Found</h3>
+                                    <p class="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">You haven't placed any orders yet.</p>
+                                    <a href="/"
+                                        class="bg-[#88903F] text-black px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-300 text-sm sm:text-base inline-block">
                                         Start Shopping
                                     </a>
                                 </div>
@@ -164,70 +189,72 @@
 
                                     <% orders.forEach(order=> { %>
                                         <div
-                                            class="grid grid-cols-12 items-center gap-4 p-4 hover:bg-[#333232] transition-all duration-300 transform hover:-translate-y-0.5">
-                                            <div class="col-span-3 md:col-span-2 font-mono text-[#88903F]">#<%=
+                                            class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 hover:bg-[#333232] transition-all duration-300 transform hover:-translate-y-0.5 text-xs sm:text-sm md:text-base">
+                                            <div class="col-span-6 lg:col-span-2 font-mono text-[#88903F] truncate">#<%=
                                                     order.id %>
                                             </div>
-                                            <div class="col-span-3 md:col-span-2 font-bold">₹<%=
+                                            <div class="hidden lg:block lg:col-span-2 font-bold truncate">₹<%=
                                                     order.price.toLocaleString() %>
                                             </div>
-                                            <div class="hidden md:block md:col-span-2 text-gray-300">
+                                            <div class="hidden lg:block lg:col-span-2 text-gray-300">
                                                 <%= order.date %>
                                             </div>
-                                            <div class="col-span-3 md:col-span-3">
-                                                <span class="
-                                                 <% if (order.status === 'Delivered') { %>
-                                                     bg-green-500/90 animate-pulse text-white
-                                                 <% } else if (order.status === 'Shipped') { %>
-                                                     bg-blue-500 text-white
-                                                 <% } else if (order.status === 'Processing') { %>
-                                                     bg-purple-500 text-white
-                                                 <% } else if (order.status === 'Pending') { %>
-                                                     bg-yellow-500 text-black
-                                                 <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
+                                            <div class="col-span-4 lg:col-span-3">
+                                                 <span class="
+                                                  <% if (order.status === 'Delivered') { %>
+                                                      bg-green-500/90 animate-pulse text-white
+                                                  <% } else if (order.status === 'Shipped') { %>
+                                                      bg-blue-500 text-white
+                                                  <% } else if (order.status === 'Processing') { %>
+                                                      bg-purple-500 text-white
+                                                  <% } else if (order.status === 'Pending') { %>
+                                                      bg-yellow-500 text-black
+                                                  <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
+                                                      bg-red-500 text-white
+                                                  <% }  else if (order.status === 'Return Rejected') { %>
                                                      bg-red-500 text-white
-                                                 <% }  else if (order.status === 'Return Rejected') { %>
-                                                    bg-red-500 text-white
-                                                <% } else if (order.status === 'Return Request') { %>
-                                                    bg-yellow-500 text-black
-                                                <% }else { %>
-                                                     bg-gray-500 text-white
-                                                 <% } %>
-                                                 px-3 py-1 rounded-full text-xs md:text-sm font-bold">
+                                                 <% } else if (order.status === 'Return Request') { %>
+                                                     bg-yellow-500 text-black
+                                                 <% }else { %>
+                                                      bg-gray-500 text-white
+                                                  <% } %>
+                                                  px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs md:text-sm font-bold whitespace-nowrap inline-block">
                                                     <%= order.status %>
                                                 </span>
                                             </div>
-                                            <div class="col-span-3 md:col-span-3">
+                                            <div class="col-span-2 lg:col-span-3">
                                                 <div class="flex items-center gap-2">
-                                                    <% order.items.slice(0, 2).forEach(item=> { %>
-                                                        <div class="relative group">
-                                                            <% if (item.image) { %>
-                                                                <img src="<%= item.image %>" alt="<%= item.name %>"
-                                                                    class="w-10 h-10 object-cover rounded border-2 border-yellow-500 transition-transform duration-300 group-hover:scale-110" />
-                                                                <% } else { %>
-                                                                    <div
-                                                                        class="w-10 h-10 bg-gray-700 rounded border-2 border-yellow-500 flex items-center justify-center">
-                                                                        <i class="fas fa-image text-gray-400"></i>
-                                                                    </div>
-                                                                    <% } %>
-                                                                        <% if (item===order.items[0] &&
-                                                                            order.items.length> 2) { %>
-                                                                            <div
-                                                                                class="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">
-                                                                                +<%= order.items.length - 2 %>
-                                                                            </div>
-                                                                            <% } %>
-                                                        </div>
-                                                        <% }); %>
-                                                            <button
-                                                                class="arrow-button ml-auto p-2 rounded-full bg-[#3a3838] hover:bg-yellow-500 hover:text-black transition-all duration-300">
-                                                                <a href="/order-details?orderId=<%=order.id%>"><i
-                                                                        class="fas fa-chevron-right text-sm"></i></a>
-                                                            </button>
+                                                    <div class="hidden lg:block">
+                                                        <% order.items.slice(0, 2).forEach(item=> { %>
+                                                            <div class="relative group">
+                                                                <% if (item.image) { %>
+                                                                    <img src="<%= item.image %>" alt="<%= item.name %>"
+                                                                        class="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded border-2 border-yellow-500 transition-transform duration-300 group-hover:scale-110" />
+                                                                    <% } else { %>
+                                                                        <div
+                                                                            class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-700 rounded border-2 border-yellow-500 flex items-center justify-center">
+                                                                            <i class="fas fa-image text-gray-400 text-xs sm:text-sm"></i>
+                                                                        </div>
+                                                                        <% } %>
+                                                                            <% if (item===order.items[0] &&
+                                                                                order.items.length> 2) { %>
+                                                                                <div
+                                                                                    class="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[10px] sm:text-xs font-bold">
+                                                                                    +<%= order.items.length - 2 %>
+                                                                                </div>
+                                                                                <% } %>
+                                                            </div>
+                                                            <% }); %>
+                                                    </div>
+                                                    <button
+                                                        class="arrow-button ml-auto p-2 rounded-full bg-[#3a3838] hover:bg-yellow-500 hover:text-black transition-all duration-300">
+                                                        <a href="/order-details?orderId=<%=order.id%>" class="flex items-center justify-center"><i
+                                                                class="fas fa-chevron-right text-xs sm:text-sm"></i></a>
+                                                    </button>
                                                 </div>
 
                                             </div>
-                                            <div class="col-span-12 md:hidden text-sm text-gray-400 mt-2">
+                                            <div class="col-span-12 lg:hidden text-[10px] text-gray-400 mt-1">
                                                 <%= order.mobileDate %>
                                             </div>
                                         </div>
@@ -236,30 +263,30 @@
                                             <% } %>
                         </div>
 
-                        <div class="flex justify-between items-center mt-6 text-sm">
+                        <div class="flex justify-between items-center mt-6 text-xs sm:text-sm pagination-container">
                             <% if (currentPage> 1) { %>
                                 <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>"
-                                    class="flex items-center gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-4 py-2 rounded-lg transition-all duration-300">
-                                    <i class="fas fa-chevron-left"></i> Previous
+                                    class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-2 sm:px-4 py-2 rounded-lg transition-all duration-300 pagination-prev">
+                                    <i class="fas fa-chevron-left"></i> Prev
                                 </a>
                                 <% } else { %>
                                     <span
-                                        class="flex items-center gap-2 bg-[#2b2929] text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed">
-                                        <i class="fas fa-chevron-left"></i> Previous
+                                        class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-prev">
+                                        <i class="fas fa-chevron-left"></i> Prev
                                     </span>
                                     <% } %>
 
-                                        <div class="flex gap-2">
+                                        <div class="flex gap-1 sm:gap-2 pagination-numbers">
                                             <% for(let i=1; i <=Math.min(5, totalPages); i++) { %>
                                                 <a href="?page=<%= i %>&limit=<%= limit %>"
-                                                    class="w-8 h-8 rounded-full <%= currentPage === i ? 'bg-[#88903F] text-black font-bold' : 'bg-[#2b2929] hover:bg-[#88903F] hover:text-black' %> transition-all duration-300 flex items-center justify-center">
+                                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full <%= currentPage === i ? 'bg-[#88903F] text-black font-bold' : 'bg-[#2b2929] hover:bg-[#88903F] hover:text-black' %> transition-all duration-300 flex items-center justify-center">
                                                     <%= i %>
                                                 </a>
                                                 <% } %>
                                                     <% if (totalPages> 5) { %>
                                                         <span class="flex items-center px-2">...</span>
                                                         <a href="?page=<%= totalPages %>&limit=<%= limit %>"
-                                                            class="w-8 h-8 rounded-full bg-[#2b2929] hover:bg-[#88903F] hover:text-black transition-all duration-300 flex items-center justify-center">
+                                                            class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#2b2929] hover:bg-[#88903F] hover:text-black transition-all duration-300 flex items-center justify-center">
                                                             <%= totalPages %>
                                                         </a>
                                                         <% } %>
@@ -267,12 +294,12 @@
 
                                         <% if (currentPage < totalPages) { %>
                                             <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>"
-                                                class="flex items-center gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-4 py-2 rounded-lg transition-all duration-300">
+                                                class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-2 sm:px-4 py-2 rounded-lg transition-all duration-300 pagination-next">
                                                 Next <i class="fas fa-chevron-right"></i>
                                             </a>
                                             <% } else { %>
                                                 <span
-                                                    class="flex items-center gap-2 bg-[#2b2929] text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed">
+                                                    class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-next">
                                                     Next <i class="fas fa-chevron-right"></i>
                                                 </span>
                                                 <% } %>
@@ -282,6 +309,33 @@
             </div>
         </div>
 
+    <script>
+        // Mobile sidebar toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.getElementById('toggleSidebar');
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            
+            // Check if we're on mobile and hide the menu initially
+            function checkMobile() {
+                if (window.innerWidth < 768) {
+                    sidebarMenu.classList.add('hidden');
+                } else {
+                    sidebarMenu.classList.remove('hidden');
+                }
+            }
+            
+            // Run on page load
+            checkMobile();
+            
+            // Toggle sidebar when button is clicked
+            toggleButton.addEventListener('click', function() {
+                sidebarMenu.classList.toggle('hidden');
+            });
+            
+            // Listen for window resize
+            window.addEventListener('resize', checkMobile);
+        });
+    </script>
     </body>
 
     <%- include('../../views/partials/user/footer') %>

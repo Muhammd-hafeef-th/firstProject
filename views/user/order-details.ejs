@@ -7,6 +7,7 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap"
     rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script>
     tailwind.config = {
@@ -31,32 +32,31 @@
 </script>
 
 <div class="bg-dark-gray font-poppins min-h-screen">
-    <div class="max-w-4xl mx-auto p-4 md:p-8">
+    <div class="max-w-4xl mx-auto px-3 py-4 sm:px-4 md:p-8">
 
-        <div class="mb-8 text-center md:text-left">
-            <h1 class="text-3xl md:text-4xl font-bold font-playfair text-rose-gold mb-4">Order Details</h1>
+        <div class="mb-6 sm:mb-8 text-center md:text-left">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold font-playfair text-rose-gold mb-4">Order Details</h1>
             <div
-                class="flex flex-wrap justify-center md:justify-start gap-4 bg-[#1F1F1F] p-4 rounded-lg shadow-sm border border-gray-600">
-                <div class="flex items-center">
+                class="flex flex-col sm:flex-row flex-wrap justify-center md:justify-start gap-3 sm:gap-4 bg-[#1F1F1F] p-3 sm:p-4 rounded-lg shadow-sm border border-gray-600">
+                <div class="flex items-center justify-center sm:justify-start">
                     <span class="text-white mr-2">Order Id:</span>
                     <span class="font-medium text-rose-gold">#<%= order.orderId %></span>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center justify-center sm:justify-start">
                     <span class="text-white mr-2">Date:</span>
                     <span class="font-medium text-rose-gold">
                         <%= order.invoiceDate ? new Date(order.invoiceDate).toLocaleDateString('en-IN') : 'N/A' %>
                     </span>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center justify-center sm:justify-start">
                     <span class="text-white mr-2">Total:</span>
                     <span class="font-medium text-rose-gold-dark">₹<%= order.finalAmount.toFixed(2) %></span>
                 </div>
             </div>
         </div>
 
-
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Status</h2>
+        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-600">
+            <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-4 sm:mb-6">Order Status</h2>
 
             <% if (order.status==='Returned' ) { %>
                 <div class="flex items-center text-red-700">
@@ -99,14 +99,14 @@
                                 <p class="italic text-red-600">Return Rejected</p>
                             </div>
                             <% } else { %>
-                                <div class="space-y-4">
+                                <div class="space-y-3 sm:space-y-4">
                                     <div class="relative">
                                         <div
                                             class="absolute h-1.5 bg-gray-700 top-1/2 left-0 right-0 -translate-y-1/2 rounded-full">
                                         </div>
                                         <div class="absolute h-1.5 bg-rose-gold top-1/2 left-0 -translate-y-1/2 rounded-full transition-all duration-500"
                                             style="width: <%= progress %>%;" aria-hidden="true"></div>
-                                        <div class="flex justify-between relative z-10">
+                                        <div class="flex justify-between relative z-10 overflow-x-auto pb-2 -mx-1 px-1">
                                             <% const steps=[ { name: 'Pending' ,
                                                 icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z'
                                                 , description: 'Order received and awaiting processing' }, {
@@ -117,7 +117,7 @@
                                                 icon: 'M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h.05a2.5 2.5 0 014.9 0H19a1 1 0 001-1v-2a1 1 0 00-.293-.707l-3-3A1 1 0 0016 7h-1V5a1 1 0 00-1-1H3z'
                                                 , description: 'Order has been shipped and is in transit' }, {
                                                 name: 'Delivered' ,
-                                                icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                                                icon: 'M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
                                                 , description: 'Order has been delivered successfully' } ]; %>
 
                                                 <% steps.forEach((step, index)=> {
@@ -125,7 +125,7 @@
                                                     const isCompleted = progress >= stepPercent;
                                                     const isCurrent = progress >= stepPercent && progress < (stepPercent
                                                         + 25); %>
-                                                        <div class="flex flex-col items-center group"
+                                                        <div class="flex flex-col items-center group min-w-[60px] sm:min-w-0"
                                                             style="width: 20%;">
                                                             <div class="w-10 h-10 rounded-full <%= isCompleted ? 'bg-rose-gold' : 'bg-gray-600' %> flex items-center justify-center mb-2 transition-colors duration-300"
                                                                 aria-current="<%= isCurrent ? 'step' : 'false' %>">
@@ -137,20 +137,20 @@
                                                                         clip-rule="evenodd" />
                                                                 </svg>
                                                             </div>
-                                                            <span
-                                                                class="text-sm font-medium <%= isCompleted ? 'text-rose-gold' : 'text-gray-400' %> text-center transition-colors duration-300">
+                                                             <span
+                                                                class="text-xs sm:text-sm font-medium <%= isCompleted ? 'text-rose-gold' : 'text-gray-400' %> text-center transition-colors duration-300 mt-1">
                                                                 <%= step.name %>
                                                             </span>
                                                             <div
-                                                                class="absolute top-12 mt-6 hidden group-hover:block bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded whitespace-nowrap">
+                                                                class="absolute top-10 sm:top-12 mt-4 sm:mt-6 hidden group-hover:block bg-gray-800 text-gray-300 text-xs px-2 py-1 rounded whitespace-nowrap z-20">
                                                                 <%= step.description %>
                                                             </div>
                                                         </div>
                                                         <% }); %>
                                         </div>
                                     </div>
-                                    <div class="text-center pt-4">
-                                        <p class="text-gray-300">
+                                    <div class="text-center pt-3 sm:pt-4">
+                                        <p class="text-gray-300 text-sm sm:text-base">
                                             <% if (progress < 25) { %>
                                                 Your order has been received and is awaiting processing.
                                                 <% } else if (progress < 50) { %>
@@ -168,27 +168,26 @@
                                 <% } %>
         </div>
 
-
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-6">Order Items</h2>
+        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 border border-gray-600">
+            <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-4 sm:mb-6">Order Items</h2>
 
             <div class="divide-y divide-gray-600">
                 <% order.orderItems.forEach(item=> { %>
-                    <div class="py-6 flex flex-col md:flex-row gap-6">
+                    <div class="py-4 sm:py-6 flex flex-col sm:flex-row gap-4 sm:gap-6">
                         <div
-                            class="w-28 h-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-600">
+                            class="w-full h-40 sm:w-28 sm:h-28 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0 border border-gray-600 mx-auto sm:mx-0">
                             <img src="<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>"
                                 class="w-full h-full object-cover">
                         </div>
-                        <div class="flex-grow">
-                            <h3 class="font-medium text-rose-gold text-lg">
+                        <div class="flex-grow mt-3 sm:mt-0">
+                            <h3 class="font-medium text-rose-gold text-base sm:text-lg text-center sm:text-left">
                                 <%= item.product.productName %>
                             </h3>
-                            <p class="text-white text-sm mt-1">
+                            <p class="text-white text-xs sm:text-sm mt-1 text-center sm:text-left">
                                 <%= item.product.description.substring(0, 80) %>
                                     <%= item.product.description.length> 80 ? '...' : '' %>
                             </p>
-                            <div class="flex flex-wrap items-center gap-4 mt-3">
+                            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3 sm:gap-4 mt-3">
                                 <span class="text-white">Qty: <%= item.quantity %></span>
                                 <span class="font-medium text-rose-gold">₹<%= item.price.toFixed(2) %></span>
                                 <span class="
@@ -205,8 +204,7 @@
                                     <% if (order.status==='Shipped' ) { %>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="currentColor"
                                             viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 
-                                            7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                                 clip-rule="evenodd" />
                                         </svg>
                                         Shipped
@@ -214,9 +212,7 @@
                                         <% } else if (order.status==='Processing' ) { %>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
                                                 fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 
-                                            11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 
-                                            1.414 5 5 0 007.072 0z" clip-rule="evenodd" />
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" clip-rule="evenodd" />
                                             </svg>
                                             Processing
 
@@ -232,8 +228,7 @@
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1"
                                                         fill="currentColor" viewBox="0 0 20 20">
                                                         <path fill-rule="evenodd"
-                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-11a1 1 0 10-2 0v2H9a1 1 0 000 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
-                                                            clip-rule="evenodd" />
+                                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3-11a1 1 0 10-2 0v4a1 1 0 002 0V7a1 1 0 00-2 0v4z" clip-rule="evenodd" />
                                                     </svg>
                                                     Cancelled
 
@@ -267,8 +262,7 @@
                                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                                         class="h-5 w-5 mr-1" fill="currentColor"
                                                                         viewBox="0 0 20 20">
-                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 
-                                            00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0 1 1 0 012 0zm-1 8a1 1 0 00-1 1v3a1 1 0 001 1h1a1 1 0 100-2H9a1 1 0 00-1-1v-3z"
                                                                             clip-rule="evenodd" />
                                                                     </svg>
                                                                     Pending
@@ -282,8 +276,8 @@
             </div>
 
             <!-- Order Totals -->
-            <div class="border-t border-gray-600 pt-6 mt-4">
-                <div class="space-y-3">
+            <div class="border-t border-gray-600 pt-4 sm:pt-6 mt-3 sm:mt-4">
+                <div class="space-y-2 sm:space-y-3">
                     <div class="flex justify-between">
                         <span class="text-white">Subtotal</span>
                         <span class="font-medium text-white">₹<%= order.totalPrice.toFixed(2) %></span>
@@ -309,17 +303,17 @@
                             </div>
                             <% } %>
                                 <% } %>
-                                    <div class="flex justify-between pt-3 mt-2 border-t border-gray-600">
+                                    <div class="flex justify-between pt-3 mt-2 border-t border-gray-600 text-sm sm:text-base">
                                         <span class="text-rose-gold font-semibold">Total</span>
-                                        <span class="font-bold text-rose-gold-dark text-lg">₹<%=
+                                        <span class="font-bold text-rose-gold-dark text-base sm:text-lg">₹<%=
                                                 order.finalAmount.toFixed(2) %></span>
                                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4 flex items-center">
+        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-600">
+            <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-3 sm:mb-4 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-rose-gold" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path fill-rule="evenodd"
@@ -333,21 +327,21 @@
                     <% if (selectedAddress.name) { %>
                         <p class="font-medium"><%= selectedAddress.name %></p>
                     <% } %>
-            
+
                     <% if (selectedAddress.landMark) { %>
                         <p><%= selectedAddress.landMark %></p>
                     <% } %>
-            
+
                     <% if (selectedAddress.city || selectedAddress.state || selectedAddress.pincode) { %>
                         <p>
                             <%= selectedAddress.city %>, <%= selectedAddress.state %> <%= selectedAddress.pincode %>
                         </p>
                     <% } %>
-            
+
                     <% if (selectedAddress.country) { %>
                         <p><%= selectedAddress.country %></p>
                     <% } %>
-            
+
                     <% if (selectedAddress.phone) { %>
                         <p class="text-white">Phone: <%= selectedAddress.phone%></p>
                     <% } %>
@@ -355,11 +349,11 @@
                     <p class="text-gray-300">Address not available.</p>
                 <% } %>
             </address>
-            
+
         </div>
         <!-- Add this after the Shipping Address section -->
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 mb-8 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4 flex items-center">
+        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-600">
+            <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-3 sm:mb-4 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-rose-gold" viewBox="0 0 20 20"
                     fill="currentColor">
                     <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
@@ -456,29 +450,29 @@
             </p>
         </div>
 
-        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-6 border border-gray-600">
-            <h2 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Order Actions</h2>
-            <div class="flex flex-wrap gap-3">
+        <div class="bg-[#1F1F1F] rounded-lg shadow-sm p-4 sm:p-6 border border-gray-600">
+            <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-3 sm:mb-4">Order Actions</h2>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-3">
                 <% if (order.status !=='Cancelled' && order.status !=='Delivered' && order.status !=='Return Request' &&
                     order.status !=='Returned' && order.status !=='Return Rejected' ) { %>
                     <button onclick="openCancelModal('<%=order.orderId%>')"
-                        class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                        class="w-full sm:w-auto px-4 sm:px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300 text-sm sm:text-base mb-2 sm:mb-0">
                         Cancel Order
                     </button>
                     <% } %>
                         <% if (order.status==='Delivered' ) { %>
                             <button onclick="openReturnModal('<%=order.orderId%>')"
-                                class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                class="w-full sm:w-auto px-4 sm:px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300 text-sm sm:text-base mb-2 sm:mb-0">
                                 Return Items
                             </button>
 
                             <button onclick="downloadInvoice('<%=order.orderId%>')"
-                                class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                class="w-full sm:w-auto px-4 sm:px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300 text-sm sm:text-base mb-2 sm:mb-0">
                                 <i class="fas fa-download mr-2"></i> Download Invoice
                             </button>
                             <% } %>
                                 <button
-                                    class="px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300">
+                                    class="w-full sm:w-auto px-4 sm:px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300 text-sm sm:text-base">
                                     <i class="fas fa-headset mr-2"></i>Contact Support
                                 </button>
             </div>
@@ -489,7 +483,7 @@
     </div>
 </div>
 
-<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+<div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
     <div class="bg-[#1F1F1F] rounded-lg p-6 border border-gray-600 w-full max-w-md">
         <h3 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Cancel Order</h3>
         <p class="text-white mb-4">Are you sure you want to cancel this order?</p>
@@ -527,7 +521,7 @@
     </div>
 </div>
 
-<div id="returnModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+<div id="returnModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden p-4">
     <div class="bg-[#1F1F1F] rounded-lg p-6 border border-gray-600 w-full max-w-md">
         <h3 class="text-xl font-semibold font-playfair text-rose-gold mb-4">Return order</h3>
         <p class="text-white mb-4">Are you sure you want to return this order?</p>

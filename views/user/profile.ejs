@@ -1,14 +1,41 @@
-<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
-    <%- include('../../views/partials/user/header')%>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <body class="bg-[#1F1F1F] text-white">
-        <div class="flex flex-col md:flex-row min-h-screen p-4 md:p-0">
+    <style>
+        #mobile-menu-toggle.active .hamburger { display: none; }
+        #mobile-menu-toggle.active .close { display: block; }
+        #mobile-menu-toggle .close { display: none; }
+    </style>
+    <script>
+        // This ensures the menu toggle works immediately
+        window.addEventListener('load', function() {
+            var mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            var mobileMenu = document.getElementById('mobile-menu');
+            
+            if (mobileMenuToggle && mobileMenu) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    mobileMenu.classList.toggle('hidden');
+                    this.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+</head>
+<body class="bg-[#1F1F1F] text-white">
+    <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+        <%- include('../../views/partials/user/header')%>
+    </header>
+        <div class="flex flex-col md:flex-row min-h-screen p-2 sm:p-4 md:p-0">
             <!-- Sidebar -->
-            <div class="w-full md:w-64 bg-[#1F1F1F] p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
-                <h2 class="text-xl font-bold mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
-                <ul class="space-y-3">
+            <div class="w-full md:w-64 bg-[#1F1F1F] p-4 sm:p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
+                <div class="border-b border-[#333] pb-4 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-[#88903F]">SETTINGS</h2>
+                </div>
+                <ul id="mobile-menu" class="space-y-3 md:block">
                     <li>
                         <a href="/profile" class="flex items-center p-2 rounded-lg hover:bg-[#333] transition-colors bg-[#333] text-[#88903F]">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,26 +93,32 @@
             </div>
 
             <!-- Main Content -->
-            <div class="flex-1 flex justify-center p-4 md:p-10">
-                <div class="w-full max-w-3xl bg-[#1F1F1F] p-6 rounded-lg border border-gray-700">
+            <div class="flex-1 flex justify-center p-3 sm:p-4 md:p-10">
+                <div class="w-full max-w-3xl bg-[#1F1F1F] p-4 sm:p-6 rounded-lg border border-gray-700">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-bold">BASIC INFO</h2>
-                        <span class="text-gray-400 hover:text-white cursor-pointer"><a
-                                href="/profile-edit">✏️Edit</a></span>
+                        <h2 class="text-lg sm:text-xl font-bold">BASIC INFO</h2>
+                        <a href="/profile-edit" class="text-gray-400 hover:text-white cursor-pointer flex items-center">
+                            <span class="mr-1">✏️</span>
+                            <span>Edit</span>
+                        </a>
                     </div>
 
-                    <form class="mt-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="sm:col-span-2 flex flex-col items-center">
+                    <form class="mt-4 sm:mt-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                            <div class="sm:col-span-2 flex flex-col items-center mb-2 sm:mb-4">
                                 <label class="block mb-2">Image</label>
                                 <div id="imagePreview"
-                                    class="relative w-32 h-32 bg-gray-700 rounded-full overflow-hidden">
+                                    class="relative w-24 h-24 sm:w-32 sm:h-32 bg-gray-700 rounded-full overflow-hidden border-2 border-gray-700">
                                     <% if (userDatas?.userImage||'') { %>
                                         <img src="<%= userDatas?.userImage ||'' %>"
-                                            class="w-full h-full object-cover rounded">
-                                        <% } else { %>
-                                            <span></span>
-                                            <% } %>
+                                            class="w-full h-full object-cover">
+                                    <% } else { %>
+                                        <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
+                                    <% } %>
                                 </div>
                             </div>
 
@@ -123,6 +156,49 @@
                 </div>
             </div>
         </div>
-    </body>
+    <script>
+        // Immediate script execution for mobile menu toggle
+        (function() {
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            if (!mobileMenuToggle || !mobileMenu) return;
+            
+            // Initialize mobile menu state
+            if (window.innerWidth < 768) {
+                mobileMenu.classList.add('hidden');
+            } else {
+                mobileMenu.classList.remove('hidden');
+            }
+            
+            // Set up toggle functionality immediately
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+                this.classList.toggle('active');
+                console.log('Menu toggled');
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
+                    mobileMenu.classList.remove('hidden');
+                    mobileMenuToggle.classList.remove('active');
+                }
+            });
+            
+            // Close menu when clicking a menu item
+            const menuLinks = mobileMenu.querySelectorAll('a');
+            for (let i = 0; i < menuLinks.length; i++) {
+                menuLinks[i].addEventListener('click', function() {
+                    if (window.innerWidth < 768) {
+                        mobileMenu.classList.add('hidden');
+                        mobileMenuToggle.classList.remove('active');
+                    }
+                });
+            }
+        })();
+    </script>
 
     <%- include('../../views/partials/user/footer')%>
+</body>
+</html>

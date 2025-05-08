@@ -4,50 +4,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTP Verification</title>
+    <title>OTP Verification | LB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        .otp-input {
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        .otp-input:focus {
+            border-color: #000;
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+        }
+        .verify-btn {
+            background-color: #000;
+            transition: all 0.2s;
+        }
+        .verify-btn:hover {
+            background-color: #1f1f1f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .resend-link {
+            transition: all 0.2s;
+        }
+        .resend-link:hover {
+            color: #1d4ed8;
+        }
+        @media (max-width: 640px) {
+            .otp-container {
+                gap: 0.5rem;
+            }
+            .otp-input {
+                width: 2.5rem;
+                height: 2.5rem;
+            }
+        }
+    </style>
 </head>
 
-<body>
-    <div class="flex items-center justify-center min-h-screen bg-gray-100 px-4 md:px-0">
-        <div class="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+<body class="bg-gray-50">
+    <div class="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden">
 
             <!-- Left Section -->
-            <div class="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
-                <div class="absolute top-2 left-4 flex items-center">
-                    <img src="/images/hand watch2.png" class="h-8 w-8">
-                    <p class="text-black font-extrabold text-3xl ml-2">LB</p>
+            <div class="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center relative">
+                <div class="flex items-center justify-center mb-8">
+                    <div class="flex items-center">
+                        <img src="/images/hand watch2.png" class="h-8 w-8 sm:h-10 sm:w-10">
+                        <p class="text-black font-extrabold text-2xl sm:text-3xl ml-2">LB</p>
+                    </div>
                 </div>
 
-                <h2 class="text-2xl font-semibold mt-6 text-center md:text-left">Enter OTP</h2>
-                <p class="text-gray-500 text-sm mt-2 text-center md:text-left">Please enter the OTP sent to your registered email ID</p>
-                <div id="timer" class="text-yellow-500 font-semibold text-lg mt-4 text-center md:text-left">1:00</div>
+                <div class="max-w-sm mx-auto w-full">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-2">Verification Code</h2>
+                    <p class="text-gray-500 text-sm sm:text-base text-center mb-6">Please enter the 6-digit code sent to your registered email</p>
+                    <div id="timer" class="text-yellow-600 font-semibold text-lg mb-6 text-center bg-yellow-50 py-2 px-4 rounded-lg">1:00</div>
 
-                <!-- OTP Form -->
-                <form id="otpForm" action="/verify-otp" method="post" class="flex flex-col items-center md:items-start">
-                    <div class="flex justify-center gap-2 mt-4">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
-                        <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
+                    <!-- OTP Form -->
+                    <form id="otpForm" action="/verify-otp" method="post" class="flex flex-col w-full">
+                        <div class="flex justify-center gap-2 sm:gap-3 otp-container">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                            <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
+                        </div>
+
+                        <button type="submit" class="verify-btn w-full text-white py-3 sm:py-4 mt-8 rounded-xl font-semibold text-base sm:text-lg">Verify Code</button>
+                    </form>
+
+                    <div class="flex justify-center mt-6">
+                        <p class="text-gray-500 text-sm sm:text-base">
+                            Haven't received the code? <a href="#" onclick="resendOtp()" class="text-black font-semibold resend-link">Resend OTP</a>
+                        </p>
                     </div>
-
-                    <button type="submit" class="w-full bg-black text-white py-3 mt-6 rounded-lg hover:bg-gray-800 transition">Verify Code</button>
-                </form>
-
-                <p class="text-gray-500 text-sm mt-4 text-center md:text-left">
-                    Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-blue-500 font-semibold">Resend OTP</a>
-                </p>
+                </div>
             </div>
 
             <!-- Right Section -->
-            <div class="hidden md:block w-1/2 h-auto">
+            <div class="hidden lg:block w-1/2 h-auto relative overflow-hidden">
+                <div class="absolute inset-0 bg-black bg-opacity-30 z-10 flex items-center justify-center">
+                    <div class="text-white text-center p-8 max-w-lg">
+                        <h2 class="text-4xl font-bold mb-4">Verify Your Account</h2>
+                        <p class="text-xl">You're one step away from accessing your LB account.</p>
+                    </div>
+                </div>
                 <img src="/images/img 6.webp" alt="Watch" class="w-full h-full object-cover">
-            </div>
 
         </div>
     </div>
@@ -71,7 +120,8 @@
 
                 if (timer < 0) {
                     clearInterval(timerInterval);
-                    document.getElementById("timer").classList.add("text-red-500");
+                    document.getElementById("timer").classList.remove("bg-yellow-50", "text-yellow-600");
+                    document.getElementById("timer").classList.add("bg-red-50", "text-red-600");
                     document.getElementById("timer").textContent = "Expired";
 
                     document.querySelectorAll(".otp-input").forEach(input => {

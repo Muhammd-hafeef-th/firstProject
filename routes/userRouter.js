@@ -204,3 +204,16 @@ router.post('/moveToCart', wishlistController.moveToCart)
 
 
 module.exports = router;
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,27 +2,138 @@
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 <script src="/js/cart-utils.js"></script>
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* Menu Button Styles */
+  .menu-button {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    background: linear-gradient(145deg, #232323, #1c1c1c);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2), -4px -4px 8px rgba(50, 50, 50, 0.1);
+  }
+  
+  .menu-button:hover {
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3), -2px -2px 4px rgba(50, 50, 50, 0.15);
+    transform: translateY(-1px);
+  }
+  
+  .menu-button:active {
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3), inset -2px -2px 4px rgba(50, 50, 50, 0.1);
+    transform: translateY(0);
+  }
+  
+  .menu-button::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(255, 181, 104, 0.5), rgba(255, 215, 0, 0));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .menu-button:hover::before {
+    opacity: 1;
+  }
+  
+  .menu-button__lines {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .menu-button__line {
+    width: 100%;
+    height: 2px;
+    background: #FFB568;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    transform-origin: center;
+  }
+  
+  .menu-button__line:nth-child(1) {
+    width: 50%;
+    align-self: flex-start;
+  }
+  
+  .menu-button__line:nth-child(3) {
+    width: 75%;
+    align-self: flex-end;
+  }
+  
+  .menu-button.active .menu-button__lines {
+    transform: rotate(180deg);
+  }
+  
+  .menu-button.active .menu-button__line:nth-child(1) {
+    width: 100%;
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  
+  .menu-button.active .menu-button__line:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .menu-button.active .menu-button__line:nth-child(3) {
+    width: 100%;
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+  
+  .icon-btn {
+    transition: all 0.2s ease;
+  }
+  
+  .icon-btn:hover {
+    transform: translateY(-2px);
+  }
+</style>
 
 <header class="sticky top-0 z-50 bg-[#1F1F1F]/95 backdrop-blur-sm border-b border-gray-800 shadow-xl">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16 md:h-20">
+      <!-- Mobile menu button -->
       <div class="flex items-center lg:hidden">
-        <button id="menu-toggle" type="button"
-          class="hamburger inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-[#FFB568] focus:outline-none transition-all duration-300">
-          <span class="block w-6 h-0.5 bg-current transform transition-all duration-300"></span>
-          <span class="block w-6 h-0.5 bg-current mt-1.5 transform transition-all duration-300"></span>
-          <span class="block w-6 h-0.5 bg-current mt-1.5 transform transition-all duration-300"></span>
+        <button id="menu-toggle" type="button" class="menu-button focus:outline-none">
+          <div class="menu-button__lines">
+            <div class="menu-button__line"></div>
+            <div class="menu-button__line"></div>
+            <div class="menu-button__line"></div>
+          </div>
         </button>
       </div>
 
+      <!-- Logo -->
       <div class="flex items-center flex-1 lg:flex-none">
-        <a href="/" class="flex items-center space-x-2">
-          <img src="/images/hand-watch - Copy.png" class="h-8 w-8">
-          <span class="logo-font text-2xl font-bold text-white">L<span class="text-[#FFB568]">B</span></span>
+        <a href="/" class="flex items-center space-x-2 group">
+            <div class="relative overflow-hidden rounded-full p-1 bg-gradient-to-r  transition-all duration-300">
+                <img src="/images/hand-watch - Copy.png" class="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-[#1F1F1F] p-1">
+            </div>
+            <span class="logo-font text-2xl font-bold text-white group-hover:scale-105 transition-transform duration-300">L<span class="text-[#FFB568]">B</span></span>
         </a>
-      </div>
+    </div>
 
+      <!-- Desktop Navigation -->
       <nav class="hidden lg:flex items-center space-x-6 mx-4">
         <a href="/"
           class="nav-link text-gray-300 hover:text-[#FFB568] px-1 py-2 text-sm font-medium relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-[#FFB568] after:transition-all after:duration-300 hover:after:w-full">Home</a>
@@ -35,6 +146,7 @@
           Arrivals</a>
       </nav>
 
+      <!-- Desktop Search -->
       <div class="hidden lg:block flex-1 max-w-md mx-5 mt-4">
         <form action="/products" method="get" class="relative group">
           <input type="text" name="search" id="search" placeholder="Search luxury timepieces..."
@@ -49,40 +161,40 @@
         </form>
       </div>
 
-      <div class="flex items-center justify-end space-x-6">
+      <!-- Icons -->
+      <div class="flex items-center justify-end space-x-4 sm:space-x-6">
         <button id="search-toggle" class="text-gray-300 hover:text-[#FFB568] lg:hidden transition-colors duration-300">
           <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
           </svg>
         </button>
-        <a href="/wishlist" class="text-gray-300 hover:text-[#FFB568] relative group transition-colors duration-300">
+        <a href="/wishlist" class="text-gray-300 hover:text-[#FFB568] relative icon-btn p-1">
           <svg xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none"
+            class="h-5 w-5 sm:h-6 sm:w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none"
             viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
           <span
-            class="absolute -top-1 -right-1 bg-[#FFB568] text-[#1F1F1F] text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold cart-badge group-hover:scale-110 transition-transform duration-300">
+            class="absolute -top-1 -right-1 bg-[#FFB568] text-[#1F1F1F] text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold cart-badge group-hover:scale-110 transition-transform duration-300">
             <%= typeof wishlistCount !=='undefined' ? wishlistCount : 0 %>
           </span>
         </a>
-        <a href="/cart" class="text-gray-300 hover:text-[#FFB568] relative group transition-colors duration-300">
+        <a href="/cart" class="text-gray-300 hover:text-[#FFB568] relative icon-btn p-1">
           <svg xmlns="http://www.w3.org/2000/svg"
-            class="h-6 w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none"
+            class="h-5 w-5 sm:h-6 sm:w-6 transform group-hover:scale-110 transition-transform duration-300" fill="none"
             viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           <span
-            class="absolute -top-1 -right-1 bg-[#FFB568] text-[#1F1F1F] text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold cart-badge group-hover:scale-110 transition-transform duration-300">
+            class="absolute -top-1 -right-1 bg-[#FFB568] text-[#1F1F1F] text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold cart-badge group-hover:scale-110 transition-transform duration-300">
             <%= typeof cartCount !=='undefined' ? cartCount : 0 %>
           </span>
         </a>
-        <a href="/profile" class="text-gray-300 hover:text-[#FFB568] transition-colors duration-300">
-          <div
-            class="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center overflow-hidden border border-gray-600 hover:border-[#FFB568] transition-colors duration-300 transform hover:scale-110">
+        <a href="/profile" class="text-gray-300 hover:text-[#FFB568] icon-btn">
+          <div class="h-9 w-9 rounded-full bg-gradient-to-r from-[#FFB568]/20 to-[#FFD700]/20 flex items-center justify-center overflow-hidden border border-[#FFB568]/30 hover:border-[#FFB568]/60 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
               stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -94,56 +206,63 @@
     </div>
   </div>
 
+  <!-- Mobile Search -->
   <div id="mobile-search" class="hidden w-full px-4 py-3 bg-[#1F1F1F] border-t border-gray-800 lg:hidden">
-    <div class="relative">
-      <input type="text" placeholder="Search luxury timepieces..."
+    <form action="/products" method="get" class="relative">
+      <input type="text" name="search" placeholder="Search luxury timepieces..."
         class="block w-full p-2 pl-4 pr-10 text-sm text-white rounded-lg bg-gray-800/50 border border-gray-700 focus:ring-2 focus:ring-[#FFB568] focus:border-transparent placeholder-gray-400 outline-none">
-      <button
+      <button type="submit"
         class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#FFB568] transition-colors duration-300">
         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
         </svg>
       </button>
-    </div>
+    </form>
   </div>
 
+  <!-- Mobile Menu -->
   <div id="mobile-menu" class="mobile-menu hidden lg:hidden origin-top bg-[#1F1F1F] border-t border-gray-800 shadow-xl">
-    <div class="px-2 pt-2 pb-4 space-y-1">
+    <div class="px-4 py-4 space-y-2">
       <a href="/"
-        class="nav-link block px-3 py-2 text-base font-medium text-white hover:bg-gray-800 hover:text-[#FFB568] rounded-md transition-colors duration-300">Home</a>
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">Home</a>
       <a href="/featured"
-        class="nav-link block px-3 py-2 text-base font-medium text-white hover:bg-gray-800 hover:text-[#FFB568] rounded-md transition-colors duration-300">Featured</a>
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">Featured</a>
       <a href="/products"
-        class="nav-link block px-3 py-2 text-base font-medium text-white bg-gray-800/50 text-[#FFB568] rounded-md">Products</a>
+        class="nav-link block px-4 py-3 text-base font-medium text-white bg-gray-800/50 text-[#FFB568] rounded-xl">Products</a>
       <a href="/newArrivals"
-        class="nav-link block px-3 py-2 text-base font-medium text-white hover:bg-gray-800 hover:text-[#FFB568] rounded-md transition-colors duration-300">New
-        Arrivals</a>
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">New Arrivals</a>
+      <a href="/wishlist"
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">Wishlist</a>
+      <a href="/cart"
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">Cart</a>
+      <a href="/profile"
+        class="nav-link block px-4 py-3 text-base font-medium text-white hover:bg-gray-800/50 hover:text-[#FFB568] rounded-xl transition-colors duration-300">Profile</a>
     </div>
   </div>
 </header>
 
-<section class="bg-gradient-to-b from-[#1A1A1A] to-[#1F1F1F] min-h-screen overflow-hidden py-10 relative">
+<section class="bg-gradient-to-b from-[#1A1A1A] to-[#1F1F1F] min-h-screen overflow-hidden py-6 sm:py-10 relative">
   <!-- Background Elements -->
   <div class="absolute top-10 left-5 w-48 h-48 bg-[#FFB568]/5 rounded-full blur-3xl"></div>
   <div class="absolute bottom-20 right-10 w-64 h-64 bg-[#FFB568]/5 rounded-full blur-3xl"></div>
 
   <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+    <div class="text-center mb-8 sm:mb-12" data-aos="fade-up" data-aos-duration="800">
       <div class="w-20 h-1 bg-gradient-to-r from-[#E8B888] to-amber-600 mx-auto mb-4 animate-[grow_0.6s_ease-in-out]">
       </div>
-      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 font-serif tracking-wide relative inline-block">
+      <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 font-serif tracking-wide relative inline-block">
         <span class="bg-clip-text text-transparent bg-gradient-to-r from-[#E8B888] to-amber-200">OUR COLLECTION</span>
       </h2>
-      <p class="text-gray-400 max-w-2xl mx-auto animate-[fadeIn_1s_ease-in-out]">
+      <p class="text-gray-400 max-w-2xl mx-auto text-sm sm:text-base animate-[fadeIn_1s_ease-in-out]">
         Discover our exquisite collection of premium timepieces crafted for distinguished individuals
       </p>
     </div>
 
-    <div class="flex justify-end mb-8" data-aos="fade-left" data-aos-duration="600">
+    <div class="flex justify-end mb-6 sm:mb-8" data-aos="fade-left" data-aos-duration="600">
       <button id="toggleFilters"
-        class="bg-gradient-to-r from-[#E8B888] to-amber-600 text-black px-6 py-3 rounded-md shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 transform hover:translate-y-[-2px]">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        class="bg-gradient-to-r from-[#E8B888] to-amber-600 text-black px-4 py-2 sm:px-6 sm:py-3 rounded-md shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2 transform hover:translate-y-[-2px] text-sm sm:text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd"
             d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
             clip-rule="evenodd" />
@@ -154,7 +273,7 @@
 
     <form action="/products" method="get">
       <div id="filterMenu"
-        class="hidden bg-[#2A2A2A]/95 backdrop-blur-sm text-white p-6 rounded-lg w-full md:w-80 absolute right-4 md:right-8 z-40 shadow-2xl border border-[#3A3A3A] animate-[slideDown_0.3s_ease-out]">
+        class="hidden bg-[#2A2A2A]/95 backdrop-blur-sm text-white p-4 sm:p-6 rounded-lg w-full sm:w-80 absolute right-4 sm:right-8 z-40 shadow-2xl border border-[#3A3A3A] animate-[slideDown_0.3s_ease-out]">
         <div class="absolute top-0 right-0 mt-2 mr-2">
           <button type="button" id="closeFilters" class="text-gray-400 hover:text-white transition-colors duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -165,18 +284,18 @@
           </button>
         </div>
 
-        <h3 class="text-lg font-semibold mb-3 text-[#E8B888]">CATEGORIES</h3>
+        <h3 class="text-base sm:text-lg font-semibold mb-3 text-[#E8B888]">CATEGORIES</h3>
         <select name="category"
-          class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50">
+          class="p-2 sm:p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50 text-sm sm:text-base">
           <option value="">All Categories</option>
           <option value="gents" <%=query.category==='gents' ? 'selected' : '' %>>Men's Watches</option>
           <option value="ladies" <%=query.category==='ladies' ? 'selected' : '' %>>Ladies' Watches</option>
           <option value="couples" <%=query.category==='couples' ? 'selected' : '' %>>Couples Watches</option>
         </select>
 
-        <h3 class="text-lg font-semibold mb-3 mt-6 text-[#E8B888]">BRANDS</h3>
+        <h3 class="text-base sm:text-lg font-semibold mb-3 mt-4 sm:mt-6 text-[#E8B888]">BRANDS</h3>
         <select name="brand"
-          class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50">
+          class="p-2 sm:p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50 text-sm sm:text-base">
           <option value="">All Brands</option>
           <% brands.forEach(watch=> { %>
             <option value="<%= watch.brandName %>" <%=query.brand===watch.brandName ? 'selected' : '' %>>
@@ -185,203 +304,227 @@
             <% }) %>
         </select>
 
-        <h3 class="text-lg font-semibold mb-3 mt-6 text-[#E8B888]">SORT BY</h3>
+        <h3 class="text-base sm:text-lg font-semibold mb-3 mt-4 sm:mt-6 text-[#E8B888]">SORT BY</h3>
         <select name="sort"
-          class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50">
+          class="p-2 sm:p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50 text-sm sm:text-base">
           <option value="AtoZ" <%=query.sort==='AtoZ' ? 'selected' : '' %>>Alphabetical (A-Z)</option>
           <option value="ZtoA" <%=query.sort==='ZtoA' ? 'selected' : '' %>>Alphabetical (Z-A)</option>
           <option value="highToLow" <%=query.sort==='highToLow' ? 'selected' : '' %>>Price (High to Low)</option>
           <option value="lowToHigh" <%=query.sort==='lowToHigh' ? 'selected' : '' %>>Price (Low to High)</option>
         </select>
 
-        <h3 class="text-lg font-semibold mt-6 mb-3 text-[#E8B888]">PRICE RANGE</h3>
-        <div class="flex flex-col space-y-4">
+        <h3 class="text-base sm:text-lg font-semibold mt-4 sm:mt-6 mb-3 text-[#E8B888]">PRICE RANGE</h3>
+        <div class="flex flex-col space-y-3 sm:space-y-4">
           <div>
-            <label class="block text-sm mb-1">Minimum Price</label>
+            <label class="block text-xs sm:text-sm mb-1">Minimum Price</label>
             <input type="number" name="priceFrom" id="priceFrom" placeholder="Any" value="<%= query.priceFrom || '' %>"
-              class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50">
+              class="p-2 sm:p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50 text-sm sm:text-base">
           </div>
           <div>
-            <label class="block text-sm mb-1">Maximum Price</label>
+            <label class="block text-xs sm:text-sm mb-1">Maximum Price</label>
             <input type="number" name="priceTo" id="priceTo" placeholder="Any" value="<%= query.priceTo || '' %>"
-              class="p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50">
+              class="p-2 sm:p-3 w-full rounded bg-[#3A3A3A] text-white border border-gray-600 focus:ring-2 focus:ring-[#E8B888] outline-none transition-all duration-300 hover:border-[#E8B888]/50 text-sm sm:text-base">
           </div>
         </div>
 
-        <div class="flex gap-3 mt-8">
+        <div class="flex gap-2 sm:gap-3 mt-6 sm:mt-8">
           <button type="submit"
-            class="flex-1 bg-gradient-to-r from-[#E8B888] to-amber-600 text-black p-3 rounded-md font-medium hover:shadow-lg hover:shadow-amber-600/20 transition-all duration-300 transform hover:scale-[1.02]">
+            class="flex-1 bg-gradient-to-r from-[#E8B888] to-amber-600 text-black p-2 sm:p-3 rounded-md font-medium hover:shadow-lg hover:shadow-amber-600/20 transition-all duration-300 transform hover:scale-[1.02] text-sm sm:text-base">
             Apply Filters
           </button>
           <a href="/products"
-            class="flex-1 bg-[#3A3A3A] text-white p-3 rounded-md text-center font-medium hover:bg-[#4A4A4A] transition-colors duration-300">
+            class="flex-1 bg-[#3A3A3A] text-white p-2 sm:p-3 rounded-md text-center font-medium hover:bg-[#4A4A4A] transition-colors duration-300 text-sm sm:text-base">
             Reset
           </a>
         </div>
       </div>
     </form>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
       <% products.forEach((watch, index)=> { %>
         <div
-          class="group relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
+          class="group relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-3 sm:p-4 md:p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden"
           data-aos="fade-up" data-aos-delay="<%= index * 50 %>" data-aos-duration="800">
           <% if (watch.newOffer>= 20) { %>
             <div
-              class="absolute top-4 left-4 z-20 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+              class="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">
               <%= watch.newOffer %>% OFF
             </div>
-            <% } %>
+          <% } %>
 
+          <div
+            class="relative h-40 sm:h-48 md:h-56 lg:h-64 overflow-hidden rounded-lg mb-3 sm:mb-4 group-hover:shadow-[0_0_15px_rgba(232,184,136,0.3)] transition-all duration-500">
+            <a href="/productDetails?id=<%= watch._id %>" class="block h-full">
+              <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                class="first-image w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 absolute inset-0">
+
+              <% if (watch.productImage[1]) { %>
+                <img src="<%= watch.productImage[1] %>" alt="<%= watch.productName %> - Alternate View"
+                  class="second-image w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 absolute inset-0">
+              <% } else { %>
+                <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
+                  class="second-image w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-110 absolute inset-0 filter group-hover:brightness-110">
+              <% } %>
               <div
-                class="relative h-64 overflow-hidden rounded-lg mb-4 group-hover:shadow-[0_0_15px_rgba(232,184,136,0.3)] transition-all duration-500">
-                <a href="/productDetails?id=<%= watch._id %>" class="block h-full">
-                  <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
-                    class="first-image w-full h-full object-contain transition-all duration-500 group-hover:opacity-0 absolute inset-0">
-
-                  <% if (watch.productImage[1]) { %>
-                    <img src="<%= watch.productImage[1] %>" alt="<%= watch.productName %> - Alternate View"
-                      class="second-image w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 absolute inset-0">
-                    <% } else { %>
-                      <img src="<%= watch.productImage[0] %>" alt="<%= watch.productName %>"
-                        class="second-image w-full h-full object-contain transition-all duration-500 opacity-0 group-hover:opacity-100 group-hover:scale-110 absolute inset-0 filter group-hover:brightness-110">
-                      <% } %>
-                        <div
-                          class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                        </div>
-                </a>
-
-                <div
-                  class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
-                  <a href="/productDetails?id=<%= watch._id %>"
-                    class="block text-center text-white text-sm font-medium py-2 hover:text-[#E8B888] transition-colors">
-                    DISCOVER MORE
-                  </a>
-                </div>
+                class="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700">
               </div>
+            </a>
 
-              <div class="relative z-10">
-                <div class="flex items-center mb-2">
-                  <p class="text-gray-400 text-xs uppercase tracking-wider">
-                    <%= watch.brandName %>
-                  </p>
-                </div>
+            <div
+              class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
+              <a href="/productDetails?id=<%= watch._id %>"
+                class="block text-center text-white text-xs sm:text-sm font-medium py-1 sm:py-2 hover:text-[#E8B888] transition-colors">
+                DISCOVER MORE
+              </a>
+            </div>
+          </div>
 
-                <h3 class="text-white text-lg font-medium mb-2 group-hover:text-[#E8B888] transition-colors truncate">
-                  <%= watch.productName %>
-                </h3>
+          <div class="relative z-10">
+            <div class="flex items-center mb-1 sm:mb-2">
+              <p class="text-gray-400 text-xs uppercase tracking-wider">
+                <%= watch.brandName %>
+              </p>
+            </div>
 
-                <div class="flex items-center justify-between mb-3">
-                  <p class="text-[#E8B888] text-xl font-bold">
-                    ₹<%= watch.salesPrice.toLocaleString() %>
-                  </p>
+            <h3 class="text-white text-sm sm:text-base md:text-lg font-medium mb-1 sm:mb-2 group-hover:text-[#E8B888] transition-colors truncate">
+              <%= watch.productName %>
+            </h3>
 
-                  <div class="flex items-center">
-                    <p class="text-gray-400 text-sm line-through mr-2">
-                      ₹<%= watch.regularPrice.toLocaleString() %>
-                    </p>
+            <div class="flex items-center justify-between mb-2 sm:mb-3">
+              <p class="text-[#E8B888] text-base sm:text-xl font-bold">
+                ₹<%= watch.salesPrice.toLocaleString() %>
+              </p>
 
-                    <span class="bg-green-600/20 text-green-400 px-2 py-0.5 rounded-full text-xs font-medium">
-                      <%= watch.newOffer %>% off
-                    </span>
-                  </div>
-                </div>
+              <div class="flex items-center">
+                <p class="text-gray-400 text-xs sm:text-sm line-through mr-1 sm:mr-2">
+                  ₹<%= watch.regularPrice.toLocaleString() %>
+                </p>
 
-                <div class="mt-6">
-                  <button onclick="enhancedAddToCart(event, '<%= watch._id %>')"
-                    class="block w-full bg-[#3A3A3A] text-white py-3 rounded-lg text-center font-medium 
-                        transition-all duration-300 hover:bg-[#E8B888] hover:text-black hover:shadow-lg
-                        transform hover:-translate-y-0.5 group-hover:bg-gradient-to-r group-hover:from-[#E8B888] group-hover:to-amber-600 overflow-hidden relative">
-                    <span class="relative z-10">ADD TO CART</span>
-                    <span
-                      class="absolute inset-0 bg-white/10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></span>
-                  </button>
-                </div>
+                <span class="bg-green-600/20 text-green-400 px-1.5 py-0.5 rounded-full text-xs font-medium">
+                  <%= watch.newOffer %>% off
+                </span>
               </div>
+            </div>
 
-              <div
-                class="absolute -bottom-10 -right-10 w-20 h-20 rounded-full bg-[#E8B888]/10 group-hover:bg-[#E8B888]/20 transition-all duration-700">
-              </div>
-              <div
-                class="absolute -top-5 -left-5 w-16 h-16 rounded-full bg-[#E8B888]/5 group-hover:bg-[#E8B888]/10 transition-all duration-1000">
-              </div>
+            <div class="mt-4 sm:mt-6">
+              <button onclick="enhancedAddToCart(event, '<%= watch._id %>')"
+                class="block w-full bg-[#3A3A3A] text-white py-2 sm:py-3 rounded-lg text-center font-medium text-xs sm:text-sm
+                    transition-all duration-300 hover:bg-[#E8B888] hover:text-black hover:shadow-lg
+                    transform hover:-translate-y-0.5 group-hover:bg-gradient-to-r group-hover:from-[#E8B888] group-hover:to-amber-600 overflow-hidden relative">
+                <span class="relative z-10">ADD TO CART</span>
+                <span
+                  class="absolute inset-0 bg-white/10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></span>
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="absolute -bottom-8 -right-8 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#E8B888]/10 group-hover:bg-[#E8B888]/20 transition-all duration-700">
+          </div>
+          <div
+            class="absolute -top-4 -left-4 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-[#E8B888]/5 group-hover:bg-[#E8B888]/10 transition-all duration-1000">
+          </div>
         </div>
-        <% }) %>
+      <% }) %>
     </div>
 
     <% if (totalPages> 1) { %>
-      <div class="flex justify-center mt-16 pb-10" data-aos="fade-up" data-aos-delay="200">
+      <div class="flex justify-center mt-10 sm:mt-16 pb-8 sm:pb-10" data-aos="fade-up" data-aos-delay="200">
         <div class="flex items-center gap-1 sm:gap-2">
           <% if (currentPage> 1) { %>
             <a href="/products?page=<%= currentPage - 1 %><%= filters ? '&' + filters : '' %>"
-              class="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#3A3A3A] to-[#4A4A4A] text-white rounded-md hover:from-[#E8B888] hover:to-amber-600 hover:text-black transition-all duration-300 flex items-center shadow-md hover:shadow-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+              class="px-2 py-1 sm:px-3 sm:py-2 md:px-4 text-xs sm:text-sm bg-gradient-to-r from-[#3A3A3A] to-[#4A4A4A] text-white rounded-md hover:from-[#E8B888] hover:to-amber-600 hover:text-black transition-all duration-300 flex items-center shadow-md hover:shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 mr-1" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
               Prev
             </a>
-            <% } %>
+          <% } %>
 
-              <a href="/products?page=1<%= filters ? '&' + filters : '' %>"
-                class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === 1 ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition-all duration-300 shadow-md">
-                1
-              </a>
+          <a href="/products?page=1<%= filters ? '&' + filters : '' %>"
+            class="px-2 py-1 sm:px-3 sm:py-2 md:px-4 text-xs sm:text-sm rounded-md <%= currentPage === 1 ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B568] hover:text-black transition-all duration-300 shadow-md">
+            1
+          </a>
 
-              <% if (currentPage> 3 && totalPages > 5) { %>
-                <span class="px-2 text-gray-400">...</span>
-                <% } %>
+          <% if (currentPage> 3 && totalPages > 5) { %>
+            <span class="px-1 sm:px-2 text-gray-400 text-xs sm:text-sm">...</span>
+          <% } %>
 
-                  <% for (let i=Math.max(2, currentPage - 1); i <=Math.min(totalPages - 1, currentPage + 1); i++) { %>
-                    <a href="/products?page=<%= i %><%= filters ? '&' + filters : '' %>"
-                      class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === i ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition-all duration-300 shadow-md">
-                      <%= i %>
-                    </a>
-                    <% } %>
+          <% for (let i=Math.max(2, currentPage - 1); i <=Math.min(totalPages - 1, currentPage + 1); i++) { %>
+            <a href="/products?page=<%= i %><%= filters ? '&' + filters : '' %>"
+              class="px-2 py-1 sm:px-3 sm:py-2 md:px-4 text-xs sm:text-sm rounded-md <%= currentPage === i ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B568] hover:text-black transition-all duration-300 shadow-md">
+              <%= i %>
+            </a>
+          <% } %>
 
-                      <% if (currentPage < totalPages - 2 && totalPages> 5) { %>
-                        <span class="px-2 text-gray-400">...</span>
-                        <% } %>
+          <% if (currentPage < totalPages - 2 && totalPages> 5) { %>
+            <span class="px-1 sm:px-2 text-gray-400 text-xs sm:text-sm">...</span>
+          <% } %>
 
-                          <% if (totalPages> 1) { %>
-                            <a href="/products?page=<%= totalPages %><%= filters ? '&' + filters : '' %>"
-                              class="px-3 sm:px-4 py-2 rounded-md <%= currentPage === totalPages ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B888] hover:text-black transition-all duration-300 shadow-md">
-                              <%= totalPages %>
-                            </a>
-                            <% } %>
+          <% if (totalPages> 1) { %>
+            <a href="/products?page=<%= totalPages %><%= filters ? '&' + filters : '' %>"
+              class="px-2 py-1 sm:px-3 sm:py-2 md:px-4 text-xs sm:text-sm rounded-md <%= currentPage === totalPages ? 'bg-gradient-to-r from-[#E8B888] to-amber-600 text-black font-bold shadow-lg' : 'bg-[#3A3A3A] text-white' %> hover:bg-[#E8B568] hover:text-black transition-all duration-300 shadow-md">
+              <%= totalPages %>
+            </a>
+          <% } %>
 
-                              <% if (currentPage < totalPages) { %>
-                                <a href="/products?page=<%= currentPage + 1 %><%= filters ? '&' + filters : '' %>"
-                                  class="px-3 sm:px-4 py-2 bg-gradient-to-r from-[#3A3A3A] to-[#4A4A4A] text-white rounded-md hover:from-[#E8B888] hover:to-amber-600 hover:text-black transition-all duration-300 flex items-center shadow-md hover:shadow-lg">
-                                  Next
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M9 5l7 7-7 7" />
-                                  </svg>
-                                </a>
-                                <% } %>
+          <% if (currentPage < totalPages) { %>
+            <a href="/products?page=<%= currentPage + 1 %><%= filters ? '&' + filters : '' %>"
+              class="px-2 py-1 sm:px-3 sm:py-2 md:px-4 text-xs sm:text-sm bg-gradient-to-r from-[#3A3A3A] to-[#4A4A4A] text-white rounded-md hover:from-[#E8B888] hover:to-amber-600 hover:text-black transition-all duration-300 flex items-center shadow-md hover:shadow-lg">
+              Next
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 sm:h-4 sm:w-4 ml-1" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          <% } %>
         </div>
       </div>
-      <% } %>
+    <% } %>
   </div>
 </section>
 
 <script>
-  // Initialize AOS animations
-  document.addEventListener('DOMContentLoaded', function () {
-    AOS.init({
-      once: true,
-      disable: 'phone' // Disable on small screens for better performance
+document.addEventListener('DOMContentLoaded', function () {
+  // Initialize AOS
+  AOS.init({
+    once: true,
+    disable: window.innerWidth < 640 // Disable on small screens for better performance
+  });
+  
+  // Check for error messages in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const errorMessage = urlParams.get('error');
+  
+  if (errorMessage) {
+    Swal.fire({
+      title: 'Notification',
+      text: errorMessage,
+      icon: 'info',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#2A2A2A',
+      color: '#fff',
+      iconColor: '#FFB568'
     });
+    
+    // Remove the error parameter from URL without refreshing the page
+    const url = new URL(window.location.href);
+    url.searchParams.delete('error');
+    window.history.replaceState({}, '', url);
+  }
 
-    // Hamburger menu toggle
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
+  // Mobile menu toggle
+  const menuToggle = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
 
-    menuToggle.addEventListener('click', function () {
-      this.classList.toggle('active');
-      mobileMenu.classList.toggle('hidden');
+  menuToggle.addEventListener('click', function () {
+    this.classList.toggle('active');
+    mobileMenu.classList.toggle('hidden');
 
       if (this.classList.contains('active')) {
         // Animate hamburger to X
@@ -689,6 +832,21 @@
 
   body {
     font-family: 'Poppins', sans-serif;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 640px) {
+    .grid>div {
+      padding: 1rem;
+    }
+    
+    .grid>div:hover {
+      transform: translateY(-4px);
+    }
+    
+    .product-image-container {
+      height: 160px;
+    }
   }
 </style>
 
