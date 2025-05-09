@@ -41,6 +41,7 @@ const GetOrder = async (req, res, next) => {
                 .populate('address');
         }
         const formattedOrders = orders.map(order => ({
+            paymentMethod:order.paymentMethod.type,
             id: order.orderId,
             price: order.finalAmount,
             date: order.createdOn.toLocaleDateString('en-GB'),
@@ -121,8 +122,7 @@ const orderDetails = async (req, res, next) => {
             discountAmount: totalSavings
 
         };
-        console.log('Invoice Date:', invoiceDate);
-        console.log(`Total Savings: ${totalSavings}`);
+        
 
 
         res.render('order-details', {

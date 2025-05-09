@@ -93,15 +93,16 @@ passport.use(
                 }
 
                 let user = await User.findOne({ googleId: profile.id });
+                
+                if (!user) {
+                    return done(null, false, { message: "No account found. Please sign up first." });
+                }
 
                 if(user.isBlocked){
                     return done(null,false,{message:"User is blocked by admin"});
                 }
 
-                if (!user) {
-                    return done(null, false, { message: "No account found. Please sign up first." });
-                }
-
+               
                 req.session.user = user;    
                 return done(null, user);
             } catch (error) {

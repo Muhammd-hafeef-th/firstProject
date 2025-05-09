@@ -55,7 +55,6 @@ const brandInfo = async (req, res,next) => {
 
 const addBrand = async (req, res,next) => {
     try {
-        console.log("Request received");
 
         const { name, description } = req.body;
         const image = req.file ? `/uploads/${req.file.filename}` : null; 
@@ -76,7 +75,6 @@ const addBrand = async (req, res,next) => {
             brandImage: image,
             description
         });
-        console.log("Saving brand:", name);
         await newBrand.save();
         res.status(200).json({ success: true, message: "Brand added successfully" });
       

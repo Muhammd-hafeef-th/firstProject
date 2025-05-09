@@ -14,7 +14,7 @@ const orders = async (req, res,next) => {
       orders = orders.filter(order =>
         order.orderId.toLowerCase().includes(search) ||
         order.status.toLowerCase().includes(search) ||
-        order.user.firstname.toLowerCase().includes(search)
+        (order.user && order.user.firstname && order.user.firstname.toLowerCase().includes(search))
       );
     }
     const totalOrders = orders.length;
@@ -107,7 +107,6 @@ const returnAction = async (req, res) => {
                             processedAt: new Date()
                         };
                         
-                        console.log(`Wallet refund processed for returned order ${orderId}. Amount: ${refundAmount}`);
                     } else {
                         const newWallet = new Wallet({
                             user: {
@@ -135,7 +134,6 @@ const returnAction = async (req, res) => {
                             processedAt: new Date()
                         };
                         
-                        console.log(`New wallet created with refund for returned order ${orderId}. Amount: ${refundAmount}`);
                     }
                 } catch (walletError) {
                     console.error('Error processing wallet refund for return:', walletError);

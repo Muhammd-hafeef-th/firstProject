@@ -19,6 +19,46 @@
             margin-top: 0.25rem;
             display: none;
         }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @media (max-width: 767px) {
+            .image-upload-container {
+                flex-direction: column !important;
+                gap: 1rem !important;
+            }
+            .image-upload-slot {
+                width: 8rem !important;
+                height: 8rem !important;
+            }
+            .crop-modal {
+                max-width: 90vw !important;
+            }
+            .crop-modal-buttons {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            .form-input,
+            .form-select,
+            .form-textarea {
+                min-height: 2.75rem; /* Ensure touch target ≥44px */
+                padding: 0.75rem !important;
+            }
+            .radio-label {
+                min-height: 2.75rem; /* Ensure touch target ≥44px */
+                display: flex;
+                align-items: center;
+            }
+            .submit-button {
+                width: 100% !important;
+            }
+            .form-grid {
+                gap: 1.5rem !important; /* More spacing on mobile */
+            }
+        }
     </style>
 </head>
 
@@ -31,19 +71,19 @@
         <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-7xl mx-auto w-full overflow-x-hidden">
             <h1 class="text-xl sm:text-2xl font-bold mb-6">Edit Product</h1>
 
-            <div class="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-lg max-w-5xl mx-auto w-full">
+            <div class="glass-card p-4 sm:p-6 rounded-lg shadow-lg max-w-5xl mx-auto w-full">
                 <form id="editProductForm" enctype="multipart/form-data" action="/admin/edit-productItem" method="POST" 
-                      class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      class="grid grid-cols-1 md:grid-cols-2 gap-6 form-grid">
                     <input type="hidden" name="productId" value="<%= product._id %>">
                     <input type="hidden" name="existingImages" id="existingImages" 
                            value="<%= JSON.stringify(product.productImage) %>">
 
                     <div class="md:col-span-2">
                         <label class="block mb-2 text-sm sm:text-base font-semibold">Product Images:</label>
-                        <div class="flex gap-4">
+                        <div class="flex gap-4 image-upload-container">
                             <% for (let i=1; i <=3; i++) { %>
                                 <div class="relative group">
-                                    <div class="w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden cursor-pointer"
+                                    <div class="w-24 h-24 border-2 border-gray-500 rounded-lg bg-gray-700 flex items-center justify-center overflow-hidden cursor-pointer image-upload-slot"
                                         onclick="document.getElementById('imageUpload<%= i %>').click()">
                                         <% if (product.productImage[i-1]) { %>
                                             <img id="imagePreview<%= i %>" src="<%= product.productImage[i-1] %>"
@@ -75,21 +115,21 @@
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Product Name:</label>
                             <input type="text" name="name" id="name" value="<%= product.productName %>"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-input">
                             <div id="name-error" class="error-message"></div>
                         </div>
 
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Description:</label>
                             <textarea name="description" id="description"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base" rows="3"><%= product.description %></textarea>
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-textarea" rows="3"><%= product.description %></textarea>
                             <div id="description-error" class="error-message"></div>
                         </div>
 
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Brand:</label>
                             <select name="brand" id="brand"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-sm sm:text-base">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-sm sm:text-base form-select">
                                 <option value="">Select a brand</option>
                                 <% brands.forEach(watch=> { %>
                                     <option value="<%= watch._id %>" <%=product.brand._id.equals(watch._id) ? 'selected' : '' %>>
@@ -103,7 +143,7 @@
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Category:</label>
                             <select name="category" id="category"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-sm sm:text-base">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-sm sm:text-base form-select">
                                 <option value="gents" <%=product.category==='gents' ? 'selected' : '' %>>Gents</option>
                                 <option value="ladies" <%=product.category==='ladies' ? 'selected' : '' %>>Ladies</option>
                                 <option value="couples" <%=product.category==='couples' ? 'selected' : '' %>>Couples</option>
@@ -116,7 +156,7 @@
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Regular Price:</label>
                             <input type="number" name="amount" id="amount" value="<%= product.regularPrice %>"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base" step="0.01" min="0">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-input" step="0.01" min="0">
                             <div id="amount-error" class="error-message"></div>
                         </div>
 
@@ -124,7 +164,7 @@
                             <label class="block mb-1 text-sm sm:text-base">Offer (%):</label>
                             <div class="relative">
                                 <input type="number" name="discount" id="discount" value="<%= product.discount %>"
-                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600 pr-8 text-sm sm:text-base" min="0"
+                                    class="w-full p-2 rounded bg-gray-700 border border-gray-600 pr-8 text-sm sm:text-base form-input" min="0"
                                     max="100" step="0.01" placeholder="0-100">
                                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">%</span>
                             </div>
@@ -134,14 +174,14 @@
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Sale Price:</label>
                             <input type="number" name="saleAmount" id="salesAmount" value="<%= product.salePrice %>"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base" step="0.01" min="0">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-input" step="0.01" min="0">
                             <div id="salesAmount-error" class="error-message"></div>
                         </div>
 
                         <div>
                             <label class="block mb-1 text-sm sm:text-base">Stock Quantity:</label>
                             <input type="number" name="stock" id="stock" value="<%= product.quantity %>"
-                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base">
+                                class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-input">
                             <div id="stock-error" class="error-message"></div>
                         </div>
                     </div>
@@ -150,13 +190,13 @@
                         <div class="flex flex-col">
                             <label class="block mb-1 text-sm sm:text-base">Featured Product:</label>
                             <div class="flex gap-4">
-                                <label class="flex items-center">
+                                <label class="flex items-center radio-label">
                                     <input type="radio" name="featured" value="yes"
                                         class="mr-2 h-4 w-4 text-green-500 focus:ring-green-500"
                                         <%=product.isFeatured ? 'checked' : '' %>>
                                     <span class="text-sm sm:text-base">Yes</span>
                                 </label>
-                                <label class="flex items-center">
+                                <label class="flex items-center radio-label">
                                     <input type="radio" name="featured" value="no"
                                         class="mr-2 h-4 w-4 text-green-500 focus:ring-green-500"
                                         <%=!product.isFeatured ? 'checked' : '' %>>
@@ -169,12 +209,12 @@
                         <div class="flex flex-col">
                             <label class="block mb-1 text-sm sm:text-base">New Product:</label>
                             <div class="flex gap-4">
-                                <label class="flex items-center">
+                                <label class="flex items-center radio-label">
                                     <input type="radio" name="new" value="yes"
                                         class="mr-2 h-4 w-4 text-green-500 focus:ring-green-500" <%=product.isNew ? 'checked' : '' %>>
                                     <span class="text-sm sm:text-base">Yes</span>
                                 </label>
-                                <label class="flex items-center">
+                                <label class="flex items-center radio-label">
                                     <input type="radio" name="new" value="no"
                                         class="mr-2 h-4 w-4 text-green-500 focus:ring-green-500" <%=!product.isNew ? 'checked' : '' %>>
                                     <span class="text-sm sm:text-base">No</span>
@@ -187,13 +227,13 @@
                     <div>
                         <label class="block mb-1 text-sm sm:text-base">Color:</label>
                         <input type="text" name="color" id="color" value="<%= product.color %>"
-                            class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base">
+                            class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-sm sm:text-base form-input">
                         <div id="color-error" class="error-message"></div>
                     </div>
 
                     <div class="md:col-span-2 flex justify-center">
                         <button type="submit" id="submitButton"
-                            class="bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 transition text-sm sm:text-base">
+                            class="relative overflow-hidden bg-green-500 text-black px-6 py-2 rounded-lg hover:bg-green-600 transition text-sm sm:text-base submit-button">
                             UPDATE PRODUCT
                         </button>
                     </div>
@@ -203,14 +243,14 @@
     </div>
 
     <div id="cropModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
-        <div class="bg-white p-4 rounded-lg w-[450px] max-w-full shadow-lg">
+        <div class="bg-white p-4 rounded-lg w-[450px] max-w-full shadow-lg crop-modal">
             <h2 class="text-black text-xl mb-4">Crop Image</h2>
             <div>
                 <img id="cropImage" style="max-width: 65%;">
             </div>
-            <div class="mt-4 flex justify-end">
-                <button id="cancelCrop" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Cancel</button>
-                <button id="cropButton" class="bg-blue-500 text-white px-4 py-2 rounded">Crop</button>
+            <div class="mt-4 flex justify-end crop-modal-buttons">
+                <button id="cancelCrop" class="bg-gray-500 text-white px-4 py-2 rounded w-full sm:w-auto">Cancel</button>
+                <button id="cropButton" class="bg-blue-500 text-white px-4 py-2 rounded w-full sm:w-auto mt-2 sm:mt-0 sm:ml-2">Crop</button>
             </div>
         </div>
     </div>

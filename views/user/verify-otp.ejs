@@ -36,6 +36,9 @@
         .resend-link:hover {
             color: #1d4ed8;
         }
+        .hidden {
+            display: none;
+        }
         @media (max-width: 640px) {
             .otp-container {
                 gap: 0.5rem;
@@ -80,7 +83,7 @@
                         <button type="submit" class="verify-btn w-full text-white py-3 sm:py-4 mt-8 rounded-xl font-semibold text-base sm:text-lg">Verify Code</button>
                     </form>
 
-                    <div class="flex justify-center mt-6">
+                    <div id="resendContainer" class="flex justify-center mt-6 hidden">
                         <p class="text-gray-500 text-sm sm:text-base">
                             Haven't received the code? <a href="#" onclick="resendOtp()" class="text-black font-semibold resend-link">Resend OTP</a>
                         </p>
@@ -97,12 +100,9 @@
                     </div>
                 </div>
                 <img src="/images/img 6.webp" alt="Watch" class="w-full h-full object-cover">
-
+            </div>
         </div>
     </div>
-
-</body>
-</html>
 
     <script>
         let timer = 60; 
@@ -111,6 +111,10 @@
         function startTimer() {
             clearInterval(timerInterval); 
             timer = 60;
+
+            // Hide the resend link when the timer starts
+            const resendContainer = document.getElementById("resendContainer");
+            resendContainer.classList.add("hidden");
 
             timerInterval = setInterval(() => {
                 let minutes = Math.floor(timer / 60);
@@ -123,6 +127,9 @@
                     document.getElementById("timer").classList.remove("bg-yellow-50", "text-yellow-600");
                     document.getElementById("timer").classList.add("bg-red-50", "text-red-600");
                     document.getElementById("timer").textContent = "Expired";
+
+                    // Show the resend link when the timer expires
+                    resendContainer.classList.remove("hidden");
 
                     document.querySelectorAll(".otp-input").forEach(input => {
                         input.disabled = true;
@@ -156,14 +163,12 @@
                         Swal.fire({
                             icon:"error",
                             title:"Error",
-                            text:"An error occured while resending otp . please try again"
+                            text:"An error occurred while resending OTP. Please try again"
                         })
                     }
-                   
                 }
-            })
-            return false
-
+            });
+            return false;
         }
 
         document.getElementById("otpForm").onsubmit = function (event) {
@@ -217,22 +222,19 @@
 
         document.addEventListener("DOMContentLoaded", startTimer);
 
+        document.querySelectorAll(".otp-input").forEach((input, index, inputs) => {
+            input.addEventListener("input", (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
 
-    document.querySelectorAll(".otp-input").forEach((input, index, inputs) => {
-    input.addEventListener("input", (e) => {
-        if (e.target.value.length === 1 && index < inputs.length - 1) {
-            inputs[index + 1].focus();
-        }
-    });
-
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Backspace" && index > 0 && e.target.value === "") {
-            inputs[index - 1].focus();
-        }
-    });
-});
-
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && index > 0 && e.target.value === "") {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
     </script>
-
 </body>
 </html>

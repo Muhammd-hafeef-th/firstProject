@@ -3,17 +3,26 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Order Details - LB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
     <style>
         * {
-            box-sizing: border-box; 
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         .status-badge {
             transition: all 0.3s ease;
+            min-width: 100px;
+            text-align: center;
         }
         .order-item {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -35,6 +44,116 @@
             background-size: 1.5em 1.5em;
             appearance: none;
         }
+        .action-button {
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .action-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Mobile-specific optimizations */
+        @media (max-width: 767px) {
+            body {
+                font-size: 16px;
+            }
+            .mobile-container {
+                padding: 1rem !important;
+            }
+            .mobile-title {
+                font-size: 1.5rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            .mobile-subtitle {
+                font-size: 0.875rem !important;
+            }
+            .mobile-card {
+                padding: 1.25rem !important;
+                margin-bottom: 1.25rem !important;
+                border-radius: 12px !important;
+            }
+            .mobile-text {
+                font-size: 1rem !important;
+                line-height: 1.5 !important;
+            }
+            .mobile-select {
+                width: 100% !important;
+                padding: 0.75rem 1rem !important;
+                font-size: 1rem !important;
+            }
+            .mobile-button {
+                width: 100% !important;
+                padding: 0.875rem !important;
+                font-size: 1rem !important;
+                font-weight: 500 !important;
+            }
+            .mobile-action-buttons {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+                width: 100% !important;
+            }
+            .mobile-action-button {
+                width: 100% !important;
+                padding: 0.875rem !important;
+                font-size: 1rem !important;
+                justify-content: center !important;
+            }
+            .mobile-order-image {
+                width: 80px !important;
+                height: 80px !important;
+            }
+            .mobile-status-badge {
+                padding: 0.5rem 0.75rem !important;
+                font-size: 0.875rem !important;
+                min-width: 90px !important;
+            }
+            .mobile-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+            }
+            .mobile-flex-col {
+                flex-direction: column !important;
+            }
+            .mobile-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 0.5rem !important;
+            }
+            .mobile-shipping-info {
+                gap: 0.75rem !important;
+            }
+            .mobile-shipping-icon {
+                margin-top: 0.25rem !important;
+                margin-right: 0.75rem !important;
+            }
+            .mobile-address-text {
+                font-size: 0.9375rem !important;
+                line-height: 1.4 !important;
+            }
+            .mobile-return-actions {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+            .mobile-return-button {
+                width: 100% !important;
+            }
+        }
+        
+        /* Improved touch targets */
+        button, [role="button"], input[type="submit"], input[type="button"] {
+            min-height: 44px;
+        }
+        input, select, textarea {
+            min-height: 44px;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 
@@ -44,23 +163,25 @@
     <div class="flex h-screen pt-16">
         <%- include('../../views/partials/admin/sidebar') %>
 
-        <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-7xl mx-auto w-full overflow-x-hidden">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-white">Order Details</h1>
-                    <p class="text-gray-400 mt-1 text-sm sm:text-base">Order ID: #<%= order.orderId %></p>
+        <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-7xl mx-auto w-full overflow-x-hidden mobile-container">
+            <!-- Header Section -->
+            <div class="flex justify-between items-start mobile-flex-col mobile-header mb-6">
+                <div class="mb-3 sm:mb-0">
+                    <h1 class="text-xl sm:text-2xl font-bold text-white mobile-title">Order Details</h1>
+                    <p class="text-gray-400 mt-1 text-sm sm:text-base mobile-subtitle">Order ID: #<%= order.orderId %></p>
                 </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-gray-400 text-sm sm:text-base">Order Date:</span>
-                    <span class="font-medium text-sm sm:text-base"><%= new Date(order.createdOn).toLocaleDateString('en-GB') %></span>
+                <div class="flex items-center gap-2 bg-gray-800/50 px-3 py-2 rounded-lg">
+                    <span class="text-gray-400 text-sm sm:text-base mobile-text">Order Date:</span>
+                    <span class="font-medium text-sm sm:text-base mobile-text"><%= new Date(order.createdOn).toLocaleDateString('en-GB') %></span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- Main Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 mobile-grid">
                 <!-- Order Info Card -->
-                <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card glass-card mobile-card">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+                        <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2 mobile-text">
                             <i class="fas fa-receipt text-blue-400"></i>
                             Order Summary
                         </h2>
@@ -76,43 +197,51 @@
                                 'Returned': 'bg-purple-500/20 text-purple-400'
                             }; 
                             const currentStatusClass = statusColors[order.status] || 'bg-gray-500/20 text-gray-400'; %>
-                            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= currentStatusClass %>">
+                            <span class="status-badge inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= currentStatusClass %> mobile-status-badge">
                                 <%= order.status %>
                             </span>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        <div class="flex justify-between">
-                            <span class="text-gray-400 text-sm sm:text-base">Total Amount:</span>
-                            <span class="font-medium text-sm sm:text-base">₹<%= order.finalAmount.toFixed(2) %></span>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400 text-sm sm:text-base mobile-text">Total Amount:</span>
+                            <span class="font-medium text-lg text-white mobile-text">₹<%= order.finalAmount.toFixed(2) %></span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-gray-400 text-sm sm:text-base">Payment Method:</span>
-                            <span class="font-medium text-sm sm:text-base">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400 text-sm sm:text-base mobile-text">Payment Method:</span>
+                            <span class="font-medium text-sm sm:text-base mobile-text">
                                 <% if (order.paymentMethod.type === 'cod') { %>
-                                    <i class="fas fa-money-bill-wave mr-1"></i> Cash on Delivery
+                                    <span class="inline-flex items-center bg-gray-700/50 px-2 py-1 rounded">
+                                        <i class="fas fa-money-bill-wave mr-1"></i> Cash on Delivery
+                                    </span>
                                 <% } else if (order.paymentMethod.type === 'razorpay') { %>
-                                    <i class="fas fa-credit-card mr-1"></i> Razorpay
+                                    <span class="inline-flex items-center bg-gray-700/50 px-2 py-1 rounded">
+                                        <i class="fas fa-credit-card mr-1"></i> Razorpay
+                                    </span>
                                 <% } else if (order.paymentMethod.type === 'wallet') { %>
-                                    <i class="fas fa-wallet mr-1"></i> Wallet
+                                    <span class="inline-flex items-center bg-gray-700/50 px-2 py-1 rounded">
+                                        <i class="fas fa-wallet mr-1"></i> Wallet
+                                    </span>
                                 <% } else { %>
-                                    <i class="fas fa-question-circle mr-1"></i> Unknown
+                                    <span class="inline-flex items-center bg-gray-700/50 px-2 py-1 rounded">
+                                        <i class="fas fa-question-circle mr-1"></i> Unknown
+                                    </span>
                                 <% } %>
                             </span>
                         </div>
 
                         <% if (order.status === "Cancelled") { %>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400 text-sm sm:text-base">Cancel Reason:</span>
-                                <span class="font-medium text-red-300 text-sm sm:text-base"><%= order.cancelReason %></span>
+                            <div class="flex justify-between items-start mobile-flex-col">
+                                <span class="text-gray-400 text-sm sm:text-base mobile-text">Cancel Reason:</span>
+                                <span class="font-medium text-red-300 text-sm sm:text-base mobile-text text-right"><%= order.cancelReason %></span>
                             </div>
                         <% } %>
 
                         <% if (order.status === "Returned" || order.status === "Return Request" || order.status === 'Return Rejected') { %>
-                            <div class="flex justify-between">
-                                <span class="text-gray-400 text-sm sm:text-base">Return Reason:</span>
-                                <span class="font-medium text-orange-300 text-sm sm:text-base"><%= order.returnReason %></span>
+                            <div class="flex justify-between items-start mobile-flex-col">
+                                <span class="text-gray-400 text-sm sm:text-base mobile-text">Return Reason:</span>
+                                <span class="font-medium text-orange-300 text-sm sm:text-base mobile-text text-right"><%= order.returnReason %></span>
                             </div>
                         <% } %>
 
@@ -120,15 +249,15 @@
                               order.status !== "Return Request" && order.status !== "Returned" && 
                               order.status !== 'Return Rejected') { %>
                             <form action="/admin/change-status?orderId=<%=order.orderId%>" method="post" class="mt-4">
-                                <div class="flex items-center gap-3">
-                                    <select name="status" class="select-style p-2 rounded-md bg-gray-700 text-gray-100 w-full border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm sm:text-base">
+                                <div class="flex items-center gap-3 mobile-action-buttons">
+                                    <select name="status" class="select-style p-2 rounded-md bg-gray-700 text-gray-100 w-full border border-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm sm:text-base mobile-select">
                                         <option value="Pending" <%= order.status === 'Pending' ? 'selected' : '' %>>Pending</option>
                                         <option value="Processing" <%= order.status === 'Processing' ? 'selected' : '' %>>Processing</option>
                                         <option value="Shipped" <%= order.status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                                         <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                                     </select>
-                                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 flex items-center gap-2 whitespace-nowrap text-sm sm:text-base">
-                                        <i class="fas fa-save"></i> Update
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base mobile-button action-button">
+                                        <i class="fas fa-save"></i> Update Status
                                     </button>
                                 </div>
                             </form>
@@ -137,34 +266,34 @@
                 </div>
 
                 <!-- Shipping Address Card -->
-                <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card">
-                    <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center gap-2">
+                <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card glass-card mobile-card">
+                    <h2 class="text-lg sm:text-xl font-semibold mb-4 flex items-center gap-2 mobile-text">
                         <i class="fas fa-truck text-green-400"></i>
                         Shipping Address
                     </h2>
-                    <div class="space-y-3">
+                    <div class="space-y-3 mobile-shipping-info">
                         <div class="flex items-start">
-                            <i class="fas fa-user mt-1 mr-3 text-gray-400 w-4"></i>
+                            <i class="fas fa-user mt-1 text-gray-400 w-4 mobile-shipping-icon"></i>
                             <div>
-                                <p class="text-gray-400 text-sm">Name</p>
-                                <p class="font-medium text-sm sm:text-base"><%= selectedAddress.name %></p>
+                                <p class="text-gray-400 text-sm mobile-text">Name</p>
+                                <p class="font-medium text-sm sm:text-base mobile-text mobile-address-text"><%= selectedAddress.name %></p>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-gray-400 w-4"></i>
+                            <i class="fas fa-map-marker-alt mt-1 text-gray-400 w-4 mobile-shipping-icon"></i>
                             <div>
-                                <p class="text-gray-400 text-sm">Address</p>
-                                <p class="font-medium text-sm sm:text-base">
-                                    <%= selectedAddress.landMark %>, <%= selectedAddress.city %>, 
-                                    <%= selectedAddress.state %> - <%= selectedAddress.pincode %>
+                                <p class="text-gray-400 text-sm mobile-text">Address</p>
+                                <p class="font-medium text-sm sm:text-base mobile-text mobile-address-text">
+                                    <%= selectedAddress.landMark %><br>
+                                    <%= selectedAddress.city %>, <%= selectedAddress.state %> - <%= selectedAddress.pincode %>
                                 </p>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <i class="fas fa-phone-alt mt-1 mr-3 text-gray-400 w-4"></i>
+                            <i class="fas fa-phone-alt mt-1 text-gray-400 w-4 mobile-shipping-icon"></i>
                             <div>
-                                <p class="text-gray-400 text-sm">Phone</p>
-                                <p class="font-medium text-sm sm:text-base"><%= selectedAddress.phone %></p>
+                                <p class="text-gray-400 text-sm mobile-text">Phone</p>
+                                <p class="font-medium text-sm sm:text-base mobile-text mobile-address-text"><%= selectedAddress.phone %></p>
                             </div>
                         </div>
                     </div>
@@ -172,30 +301,30 @@
             </div>
 
             <% if(order.status === 'Return Request') { %>
-                <div class="bg-[#1F1F1F] rounded-xl p-4 sm:p-6 border border-gray-700 mb-6 info-card">
-                    <div class="flex items-center gap-4 mb-4">
-                        <div class="p-3 bg-rose-500/20 rounded-full">
-                            <i class="fas fa-exclamation-triangle text-rose-400 text-xl"></i>
+                <div class="bg-[#1F1F1F] rounded-xl p-4 sm:p-6 border border-gray-700 mb-6 info-card glass-card mobile-card">
+                    <div class="flex items-start gap-4 mb-4">
+                        <div class="p-2.5 bg-rose-500/20 rounded-full flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-rose-400 text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg sm:text-xl font-semibold text-white">Return Request Received</h3>
-                            <p class="text-gray-400 text-sm sm:text-base">Review the request and take appropriate action</p>
+                            <h3 class="text-lg sm:text-xl font-semibold text-white mobile-text">Return Request Received</h3>
+                            <p class="text-gray-400 text-sm sm:text-base mobile-text mt-1">Review the request and take appropriate action</p>
                         </div>
                     </div>
 
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-4">
-                        <div class="bg-gray-800/50 p-4 rounded-lg border border-gray-700 flex-1">
-                            <p class="text-gray-400 mb-2 text-sm sm:text-base">Return Reason:</p>
-                            <p class="font-medium text-rose-300 text-sm sm:text-base"><%= order.returnReason %></p>
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-4 mobile-return-actions">
+                        <div class="bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700 w-full">
+                            <p class="text-gray-400 mb-1 text-sm sm:text-base mobile-text">Return Reason:</p>
+                            <p class="font-medium text-rose-300 text-sm sm:text-base mobile-text"><%= order.returnReason %></p>
                         </div>
-                        <div class="flex gap-3 w-full md:w-auto">
+                        <div class="flex gap-3 w-full mobile-action-buttons">
                             <button onclick="handleReturnAction('reject','<%= order.orderId %>')"
-                                class="px-5 py-2.5 border border-gray-600 text-gray-300 hover:text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 flex items-center gap-2 w-full md:w-auto justify-center text-sm sm:text-base">
-                                <i class="fas fa-times"></i> Reject
+                                class="px-4 py-2.5 border border-gray-600 text-gray-300 hover:text-white rounded-lg hover:bg-gray-700 transition-colors duration-300 flex items-center justify-center gap-2 w-full mobile-return-button mobile-action-button action-button">
+                                <i class="fas fa-times"></i> Reject Return
                             </button>
                             <button onclick="handleReturnAction('accept','<%= order.orderId %>')"
-                                class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors duration-300 flex items-center gap-2 w-full md:w-auto justify-center text-sm sm:text-base">
-                                <i class="fas fa-check"></i> Accept
+                                class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 w-full mobile-return-button mobile-action-button action-button">
+                                <i class="fas fa-check"></i> Accept Return
                             </button>
                         </div>
                     </div>
@@ -203,22 +332,25 @@
             <% } %>
 
             <!-- Ordered Items Section -->
-            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card">
-                <h2 class="text-lg sm:text-xl font-semibold mb-6 flex items-center gap-2">
+            <div class="bg-gray-800 p-4 sm:p-6 rounded-xl info-card glass-card mobile-card">
+                <h2 class="text-lg sm:text-xl font-semibold mb-6 flex items-center gap-2 mobile-text">
                     <i class="fas fa-shopping-basket text-purple-400"></i>
                     Ordered Items
                 </h2>
 
                 <div class="divide-y divide-gray-700">
                     <% order.orderItems.forEach(item => { %>
-                        <div class="order-item py-4 flex items-start md:items-center gap-4">
+                        <div class="order-item py-4 flex items-start gap-4">
                             <img src="<%= item.product.productImage[0] %>" alt="<%= item.name %>"
-                                class="w-16 h-16 rounded-md object-cover border border-gray-700" />
-                            <div class="flex-1">
-                                <h3 class="font-medium text-white text-sm sm:text-base"><%= item.product.productName %></h3>
-                                <div class="flex flex-wrap items-center gap-4 mt-1">
-                                    <span class="text-gray-400 text-sm">Qty: <%= item.quantity %></span>
-                                    <span class="text-green-400 font-medium text-sm sm:text-base">₹<%= item.price %></span>
+                                class="w-16 h-16 rounded-md object-cover border border-gray-700 mobile-order-image" />
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-medium text-white text-sm sm:text-base mobile-text truncate"><%= item.product.productName %></h3>
+                                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                    <span class="text-gray-400 text-sm mobile-text">Qty: <%= item.quantity %></span>
+                                    <span class="text-green-400 font-medium text-sm sm:text-base mobile-text">₹<%= item.price %></span>
+                                    <% if(item.discount > 0) { %>
+                                        <span class="text-xs text-gray-400 line-through">₹<%= (item.price + item.discount).toFixed(2) %></span>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
@@ -233,70 +365,99 @@
             const menuBtn = document.getElementById('menu-btn');
             const sidebar = document.getElementById('sidebar');
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-            });
+            if (menuBtn && sidebar) {
+                menuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
 
-            function handleResize() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('-translate-x-full');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
+                function handleResize() {
+                    if (window.innerWidth >= 768) {
+                        sidebar.classList.remove('-translate-x-full');
+                    } else {
+                        sidebar.classList.add('-translate-x-full');
+                    }
                 }
+
+                window.addEventListener('resize', handleResize);
+                handleResize();
             }
 
-            window.addEventListener('resize', handleResize);
-            handleResize();
+            // Improved touch feedback for buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('touchstart', () => {
+                    button.classList.add('opacity-80', 'scale-[0.98]');
+                });
+                button.addEventListener('touchend', () => {
+                    button.classList.remove('opacity-80', 'scale-[0.98]');
+                });
+            });
         });
 
         function handleReturnAction(action, orderId) {
             Swal.fire({
-                title: `Are you sure you want to ${action} this return?`,
-                text: `This action cannot be undone`,
-                icon: 'warning',
+                title: `${action === 'accept' ? 'Accept' : 'Reject'} Return Request?`,
+                text: `Are you sure you want to ${action} this return? This action cannot be undone.`,
+                icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: action === 'accept' ? '#e53e3e' : '#3085d6',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: `Yes, ${action} it`,
+                confirmButtonText: `Yes, ${action}`,
+                cancelButtonText: 'Cancel',
                 background: '#1F1F1F',
                 color: '#FFFFFF',
-                backdrop: 'rgba(0,0,0,0.8)'
+                backdrop: 'rgba(0,0,0,0.8)',
+                customClass: {
+                    confirmButton: 'py-2 px-4 rounded-lg',
+                    cancelButton: 'py-2 px-4 rounded-lg'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Processing...',
+                        html: `Please wait while we ${action} the return request`,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                        background: '#1F1F1F',
+                        color: '#FFFFFF'
+                    });
+                    
                     fetch('/admin/return-action', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ action, orderId })
                     })
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return res.json();
+                    })
                     .then(data => {
                         if (data.success) {
                             Swal.fire({
                                 title: 'Success!',
-                                text: `Return ${action}ed successfully`,
+                                text: `Return request ${action}ed successfully`,
                                 icon: 'success',
                                 background: '#1F1F1F',
                                 color: '#FFFFFF',
-                                confirmButtonColor: '#B76E79'
+                                confirmButtonColor: '#B76E79',
+                                showConfirmButton: false,
+                                timer: 1500
                             }).then(() => {
                                 window.location.reload();
                             });
                         } else {
-                            Swal.fire({
-                                title: 'Failed',
-                                text: data.message || `Return ${action} failed`,
-                                icon: 'error',
-                                background: '#1F1F1F',
-                                color: '#FFFFFF',
-                                confirmButtonColor: '#B76E79'
-                            });
+                            throw new Error(data.message || `Failed to ${action} return`);
                         }
                     })
                     .catch(err => {
                         console.error('Error:', err);
                         Swal.fire({
                             title: 'Error!',
-                            text: 'An error occurred while processing your request',
+                            text: err.message || 'An error occurred while processing your request',
                             icon: 'error',
                             background: '#1F1F1F',
                             color: '#FFFFFF',
@@ -308,5 +469,4 @@
         }
     </script>
 </body>
-
 </html>

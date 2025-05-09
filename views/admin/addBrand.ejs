@@ -33,6 +33,97 @@
             margin-top: 0.25rem;
             display: none;
         }
+        .glass-card {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 767px) {
+            .mobile-flex-col {
+                flex-direction: column;
+            }
+            .mobile-w-full {
+                width: 100% !important;
+            }
+            .mobile-p-4 {
+                padding: 1rem;
+            }
+            .mobile-mt-4 {
+                margin-top: 1rem;
+            }
+            .mobile-text-center {
+                text-align: center;
+            }
+            .mobile-mx-auto {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .mobile-max-w-xs {
+                max-width: 20rem;
+            }
+        }
+        
+        /* Image upload styling */
+        .image-upload-container {
+            transition: all 0.3s ease;
+        }
+        .image-upload-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .image-upload-slot {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .image-upload-slot:hover {
+            border-color: #6d28d9;
+        }
+        
+        /* Form input focus styles */
+        .form-input:focus, .form-textarea:focus {
+            border-color: #6d28d9;
+            box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
+        }
+        
+        /* Submit button animation */
+        .submit-button {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(109, 40, 217, 0.3);
+        }
+        .submit-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Cropper modal mobile styles */
+        @media (max-width: 767px) {
+            .crop-modal-container {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                border-radius: 0;
+                padding: 1rem;
+            }
+            .crop-image-container {
+                height: 60vh;
+                width: 100%;
+            }
+            .crop-modal-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .crop-modal-button {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
+        }
     </style>
 </head>
 
@@ -46,46 +137,61 @@
 
         <!-- Main Content -->
         <div class="flex-1 ml-0 md:ml-64 p-4 sm:p-6 max-w-4xl mx-auto w-full min-w-0 overflow-x-hidden transition-all duration-300">
-            <div class="bg-dark rounded-xl p-4 sm:p-6 shadow-lg">
-                <h1 class="text-xl sm:text-2xl font-bold mb-4 text-center">Add Brand</h1>
+            <div class="glass-card rounded-xl p-4 sm:p-6 shadow-lg">
+                <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center">Add Brand</h1>
+                
                 <form enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)"
-                    class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-center">
+                    class="flex flex-col md:flex-row gap-6 md:gap-8 mobile-flex-col">
+                    
                     <!-- Image Upload -->
-                    <div class="col-span-1 flex flex-col items-center">
-                        <label class="block text-sm sm:text-base font-medium mb-2">Add Image:</label>
-                        <div class="w-32 sm:w-40 h-40 sm:h-52 border-2 border-gray-500 rounded-md flex items-center justify-center bg-gray-700">
-                            <input type="file" id="fileInput" class="hidden" onchange="loadImage(event)" name="image">
-                            <label for="fileInput" class="cursor-pointer flex items-center justify-center w-full h-full">
-                                <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
-                                <span id="uploadText" class="text-gray-400 text-sm sm:text-base">Upload</span>
-                            </label>
+                    <div class="flex flex-col items-center mobile-w-full mobile-mb-6">
+                        <label class="block text-sm sm:text-base font-medium mb-3">Brand Image</label>
+                        <div class="image-upload-container">
+                            <div class="w-40 h-40 sm:w-48 sm:h-48 border-2 border-dashed border-gray-500 rounded-lg flex items-center justify-center bg-gray-700/50 image-upload-slot">
+                                <input type="file" id="fileInput" class="hidden" onchange="loadImage(event)" name="image" accept="image/jpeg,image/png,image/webp">
+                                <label for="fileInput" class="cursor-pointer flex flex-col items-center justify-center w-full h-full p-4">
+                                    <img id="imagePreview" class="w-full h-full object-cover rounded-md hidden">
+                                    <span id="uploadText" class="text-gray-400 text-sm sm:text-base text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        Click to upload
+                                        <span class="block text-xs mt-1 text-gray-500">(JPEG, PNG, WEBP)</span>
+                                    </span>
+                                </label>
+                            </div>
                         </div>
-                        <div id="image-error" class="error-message"></div>
+                        <div id="image-error" class="error-message mt-2 mobile-text-center"></div>
                     </div>
 
                     <!-- Form Inputs -->
-                    <div class="col-span-2 grid grid-cols-1 gap-4">
+                    <div class="flex-1 flex flex-col gap-4 mobile-w-full">
                         <div>
-                            <label class="block text-sm sm:text-base font-medium">Brand Name:</label>
-                            <input type="text" placeholder="Enter brand name" id="name" name="name"
-                                class="w-full sm:w-1/2 p-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-primary text-sm sm:text-base">
+                            <label for="name" class="block text-sm sm:text-base font-medium mb-2">Brand Name</label>
+                            <input type="text" id="name" name="name" placeholder="Enter brand name"
+                                class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary form-input mobile-w-full">
                             <div id="name-error" class="error-message"></div>
                         </div>
+                        
                         <div>
-                            <label class="block text-sm sm:text-base font-medium">Description:</label>
-                            <textarea id="description" name="description"
-                                class="w-full sm:w-1/2 p-2 h-24 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-primary text-sm sm:text-base"
-                                placeholder="Enter description..."></textarea>
+                            <label for="description" class="block text-sm sm:text-base font-medium mb-2">Description</label>
+                            <textarea id="description" name="description" rows="5"
+                                class="w-full p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary form-textarea mobile-w-full"
+                                placeholder="Enter brand description..."></textarea>
                             <div id="description-error" class="error-message"></div>
                         </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="col-span-3 flex justify-center">
-                        <button type="submit" id="submitButton"
-                            class="bg-primary text-white px-6 py-2 rounded-lg font-semibold hover:bg-primary/90 transition text-sm sm:text-base">
-                            ADD BRAND
-                        </button>
+                        
+                        <div class="mt-4">
+                            <button type="submit" id="submitButton"
+                                class="w-full bg-primary text-white px-6 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all submit-button">
+                                <span class="flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    ADD BRAND
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -93,21 +199,23 @@
     </div>
 
     <!-- Cropper Modal -->
-    <div id="cropperModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
-        <div class="bg-dark p-4 sm:p-6 rounded-xl shadow-lg max-w-[90%] sm:max-w-[60%]">
-            <h2 class="text-lg sm:text-xl font-bold mb-4">Crop Image</h2>
-            <div class="flex justify-center">
-                <img id="cropperImage" class="rounded-md max-w-full" style="max-width: 100%;">
-            </div>
-            <div class="flex justify-end mt-4 space-x-3">
-                <button onclick="cancelCrop()"
-                    class="bg-red-600 px-4 py-2 rounded-lg text-white font-semibold hover:bg-red-700 text-sm sm:text-base">
-                    Cancel
-                </button>
-                <button onclick="cropImage()"
-                    class="bg-primary px-4 py-2 rounded-lg text-white font-semibold hover:bg-primary/90 text-sm sm:text-base">
-                    Crop & Save
-                </button>
+    <div id="cropperModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50 p-4">
+        <div class="bg-dark rounded-xl shadow-lg w-full max-w-3xl crop-modal-container">
+            <div class="p-4 sm:p-6">
+                <h2 class="text-xl font-bold mb-4">Crop Image</h2>
+                <div class="flex justify-center mb-4 crop-image-container">
+                    <img id="cropperImage" class="max-h-full max-w-full rounded-md">
+                </div>
+                <div class="flex flex-wrap justify-end gap-3 mt-4 crop-modal-buttons">
+                    <button onclick="cancelCrop()"
+                        class="bg-red-600 px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-red-700 transition-all crop-modal-button">
+                        Cancel
+                    </button>
+                    <button onclick="cropImage()"
+                        class="bg-primary px-5 py-2.5 rounded-lg text-white font-semibold hover:bg-primary/90 transition-all crop-modal-button">
+                        Crop & Save
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -120,14 +228,22 @@
         function handleFormSubmit(event) {
             event.preventDefault();
             if (isSubmitting) return;
-            isSubmitting = true;
-            submitButton.disabled = true;
-
+            
             if (!validationForm()) {
-                isSubmitting = false;
-                submitButton.disabled = false;
                 return false;
             }
+
+            isSubmitting = true;
+            submitButton.disabled = true;
+            submitButton.innerHTML = `
+                <span class="flex items-center justify-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                </span>
+            `;
 
             const formData = new FormData();
             formData.append("name", document.getElementById("name").value);
@@ -138,18 +254,42 @@
                 method: "POST",
                 body: formData,
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
-                    Swal.fire({ icon: "success", title: "Success", text: data.message });
-                    window.location.href = "/admin/brands";
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success!",
+                        text: data.message || "Brand added successfully",
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = "/admin/brands";
+                    });
                 })
                 .catch(error => {
-                    Swal.fire({ icon: "error", title: "Oops", text: error.message });
-                    isSubmitting = false;
-                    submitButton.disabled = false;
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: error.message || "Failed to add brand. Please try again.",
+                    });
                 })
                 .finally(() => {
                     isSubmitting = false;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = `
+                        <span class="flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+                            </svg>
+                            ADD BRAND
+                        </span>
+                    `;
                 });
 
             return false;
@@ -162,31 +302,52 @@
             const image = document.getElementById('fileInput').files[0];
             let isValid = true;
 
-            if (name === "" || !/^[A-Z][a-zA-Z\s]*$/.test(name)) {
-                showError("name-error", "Brand name must start with a capital letter and contain only alphabets");
+            if (name === "") {
+                showError("name-error", "Brand name is required");
+                isValid = false;
+            } else if (!/^[A-Z][a-zA-Z\s]*$/.test(name)) {
+                showError("name-error", "Brand name must start with a capital letter and contain only letters");
                 isValid = false;
             }
+
             if (description === "") {
-                showError("description-error", "Please enter a description");
+                showError("description-error", "Description is required");
+                isValid = false;
+            } else if (description.length < 10) {
+                showError("description-error", "Description should be at least 10 characters");
                 isValid = false;
             }
+
             if (!image) {
-                showError("image-error", "Please upload an image");
+                showError("image-error", "Brand image is required");
                 isValid = false;
             } else {
                 const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
                 if (!allowedTypes.includes(image.type)) {
                     showError("image-error", "Only JPG, PNG, or WEBP images are allowed");
                     document.getElementById('fileInput').value = '';
                     isValid = false;
+                } else if (image.size > maxSize) {
+                    showError("image-error", "Image size should be less than 5MB");
+                    document.getElementById('fileInput').value = '';
+                    isValid = false;
                 }
             }
+            
             return isValid;
         }
 
         function showError(elementId, message) {
-            document.getElementById(elementId).innerText = message;
-            document.getElementById(elementId).style.display = "block";
+            const element = document.getElementById(elementId);
+            element.innerText = message;
+            element.style.display = "block";
+            
+            // Scroll to the first error
+            if (isValid) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         function clearErrorMessage() {
@@ -200,69 +361,127 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            // Clear previous error
+            document.getElementById("image-error").style.display = "none";
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
                 showError("image-error", "Only JPG, PNG, or WEBP files are allowed");
                 event.target.value = '';
                 return;
             }
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById("cropperImage").src = e.target.result;
-                    document.getElementById("cropperModal").classList.remove("hidden");
-                    cropper = new Cropper(document.getElementById("cropperImage"), {
-                        aspectRatio: 0,
-                        viewMode: 2,
-                    });
-                };
-                reader.readAsDataURL(file);
+
+            // Check file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showError("image-error", "Image must be less than 5MB");
+                event.target.value = '';
+                return;
             }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById("cropperImage").src = e.target.result;
+                document.getElementById("cropperModal").classList.remove("hidden");
+                
+                // Initialize cropper
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                cropper = new Cropper(document.getElementById("cropperImage"), {
+                    aspectRatio: 1, // Square aspect ratio
+                    viewMode: 1,
+                    autoCropArea: 0.8,
+                    responsive: true,
+                    movable: true,
+                    zoomable: true,
+                    rotatable: false,
+                    minContainerWidth: 300,
+                    minContainerHeight: 300
+                });
+            };
+            reader.readAsDataURL(file);
         }
 
         function cropImage() {
-            const canvas = cropper.getCroppedCanvas();
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 800,
+                height: 800,
+                minWidth: 256,
+                minHeight: 256,
+                maxWidth: 2000,
+                maxHeight: 2000,
+                fillColor: '#111827',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+
             canvas.toBlob(blob => {
-                const file = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+                const fileName = `cropped-${Date.now()}.jpg`;
+                const file = new File([blob], fileName, { type: "image/jpeg" });
+                
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
+                
                 document.getElementById("fileInput").files = dataTransfer.files;
+                
+                // Update preview
                 const imgPreview = document.getElementById("imagePreview");
                 imgPreview.src = URL.createObjectURL(blob);
                 imgPreview.classList.remove("hidden");
                 document.getElementById("uploadText").classList.add("hidden");
+                
+                // Close modal
                 document.getElementById("cropperModal").classList.add("hidden");
-                cropper.destroy();
-            }, "image/jpeg");
+                
+                if (cropper) {
+                    cropper.destroy();
+                }
+            }, "image/jpeg", 0.9); // 90% quality
         }
 
         function cancelCrop() {
             document.getElementById("cropperModal").classList.add("hidden");
             document.getElementById("fileInput").value = '';
-            document.getElementById("imagePreview").classList.add("hidden");
-            document.getElementById("uploadText").classList.remove("hidden");
+            
             if (cropper) {
                 cropper.destroy();
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
+            // Responsive sidebar handling
             const menuBtn = document.getElementById('menu-btn');
             const sidebar = document.getElementById('sidebar');
 
-            menuBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('-translate-x-full');
-            });
+            if (menuBtn && sidebar) {
+                menuBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
 
-            function handleResize() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove('-translate-x-full');
-                } else {
-                    sidebar.classList.add('-translate-x-full');
+                function handleResize() {
+                    if (window.innerWidth >= 768) {
+                        sidebar.classList.remove('-translate-x-full');
+                    } else {
+                        sidebar.classList.add('-translate-x-full');
+                    }
                 }
+
+                window.addEventListener('resize', handleResize);
+                handleResize();
             }
 
-            window.addEventListener('resize', handleResize);
-            handleResize();
+            // Add touch feedback for buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('touchstart', () => {
+                    button.classList.add('scale-95');
+                });
+                button.addEventListener('touchend', () => {
+                    button.classList.remove('scale-95');
+                });
+            });
         });
     </script>
 </body>

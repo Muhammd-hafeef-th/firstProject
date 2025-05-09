@@ -106,7 +106,7 @@
                                         </div>
                                         <div class="absolute h-1.5 bg-rose-gold top-1/2 left-0 -translate-y-1/2 rounded-full transition-all duration-500"
                                             style="width: <%= progress %>%;" aria-hidden="true"></div>
-                                        <div class="flex justify-between relative z-10 overflow-x-auto pb-2 -mx-1 px-1">
+                                        <div class="flex justify-between relative  pb-2 -mx-1 px-1">
                                             <% const steps=[ { name: 'Pending' ,
                                                 icon: 'M9 2a1 1 0 000 2h2a1 1 0 100-2H9z M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5z'
                                                 , description: 'Order received and awaiting processing' }, {
@@ -454,7 +454,7 @@
             <h2 class="text-lg sm:text-xl font-semibold font-playfair text-rose-gold mb-3 sm:mb-4">Order Actions</h2>
             <div class="flex flex-wrap justify-center sm:justify-start gap-3">
                 <% if (order.status !=='Cancelled' && order.status !=='Delivered' && order.status !=='Return Request' &&
-                    order.status !=='Returned' && order.status !=='Return Rejected' ) { %>
+                    order.status !=='Returned' && order.status !=='Return Rejected' && order.status !=='Shipped' ) { %>
                     <button onclick="openCancelModal('<%=order.orderId%>')"
                         class="w-full sm:w-auto px-4 sm:px-5 py-2 border border-rose-gold text-rose-gold rounded-lg hover:bg-rose-gold hover:text-white transition-colors duration-300 text-sm sm:text-base mb-2 sm:mb-0">
                         Cancel Order

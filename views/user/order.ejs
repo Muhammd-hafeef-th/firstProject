@@ -4,49 +4,144 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .arrow-button {
-            border: 2px solid #d7c5c5;
-            background-color: transparent;
-            border-radius: 50%;
-            padding: 4px 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .arrow-button i {
-            color: #a3a3a3;
-            font-size: 16px;
-        }
-
-        .arrow-button:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
         @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-5px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
-
         .animate-float {
             animation: float 3s ease-in-out infinite;
         }
 
-        .arrow-button:hover i {
-            transform: translateX(2px);
-            transition: transform 0.3s ease;
+        /* Mobile list styles */
+        .mobile-list-item {
+            background-color: rgba(31, 41, 55, 0.5);
+            border-bottom: 1px solid rgba(75, 85, 99, 0.5);
+            padding: 0.75rem 1rem;
+            transition: background-color 0.2s;
+        }
+        .mobile-list-item:last-child {
+            border-bottom: none;
+        }
+        .mobile-list-item:active {
+            background-color: rgba(31, 41, 55, 0.8);
+        }
+        .mobile-list-main {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .mobile-list-avatar {
+            flex-shrink: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(75, 85, 99, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #374151;
+        }
+        .mobile-list-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .mobile-list-name {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #ffffff;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .mobile-list-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+        .mobile-list-amount {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .mobile-list-status {
+            font-size: 0.6875rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+        }
+        /* Expandable details */
+        .mobile-details-toggle {
+            display: none;
+        }
+        .mobile-details-content {
+            display: none;
+            padding: 0.75rem 0;
+            border-top: 1px solid rgba(75, 85, 99, 0.3);
+            margin-top: 0.5rem;
+        }
+        .mobile-details-toggle:checked ~ .mobile-details-content {
+            display: block;
+        }
+        .mobile-details-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.25rem 0;
+            margin-top: 0.5rem;
+            border-top: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        .mobile-details-label i {
+            transition: transform 0.2s;
+        }
+        .mobile-details-toggle:checked ~ .mobile-details-label i {
+            transform: rotate(180deg);
+        }
+        .mobile-details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .mobile-details-item label {
+            font-size: 0.6875rem;
+            color: rgba(156, 163, 175, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .mobile-details-item span {
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: block;
+            margin-top: 0.125rem;
+        }
+        /* Actions */
+        .mobile-list-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            padding: 0.5rem 0;
+            border-top: 1px solid rgba(75, 85, 99, 0.3);
+        }
+        .mobile-list-action-btn {
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background-color: rgba(31, 41, 55, 0.7);
+            min-width: 2.75rem;
+            min-height: 2.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        .mobile-list-action-btn:active {
+            background-color: rgba(31, 41, 55, 0.9);
+        }
+        .mobile-list-action-btn i {
+            font-size: 0.875rem;
         }
 
-        @media (max-width: 768px) {
-            .grid-cols-12>div {
-                padding: 0.5rem;
-            }
+        @media (max-width: 1000px) {
             .pagination-container {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -67,11 +162,11 @@
     </style>
 
     <body class="bg-[#1F1F1F] text-white">
-        <div class="flex flex-col md:flex-row min-h-screen p-2 sm:p-4 md:p-0">
-            <div class="w-full md:w-64 bg-[#1F1F1F] p-4 sm:p-6 md:sticky md:top-16 md:h-[calc(100vh-4rem)]">
-                <div class="flex justify-between items-center md:block">
-                    <h2 class="text-lg sm:text-xl font-bold mb-4 md:mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
-                    <button id="toggleSidebar" class="md:hidden bg-[#333] p-2 rounded">
+        <div class="flex flex-col lg:flex-row min-h-screen p-2 sm:p-4 lg:p-0">
+            <div class="w-full lg:w-64 bg-[#1F1F1F] p-4 sm:p-6 lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]">
+                <div class="flex justify-between items-center lg:block">
+                    <h2 class="text-lg sm:text-xl font-bold mb-4 lg:mb-6 text-[#88903F] border-b border-[#333] pb-4">SETTINGS</h2>
+                    <button id="toggleSidebar" class="lg:hidden bg-[#333] p-2 rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
                         </svg>
@@ -133,134 +228,228 @@
                     <% } %>
                 </div>
             </div>
-            <div class="flex-1 flex justify-center p-2 sm:p-4 md:p-10">
-                <div
-                    class="w-full max-w-6xl bg-[#1F1F1F] p-4 sm:p-6 rounded-lg border border-gray-700 shadow-2xl shadow-black/50">
+            <div class="flex-1 flex justify-center p-2 sm:p-4 lg:p-10">
+                <div class="w-full max-w-6xl bg-[#1F1F1F] p-4 sm:p-6 rounded-lg border border-gray-700 shadow-2xl shadow-black/50">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
-                        <h2 class="text-xl sm:text-2xl font-bold text-[#88903F]">
-                            ORDER HISTORY</h2>
-                            <form action="/orders" method="get" class="relative flex items-center gap-2 w-full sm:w-auto">
-    <div class="relative w-full sm:w-auto">
-        <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
-            class="bg-[#2b2929] border border-gray-700 text-white rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-[#88903F] focus:border-[#88903F]">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
-            <i class="fas fa-search"></i>
-        </button>
-    </div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-[#88903F]">ORDER HISTORY</h2>
+                        <form action="/orders" method="get" class="relative flex items-center gap-2 w-full sm:w-auto">
+                            <div class="relative w-full sm:w-auto">
+                                <input type="text" id="search" name="search" value="<%= search %>" placeholder="Search orders..."
+                                    class="bg-[#2b2929] border border-gray-700 text-white rounded-lg pl-10 pr-4 py-2 w-full focus:outline-none focus:ring-1 focus:ring-[#88903F] focus:border-[#88903F]">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
 
-    <% if (search) { %>
-        <a href="/orders"
-           class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-full text-sm transition duration-300">
-            Clear
-        </a>
-    <% } %>
-    
-</form>
-
+                            <% if (search) { %>
+                                <a href="/orders"
+                                   class="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded-full text-sm transition duration-300">
+                                    Clear
+                                </a>
+                            <% } %>
+                        </form>
                     </div>
 
-                    <div class="p-3 sm:p-4 md:p-6 bg-[#1F1F1F] text-white">
-                        <div
-                            class="bg-gradient-to-r bg-[#88903F] text-black font-semibold rounded-t-lg overflow-hidden shadow-md">
-                            <div class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 text-xs sm:text-sm md:text-base">
-                                <div class="col-span-6 lg:col-span-2">Order ID</div>
-                                <div class="hidden lg:block lg:col-span-2">Amount</div>
-                                <div class="hidden lg:block lg:col-span-2">Date</div>
-                                <div class="col-span-4 lg:col-span-3">Status</div>
-                                <div class="col-span-2 lg:col-span-3">Items</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-[#2b2929] divide-y divide-gray-700 rounded-b-lg shadow-lg overflow-hidden">
-                            <% if (orders.length===0) { %>
-                                <div class="bg-[#2b2929] p-4 sm:p-8 text-center rounded-lg">
-                                    <i class="fas fa-box-open text-3xl sm:text-4xl text-yellow-500 mb-3 sm:mb-4"></i>
-                                    <h3 class="text-lg sm:text-xl font-semibold mb-2">No Orders Found</h3>
-                                    <p class="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">You haven't placed any orders yet.</p>
-                                    <a href="/"
-                                        class="bg-[#88903F] text-black px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-300 text-sm sm:text-base inline-block">
-                                        Start Shopping
-                                    </a>
+                    <div class="p-3 sm:p-4 lg:p-6 bg-[#1F1F1F] text-white">
+                        <div class="hidden xl:block">
+                            <div class="bg-gradient-to-r bg-[#88903F] text-black font-semibold rounded-t-lg overflow-hidden shadow-md">
+                                <div class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 text-xs sm:text-sm md:text-base">
+                                    <div class="col-span-2">Order ID</div>
+                                    <div class="col-span-2">Amount</div>
+                                    <div class="col-span-2">Date</div>
+                                    <div class="col-span-3">Status</div>
+                                    <div class="col-span-2">Payment</div>
+                                    <div class="col-span-1">Actions</div>
                                 </div>
-                                <% } else { %>
+                            </div>
 
+                            <div class="bg-[#2b2929] divide-y divide-gray-700 rounded-b-lg shadow-lg overflow-hidden">
+                                <% if (orders.length===0) { %>
+                                    <div class="bg-[#2b2929] p-4 sm:p-8 text-center rounded-lg">
+                                        <i class="fas fa-box-open text-3xl sm:text-4xl text-yellow-500 mb-3 sm:mb-4"></i>
+                                        <h3 class="text-lg sm:text-xl font-semibold mb-2">No Orders Found</h3>
+                                        <p class="text-gray-400 mb-4 sm:mb-6 text-sm sm:text-base">You haven't placed any orders yet.</p>
+                                        <a href="/"
+                                            class="bg-[#88903F] text-black px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-300 text-sm sm:text-base inline-block">
+                                            Start Shopping
+                                        </a>
+                                    </div>
+                                <% } else { %>
                                     <% orders.forEach(order=> { %>
-                                        <div
-                                            class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 hover:bg-[#333232] transition-all duration-300 transform hover:-translate-y-0.5 text-xs sm:text-sm md:text-base">
-                                            <div class="col-span-6 lg:col-span-2 font-mono text-[#88903F] truncate">#<%=
-                                                    order.id %>
-                                            </div>
-                                            <div class="hidden lg:block lg:col-span-2 font-bold truncate">₹<%=
-                                                    order.price.toLocaleString() %>
-                                            </div>
-                                            <div class="hidden lg:block lg:col-span-2 text-gray-300">
-                                                <%= order.date %>
-                                            </div>
-                                            <div class="col-span-4 lg:col-span-3">
-                                                 <span class="
-                                                  <% if (order.status === 'Delivered') { %>
-                                                      bg-green-500/90 animate-pulse text-white
-                                                  <% } else if (order.status === 'Shipped') { %>
-                                                      bg-blue-500 text-white
-                                                  <% } else if (order.status === 'Processing') { %>
-                                                      bg-purple-500 text-white
-                                                  <% } else if (order.status === 'Pending') { %>
-                                                      bg-yellow-500 text-black
-                                                  <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
-                                                      bg-red-500 text-white
-                                                  <% }  else if (order.status === 'Return Rejected') { %>
-                                                     bg-red-500 text-white
-                                                 <% } else if (order.status === 'Return Request') { %>
-                                                     bg-yellow-500 text-black
-                                                 <% }else { %>
-                                                      bg-gray-500 text-white
-                                                  <% } %>
-                                                  px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs md:text-sm font-bold whitespace-nowrap inline-block">
+                                        <div class="grid grid-cols-12 items-center gap-2 sm:gap-4 p-3 sm:p-4 hover:bg-[#333232] transition-colors">
+                                            <div class="col-span-2 font-mono text-[#88903F] truncate">#<%= order.id %></div>
+                                            <div class="col-span-2 font-bold truncate">₹<%= order.price.toLocaleString() %></div>
+                                            <div class="col-span-2 text-gray-300"><%= order.date %></div>
+                                            <div class="col-span-3">
+                                                <span class="
+                                                    <% if (order.status === 'Delivered') { %>
+                                                        bg-green-500/90 animate-pulse text-white
+                                                    <% } else if (order.status === 'Shipped') { %>
+                                                        bg-blue-500 text-white
+                                                    <% } else if (order.status === 'Processing') { %>
+                                                        bg-purple-500 text-white
+                                                    <% } else if (order.status === 'Pending') { %>
+                                                        bg-yellow-500 text-black
+                                                    <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
+                                                        bg-red-500 text-white
+                                                    <% } else if (order.status === 'Return Rejected') { %>
+                                                        bg-red-500 text-white
+                                                    <% } else if (order.status === 'Return Request') { %>
+                                                        bg-yellow-500 text-black
+                                                    <% } else { %>
+                                                        bg-gray-500 text-white
+                                                    <% } %>
+                                                    px-2 sm:px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap inline-block">
                                                     <%= order.status %>
                                                 </span>
                                             </div>
-                                            <div class="col-span-2 lg:col-span-3">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="hidden lg:block">
-                                                        <% order.items.slice(0, 2).forEach(item=> { %>
-                                                            <div class="relative group">
-                                                                <% if (item.image) { %>
-                                                                    <img src="<%= item.image %>" alt="<%= item.name %>"
-                                                                        class="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded border-2 border-yellow-500 transition-transform duration-300 group-hover:scale-110" />
-                                                                    <% } else { %>
-                                                                        <div
-                                                                            class="w-8 h-8 sm:w-10 sm:h-10 bg-gray-700 rounded border-2 border-yellow-500 flex items-center justify-center">
-                                                                            <i class="fas fa-image text-gray-400 text-xs sm:text-sm"></i>
-                                                                        </div>
-                                                                        <% } %>
-                                                                            <% if (item===order.items[0] &&
-                                                                                order.items.length> 2) { %>
-                                                                                <div
-                                                                                    class="absolute -bottom-1 -right-1 bg-yellow-500 rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-[10px] sm:text-xs font-bold">
-                                                                                    +<%= order.items.length - 2 %>
-                                                                                </div>
-                                                                                <% } %>
-                                                            </div>
-                                                            <% }); %>
-                                                    </div>
-                                                    <button
-                                                        class="arrow-button ml-auto p-2 rounded-full bg-[#3a3838] hover:bg-yellow-500 hover:text-black transition-all duration-300">
-                                                        <a href="/order-details?orderId=<%=order.id%>" class="flex items-center justify-center"><i
-                                                                class="fas fa-chevron-right text-xs sm:text-sm"></i></a>
-                                                    </button>
-                                                </div>
-
+                                            <div class="col-span-2">
+                                                <% if (order.paymentMethod && order.paymentMethod === 'cod') { %>
+                                                    <span class="inline-flex items-center text-gray-300">
+                                                        <i class="fas fa-money-bill-wave mr-2 text-green-400"></i>
+                                                        COD
+                                                    </span>
+                                                <% } else if (order.paymentMethod && order.paymentMethod === 'razorpay') { %>
+                                                    <span class="inline-flex items-center text-gray-300">
+                                                        <i class="fas fa-credit-card mr-2 text-blue-400"></i>
+                                                        Razorpay
+                                                    </span>
+                                                <% } else if (order.paymentMethod && order.paymentMethod === 'wallet') { %>
+                                                    <span class="inline-flex items-center text-gray-300">
+                                                        <i class="fas fa-wallet mr-2 text-purple-400"></i>
+                                                        Wallet
+                                                    </span>
+                                                <% } else { %>
+                                                    <span class="inline-flex items-center text-gray-300">
+                                                        <i class="fas fa-question-circle mr-2 text-gray-400"></i>
+                                                        Online
+                                                    </span>
+                                                <% } %>
                                             </div>
-                                            <div class="col-span-12 lg:hidden text-[10px] text-gray-400 mt-1">
-                                                <%= order.mobileDate %>
+                                            <div class="col-span-1">
+                                                <a href="/order-details?orderId=<%=order.id%>" 
+                                                    class="text-blue-400 hover:text-blue-300 transition-colors duration-200 p-2 rounded-full hover:bg-blue-900/30 group"
+                                                    title="View">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
                                             </div>
                                         </div>
-                                        <% }); %>
+                                    <% }); %>
+                                <% } %>
+                            </div>
+                        </div>
 
-                                            <% } %>
+                        <div class="xl:hidden">
+                            <% if (orders.length===0) { %>
+                                <div class="bg-[#2b2929] p-8 text-center rounded-lg">
+                                    <i class="fas fa-box-open text-4xl text-yellow-500 mb-4"></i>
+                                    <h3 class="text-xl font-semibold mb-2">No Orders Found</h3>
+                                    <p class="text-gray-400 mb-6">You haven't placed any orders yet.</p>
+                                    <a href="/"
+                                        class="bg-[#88903F] text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-500 transition-colors duration-300 inline-block">
+                                        Start Shopping
+                                    </a>
+                                </div>
+                            <% } else { %>
+                                <% orders.forEach(order=> { %>
+                                    <div class="mobile-list-item">
+                                        <div class="mobile-list-main">
+                                            <div class="mobile-list-avatar">
+                                                <span class="text-gray-300 font-medium">#<%= order.id.toString().slice(-4) %></span>
+                                            </div>
+                                            <div class="mobile-list-info">
+                                                <div class="mobile-list-name">
+                                                    <%= new Date(order.createdAt || order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                                </div>
+                                                <div class="mobile-list-meta">
+                                                    <span class="mobile-list-amount text-green-400">₹<%= order.price.toFixed(2) %></span>
+                                                    <span class="mobile-list-status 
+                                                        <% if (order.status === 'Delivered') { %>
+                                                            bg-green-500/90 text-white
+                                                        <% } else if (order.status === 'Shipped') { %>
+                                                            bg-blue-500 text-white
+                                                        <% } else if (order.status === 'Processing') { %>
+                                                            bg-purple-500 text-white
+                                                        <% } else if (order.status === 'Pending') { %>
+                                                            bg-yellow-500 text-black
+                                                        <% } else if (order.status === 'Cancelled' || order.status === 'Returned') { %>
+                                                            bg-red-500 text-white
+                                                        <% } else if (order.status === 'Return Rejected') { %>
+                                                            bg-red-500 text-white
+                                                        <% } else if (order.status === 'Return Request') { %>
+                                                            bg-yellow-500 text-black
+                                                        <% } else { %>
+                                                            bg-gray-500 text-white
+                                                        <% } %>">
+                                                        <%= order.status %>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="checkbox" id="details-<%= order.id %>" class="mobile-details-toggle hidden">
+                                        <label for="details-<%= order.id %>" class="mobile-details-label">
+                                            <span class="text-gray-400 text-xs">More Details</span>
+                                            <i class="fas fa-chevron-down text-gray-400"></i>
+                                        </label>
+                                        <div class="mobile-details-content">
+                                            <div class="mobile-details-grid">
+                                                <div class="mobile-details-item">
+                                                    <label>Order ID</label>
+                                                    <span class="text-gray-300">#<%= order.id %></span>
+                                                </div>
+                                                <div class="mobile-details-item">
+                                                    <label>Date</label>
+                                                    <span class="text-gray-400">
+                                                        <%= new Date(order.createdAt || order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+                                                    </span>
+                                                </div>
+                                                <div class="mobile-details-item">
+                                                    <label>Payment</label>
+                                                    <span class="text-gray-300">
+                                                        <% if (order.paymentMethod && order.paymentMethod === 'cod') { %>
+                                                            <span class="inline-flex items-center">
+                                                                <i class="fas fa-money-bill-wave mr-2 text-green-400"></i>
+                                                                Cash on Delivery
+                                                            </span>
+                                                        <% } else if (order.paymentMethod && order.paymentMethod === 'razorpay') { %>
+                                                            <span class="inline-flex items-center">
+                                                                <i class="fas fa-credit-card mr-2 text-blue-400"></i>
+                                                                Razorpay
+                                                            </span>
+                                                        <% } else if (order.paymentMethod && order.paymentMethod === 'wallet') { %>
+                                                            <span class="inline-flex items-center">
+                                                                <i class="fas fa-wallet mr-2 text-purple-400"></i>
+                                                                Wallet
+                                                            </span>
+                                                        <% } else { %>
+                                                            <span class="inline-flex items-center">
+                                                                <i class="fas fa-question-circle mr-2 text-gray-400"></i>
+                                                                Online Payment
+                                                            </span>
+                                                        <% } %>
+                                                    </span>
+                                                </div>
+                                                <div class="mobile-details-item">
+                                                    <label>Items</label>
+                                                    <span class="text-gray-400">
+                                                        <%= order.items ? order.items.length : 0 %> item(s)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mobile-list-actions">
+                                            <a href="/order-details?orderId=<%=order.id%>" 
+                                               class="mobile-list-action-btn text-blue-400 hover:text-blue-300" 
+                                               title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } %>
                         </div>
 
                         <div class="flex justify-between items-center mt-6 text-xs sm:text-sm pagination-container">
@@ -269,40 +458,38 @@
                                     class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-2 sm:px-4 py-2 rounded-lg transition-all duration-300 pagination-prev">
                                     <i class="fas fa-chevron-left"></i> Prev
                                 </a>
-                                <% } else { %>
-                                    <span
-                                        class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-prev">
-                                        <i class="fas fa-chevron-left"></i> Prev
-                                    </span>
-                                    <% } %>
+                            <% } else { %>
+                                <span class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-prev">
+                                    <i class="fas fa-chevron-left"></i> Prev
+                                </span>
+                            <% } %>
 
-                                        <div class="flex gap-1 sm:gap-2 pagination-numbers">
-                                            <% for(let i=1; i <=Math.min(5, totalPages); i++) { %>
-                                                <a href="?page=<%= i %>&limit=<%= limit %>"
-                                                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full <%= currentPage === i ? 'bg-[#88903F] text-black font-bold' : 'bg-[#2b2929] hover:bg-[#88903F] hover:text-black' %> transition-all duration-300 flex items-center justify-center">
-                                                    <%= i %>
-                                                </a>
-                                                <% } %>
-                                                    <% if (totalPages> 5) { %>
-                                                        <span class="flex items-center px-2">...</span>
-                                                        <a href="?page=<%= totalPages %>&limit=<%= limit %>"
-                                                            class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#2b2929] hover:bg-[#88903F] hover:text-black transition-all duration-300 flex items-center justify-center">
-                                                            <%= totalPages %>
-                                                        </a>
-                                                        <% } %>
-                                        </div>
+                            <div class="flex gap-1 sm:gap-2 pagination-numbers">
+                                <% for(let i=1; i <=Math.min(5, totalPages); i++) { %>
+                                    <a href="?page=<%= i %>&limit=<%= limit %>"
+                                        class="w-6 h-6 sm:w-8 sm:h-8 rounded-full <%= currentPage === i ? 'bg-[#88903F] text-black font-bold' : 'bg-[#2b2929] hover:bg-[#88903F] hover:text-black' %> transition-all duration-300 flex items-center justify-center">
+                                        <%= i %>
+                                    </a>
+                                <% } %>
+                                <% if (totalPages> 5) { %>
+                                    <span class="flex items-center px-2">...</span>
+                                    <a href="?page=<%= totalPages %>&limit=<%= limit %>"
+                                        class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-[#2b2929] hover:bg-[#88903F] hover:text-black transition-all duration-300 flex items-center justify-center">
+                                        <%= totalPages %>
+                                    </a>
+                                <% } %>
+                            </div>
 
-                                        <% if (currentPage < totalPages) { %>
-                                            <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>"
-                                                class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-2 sm:px-4 py-2 rounded-lg transition-all duration-300 pagination-next">
-                                                Next <i class="fas fa-chevron-right"></i>
-                                            </a>
-                                            <% } else { %>
-                                                <span
-                                                    class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-next">
-                                                    Next <i class="fas fa-chevron-right"></i>
-                                                </span>
-                                                <% } %>
+                            <% if (currentPage < totalPages) { %>
+                                <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>"
+                                    class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] hover:bg-[#88903F] hover:text-black px-2 sm:px-4 py-2 rounded-lg transition-all duration-300 pagination-next">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            <% } else { %>
+                                <span class="flex items-center gap-1 sm:gap-2 bg-[#2b2929] text-gray-500 px-2 sm:px-4 py-2 rounded-lg cursor-not-allowed pagination-next">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </span>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -310,29 +497,24 @@
         </div>
 
     <script>
-        // Mobile sidebar toggle functionality
         document.addEventListener('DOMContentLoaded', function() {
             const toggleButton = document.getElementById('toggleSidebar');
             const sidebarMenu = document.getElementById('sidebarMenu');
             
-            // Check if we're on mobile and hide the menu initially
             function checkMobile() {
-                if (window.innerWidth < 768) {
+                if (window.innerWidth < 1024) { 
                     sidebarMenu.classList.add('hidden');
                 } else {
                     sidebarMenu.classList.remove('hidden');
                 }
             }
             
-            // Run on page load
             checkMobile();
             
-            // Toggle sidebar when button is clicked
             toggleButton.addEventListener('click', function() {
                 sidebarMenu.classList.toggle('hidden');
             });
             
-            // Listen for window resize
             window.addEventListener('resize', checkMobile);
         });
     </script>

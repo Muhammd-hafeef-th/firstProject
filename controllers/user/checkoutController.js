@@ -719,7 +719,6 @@ const verifyRazorpayPayment = async (req, res, next) => {
     try {
         const { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId } = req.body;
 
-        console.log("Verification params:", { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId });
 
         if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature || !orderId) {
             console.log("Missing parameters:", {
@@ -739,7 +738,6 @@ const verifyRazorpayPayment = async (req, res, next) => {
             payment_id: razorpay_payment_id,
             signature: razorpay_signature
         });
-        console.log("Payment signature valid:", isValid);
 
         if (!isValid) {
             return res.status(400).json({

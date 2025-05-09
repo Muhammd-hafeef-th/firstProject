@@ -147,7 +147,7 @@ const deleteAddress =async (req,res,next)=>{
     try {
         const userId = req.session.user?._id || req.session.user;
         const addressId = req.params.id;
-        console.log(addressId)
+        
         await Address.updateOne(
             { userId: userId },
             { $pull: { address: { _id: addressId } } }
