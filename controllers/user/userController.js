@@ -33,6 +33,7 @@ const loadHomepage = async (req, res, next) => {
         let storyImage = await Product.find({ category: gentsMatch, isListed: true, isNew: true, quantity: { $gt: 0 } }).skip(2).limit(1);
         const brandData = await Brand.find({ isListed: true })
 
+
         productsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         productsData = productsData.slice(0, 3)
 

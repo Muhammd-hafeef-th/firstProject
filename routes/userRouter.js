@@ -12,6 +12,7 @@ const walletController=require('../controllers/user/walletController')
 const wishlistController=require('../controllers/user/wishlishtController')
 const couponController=require('../controllers/user/couponController')
 const referralController=require('../controllers/user/referralController')
+const pageController=require('../controllers/user/pageController')
 const cartCount=require('../middlewares/cartCount')
 const wishlistCount=require('../middlewares/wishlistCount')
 
@@ -202,6 +203,10 @@ router.get('/addToWishlist', wishlistController.addToWishlist)
 router.get('/removeFromWishlist', wishlistController.removeFromWishlist)
 router.post('/moveToCart', wishlistController.moveToCart)
 
+//static pages
+router.get('/aboutus', pageController.loadAboutUs)
+router.get('/contactus', pageController.loadContactUs)
+router.post('/contactus', pageController.submitContactForm)
 
 module.exports = router;
 

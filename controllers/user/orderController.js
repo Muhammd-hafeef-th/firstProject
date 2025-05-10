@@ -322,7 +322,7 @@ const downloadInvoice = async (req, res, next) => {
         y += 25;
         order.orderItems.forEach(item => {
             const grossAmt = item.price * item.quantity;
-            const discount = item.product.discount * item.quantity;
+            const discount = order.discount
             const taxable = 0.00;
             const igst = 0.00;
             const total = grossAmt - discount + taxable + igst;
@@ -342,7 +342,7 @@ const downloadInvoice = async (req, res, next) => {
         doc.fontSize(10).font('Helvetica');
 
         const subTotal = order.orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const productDiscount = order.discountAmount || 0;
+        const productDiscount = order.discount || 0;
         const couponDiscount = order.couponDiscount || 0;
         const shippingCharge = order.shippingCharge || 0;
         const finalAmount = order.finalAmount || subTotal - productDiscount - couponDiscount + shippingCharge;
@@ -461,3 +461,19 @@ module.exports = {
     downloadInvoice,
     returnOrder
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

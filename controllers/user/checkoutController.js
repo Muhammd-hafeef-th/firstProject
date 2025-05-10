@@ -250,7 +250,10 @@ const setDefaultAddress = async (req, res) => {
         }
 
         if (!targetAddress) {
-            throw new Error('Address not found');
+            return res.status(404).json({
+                success: false,
+                message: 'Address not found'
+            });
         }
 
         const reordered = [
@@ -266,12 +269,18 @@ const setDefaultAddress = async (req, res) => {
             );
         }
 
-        req.flash('success', 'Default address updated');
-        res.redirect('/checkout');
+        // Return JSON response instead of redirect
+        return res.status(200).json({
+            success: true,
+            message: 'Default address updated successfully'
+        });
 
     } catch (err) {
-        req.flash('error', 'Failed to update default address');
-        res.redirect('/checkout');
+        console.error('Error updating default address:', err);
+        return res.status(500).json({
+            success: false,
+            message: err.message || 'Failed to update default address'
+        });
     }
 };
 
