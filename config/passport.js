@@ -21,19 +21,34 @@ const config = {
 };
 
 
-const isProduction = process.env.NODE_ENV === 'production' || 
-                     process.env.FORCE_PRODUCTION === 'true';
-const currentConfig = isProduction ? config.production : config.development;
+// Force production mode for lb-lybros.shop domain
+const isProduction = true; // Always use production URLs for Google Auth
+const currentConfig = config.production; // Always use production config
 
-
-
-const getStrategyConfig = (type) => ({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: `${currentConfig.baseUrl}${currentConfig.callbacks[type]}`,
-  passReqToCallback: true,
-  state: true
+// Log the configuration being used
+console.log('Using production Google Auth config with callbacks:', {
+  baseUrl: currentConfig.baseUrl,
+  signupCallback: `${currentConfig.baseUrl}${currentConfig.callbacks.signup}`,
+  loginCallback: `${currentConfig.baseUrl}${currentConfig.callbacks.login}`
 });
+
+
+
+const getStrategyConfig = (type) => {
+  // Hardcode the production callback URLs to ensure they're always used
+  const callbackURLs = {
+    'signup': 'https://lb-lybros.shop/auth/google/signup/callback',
+    'login': 'https://lb-lybros.shop/auth/google/login/callback'
+  };
+  
+  return {
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: callbackURLs[type],
+    passReqToCallback: true,
+    state: true
+  };
+};
 
 const handleGoogleAuth = async (req, accessToken, refreshToken, profile, done, isSignup) => {
   try {
