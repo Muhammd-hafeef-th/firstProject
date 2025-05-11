@@ -3,7 +3,6 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userSchema");
 const referralController = require("../controllers/user/referralController");
 
-// Production vs Development configuration
 const config = {
   production: {
     baseUrl: "https://lb-lybros.shop",
@@ -21,12 +20,13 @@ const config = {
   }
 };
 
-// Select configuration based on environment
-const currentConfig = process.env.NODE_ENV === 'production' 
-  ? config.production 
-  : config.development;
 
-// Strategy configuration
+const isProduction = process.env.NODE_ENV === 'production' || 
+                     process.env.FORCE_PRODUCTION === 'true';
+const currentConfig = isProduction ? config.production : config.development;
+
+
+
 const getStrategyConfig = (type) => ({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -35,10 +35,8 @@ const getStrategyConfig = (type) => ({
   state: true
 });
 
-// Common authentication handler
 const handleGoogleAuth = async (req, accessToken, refreshToken, profile, done, isSignup) => {
   try {
-    // Validation
     if (!profile?.id || !profile.emails?.[0]?.value) {
       return done(null, false, { message: "Invalid profile data from Google" });
     }
@@ -46,16 +44,19 @@ const handleGoogleAuth = async (req, accessToken, refreshToken, profile, done, i
     let user = await User.findOne({ googleId: profile.id });
 
     if (isSignup) {
-      // Signup logic
       if (user) {
-        return done(null, false, { message: "User already exists. Please login instead." });
+
+        if (user.isBlocked) {
+          return done(null, false, { message: "User is blocked by admin" });
+        }
+        
+        return done(null, user);
       }
 
       const newUser = await createNewUser(profile, req.session.referralCode);
       if (req.session.referralCode) delete req.session.referralCode;
       return done(null, newUser);
     } else {
-      // Login logic
       if (!user) return done(null, false, { message: "No account found. Please sign up first." });
       if (user.isBlocked) return done(null, false, { message: "User is blocked by admin" });
       return done(null, user);
@@ -66,7 +67,6 @@ const handleGoogleAuth = async (req, accessToken, refreshToken, profile, done, i
   }
 };
 
-// Helper function to create new user
 async function createNewUser(profile, referralCode) {
   const newReferralCode = referralController.generateReferralCode(profile.displayName);
   
@@ -88,7 +88,6 @@ async function createNewUser(profile, referralCode) {
   return user;
 }
 
-// Helper function for referral bonuses
 async function handleReferralBonus(referralCode, newUser) {
   const referrer = await User.findOne({ referalCode: referralCode });
   if (referrer) {
@@ -128,7 +127,6 @@ passport.use(
   )
 );
 
-// Session serialization
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
   try {

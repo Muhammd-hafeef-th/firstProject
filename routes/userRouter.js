@@ -45,7 +45,6 @@ const checkSession = (req, res, next) => {
   next();
 };
 
-// Middleware to handle OAuth errors
 const handleOAuthError = (failureRedirect) => (req, res, next) => {
   if (req.query.error) {
     console.error('Google OAuth error:', req.query.error);
@@ -54,7 +53,6 @@ const handleOAuthError = (failureRedirect) => (req, res, next) => {
   next();
 };
 
-// Authentication routes
 router.get('/auth/google/signup', 
   checkSession,
   passport.authenticate("google-signup", { scope: ["profile", "email"] })
@@ -67,8 +65,16 @@ router.get('/auth/google/signup/callback',
     failureFlash: true 
   }),
   (req, res) => {
+   
     req.session.user = req.user;
-    res.redirect('/');
+    
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.redirect('/signup?error=session_error');
+      }
+      res.redirect('/');
+    });
   }
 );
 
@@ -83,8 +89,16 @@ router.get('/auth/google/login/callback',
     failureFlash: true 
   }),
   (req, res) => {
+    
     req.session.user = req.user;
-    res.redirect('/');
+    
+    req.session.save(err => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.redirect('/login?error=session_error');
+      }
+      res.redirect('/');
+    });
   }
 );
 router.get("/login", userController.loadLogin);
