@@ -2,46 +2,26 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userSchema");
 const referralController = require("../controllers/user/referralController");
-const { getBaseUrl } = require("../utils/urlHelper");
 
-const config = {
-  production: {
-    baseUrl: "https://lb-lybros.shop",
-    callbacks: {
-      signup: "/auth/google/signup/callback",
-      login: "/auth/google/login/callback"
-    }
-  },
-  development: {
-    baseUrl: "http://localhost:3000",
-    callbacks: {
-      signup: "/auth/google/signup/callback",
-      login: "/auth/google/login/callback"
-    }
-  }
+// Always use production URLs for Google OAuth callbacks
+const PRODUCTION_BASE_URL = "https://lb-lybros.shop";
+const CALLBACK_PATHS = {
+  signup: "/auth/google/signup/callback",
+  login: "/auth/google/login/callback"
 };
 
-
-// Determine environment dynamically
-const isProduction = process.env.NODE_ENV === 'production' || process.env.FORCE_PRODUCTION === 'true';
-const currentConfig = isProduction ? config.production : config.development;
-
-// Get the base URL from our helper
-const baseUrl = getBaseUrl();
-
 // Log the configuration being used
-console.log('Google Auth Config:', {
-  environment: isProduction ? 'production' : 'development',
-  baseUrl: baseUrl,
-  signupCallback: `${baseUrl}${currentConfig.callbacks.signup}`,
-  loginCallback: `${baseUrl}${currentConfig.callbacks.login}`
+console.log('Google Auth Config - Using production URLs:', {
+  baseUrl: PRODUCTION_BASE_URL,
+  signupCallback: `${PRODUCTION_BASE_URL}${CALLBACK_PATHS.signup}`,
+  loginCallback: `${PRODUCTION_BASE_URL}${CALLBACK_PATHS.login}`
 });
 
 
 
 const getStrategyConfig = (type) => {
-  // Use the dynamic base URL and append the appropriate callback path
-  const callbackURL = `${baseUrl}${currentConfig.callbacks[type]}`;
+  // Always use production callback URLs
+  const callbackURL = `${PRODUCTION_BASE_URL}${CALLBACK_PATHS[type]}`;
   
   return {
     clientID: process.env.GOOGLE_CLIENT_ID,
