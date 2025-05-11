@@ -370,17 +370,13 @@
     })
 </script>
 
-<!-- Include URL Helper script -->
 <script src="/js/urlHelper.js"></script>
 <script>
-    // Set the Google signup URL dynamically based on environment
     document.addEventListener('DOMContentLoaded', function() {
         const googleSignupLink = document.getElementById('googleSignupLink');
         if (googleSignupLink) {
-            // Use the environment-specific base URL
             googleSignupLink.href = getFullUrl('/auth/google/signup');
             
-            // Update referral code handler to use dynamic URLs
             const referralCodeInput = document.getElementById('referralCode');
             if (referralCodeInput) {
                 referralCodeInput.addEventListener('input', function() {
