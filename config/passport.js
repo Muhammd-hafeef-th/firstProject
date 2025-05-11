@@ -2,6 +2,7 @@ const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/userSchema");
 const referralController = require("../controllers/user/referralController");
+const { getBaseUrl } = require("../utils/urlHelper");
 
 const config = {
   production: {
@@ -21,30 +22,31 @@ const config = {
 };
 
 
-// Force production mode for lb-lybros.shop domain
-const isProduction = true; // Always use production URLs for Google Auth
-const currentConfig = config.production; // Always use production config
+// Determine environment dynamically
+const isProduction = process.env.NODE_ENV === 'production' || process.env.FORCE_PRODUCTION === 'true';
+const currentConfig = isProduction ? config.production : config.development;
+
+// Get the base URL from our helper
+const baseUrl = getBaseUrl();
 
 // Log the configuration being used
-console.log('Using production Google Auth config with callbacks:', {
-  baseUrl: currentConfig.baseUrl,
-  signupCallback: `${currentConfig.baseUrl}${currentConfig.callbacks.signup}`,
-  loginCallback: `${currentConfig.baseUrl}${currentConfig.callbacks.login}`
+console.log('Google Auth Config:', {
+  environment: isProduction ? 'production' : 'development',
+  baseUrl: baseUrl,
+  signupCallback: `${baseUrl}${currentConfig.callbacks.signup}`,
+  loginCallback: `${baseUrl}${currentConfig.callbacks.login}`
 });
 
 
 
 const getStrategyConfig = (type) => {
-  // Hardcode the production callback URLs to ensure they're always used
-  const callbackURLs = {
-    'signup': 'https://lb-lybros.shop/auth/google/signup/callback',
-    'login': 'https://lb-lybros.shop/auth/google/login/callback'
-  };
+  // Use the dynamic base URL and append the appropriate callback path
+  const callbackURL = `${baseUrl}${currentConfig.callbacks[type]}`;
   
   return {
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: callbackURLs[type],
+    callbackURL: callbackURL,
     passReqToCallback: true,
     state: true
   };
