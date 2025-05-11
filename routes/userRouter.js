@@ -39,62 +39,53 @@ router.post("/verify-otp", userController.verifyOtp);
 router.post("/resend-otp", userController.resendOtp);
 
 
-router.get(
-    "/auth/google/signup",
-    (req, res, next) => {
-        if (req.session.user) {
-            return res.redirect("/"); 
-        }
-        if (req.query.referralCode) {
-            req.session.referralCode = req.query.referralCode;
-        }
-        next();
-    },
-    passport.authenticate("google-signup", { scope: ["profile", "email"] })
+const checkSession = (req, res, next) => {
+  if (req.session.user) return res.redirect('/');
+  if (req.query.referralCode) req.session.referralCode = req.query.referralCode;
+  next();
+};
+
+// Middleware to handle OAuth errors
+const handleOAuthError = (failureRedirect) => (req, res, next) => {
+  if (req.query.error) {
+    console.error('Google OAuth error:', req.query.error);
+    return res.redirect(`${failureRedirect}?error=google_auth_failed`);
+  }
+  next();
+};
+
+// Authentication routes
+router.get('/auth/google/signup', 
+  checkSession,
+  passport.authenticate("google-signup", { scope: ["profile", "email"] })
 );
 
-router.get(
-    "/auth/google/signup/callback",
-    (req, res, next) => {
-        if (req.query.error) {
-            console.error("Google OAuth error:", req.query.error);
-            return res.redirect("/signup?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
-        }
-        next();
-    },
-    passport.authenticate("google-signup", { 
-        failureRedirect: "/signup?error=authentication_failed",
-        failureFlash: true 
-    }),
-    (req, res) => {
-        req.session.user = req.user; 
-        res.redirect("/"); 
-    }
+router.get('/auth/google/signup/callback',
+  handleOAuthError('/signup'),
+  passport.authenticate("google-signup", { 
+    failureRedirect: "/signup",
+    failureFlash: true 
+  }),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect('/');
+  }
 );
 
-
-router.get(
-    "/auth/google/login",
-    passport.authenticate("google-login", { scope: ["profile", "email"] })
+router.get('/auth/google/login',
+  passport.authenticate("google-login", { scope: ["profile", "email"] })
 );
 
-router.get(
-    "/auth/google/login/callback",
-    (req, res, next) => {
-        if (req.query.error) {
-            console.error("Google OAuth error:", req.query.error);
-            return res.redirect("/login?error=" + encodeURIComponent("Failed to authenticate with Google. Please try again."));
-        }
-        next();
-    },
-    passport.authenticate("google-login", { 
-        failureRedirect: "/login?error=authentication_failed",
-        failureFlash: true 
-    }),
-    (req, res) => {
-        req.session.user = req.user; 
-        res.redirect("/");
-    }
+router.get('/auth/google/login/callback',
+  handleOAuthError('/login'),
+  passport.authenticate("google-login", { 
+    failureRedirect: "/login",
+    failureFlash: true 
+  }),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect('/');
+  }
 );
 router.get("/login", userController.loadLogin);
 router.post("/login", userController.login);
