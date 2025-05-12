@@ -194,16 +194,20 @@ function formatLabel(segment) {
     return label;
 }
 
+// Handle checkout flow breadcrumbs
 function handleCheckoutFlow(breadcrumbs, segments, checkoutFlow, req) {
     const currentSegmentIndex = checkoutFlow.indexOf(segments[0]);
     let currentPath = '';
     
+    // Add all previous steps in the checkout flow
     for (let i = 0; i <= currentSegmentIndex; i++) {
         const segment = checkoutFlow[i];
         currentPath = `/${segment}`;
         
+        // Format the label
         let label = formatLabel(segment);
         
+        // Add to breadcrumbs
         breadcrumbs.push({
             label,
             url: currentPath + (segment === 'paymentSuccess' && req.params.orderId ? `/${req.params.orderId}` : '')
@@ -211,7 +215,9 @@ function handleCheckoutFlow(breadcrumbs, segments, checkoutFlow, req) {
     }
 }
 
+// Handle profile flow breadcrumbs
 function handleProfileFlow(breadcrumbs, segments, req) {
+    // Always add Profile as the second breadcrumb for profile flow
     if (segments[0] !== 'profile') {
         breadcrumbs.push({
             label: 'My Profile',
@@ -219,6 +225,7 @@ function handleProfileFlow(breadcrumbs, segments, req) {
         });
     }
     
+    // For order details, add Orders as an intermediate breadcrumb
     if (segments[0] === 'order-details') {
         breadcrumbs.push({
             label: 'My Orders',
@@ -226,15 +233,18 @@ function handleProfileFlow(breadcrumbs, segments, req) {
         });
     }
     
+    // Add the current page
     let currentPath = '';
     segments.forEach((segment, index) => {
         currentPath += `/${segment}`;
         
+        // Only add the current segment if it's not already added
         if ((segment === 'profile' && index === 0) || 
             (segment !== 'profile')) {
             
             const label = formatLabel(segment);
             
+            // Handle query parameters
             if (segment === 'order-details' && req.query.id) {
                 breadcrumbs.push({
                     label,
@@ -250,19 +260,25 @@ function handleProfileFlow(breadcrumbs, segments, req) {
     });
 }
 
+// Handle navigation based on session history
 function handleHistoryBasedNavigation(breadcrumbs, segments, req, currentPath) {
+    // Add relevant history items as breadcrumbs
     let historyAdded = new Set();
     
     for (const historyItem of req.session.breadcrumbHistory) {
+        // Skip home since it's already added
         if (historyItem.path === '/') continue;
         
+        // Skip the current path
         if (historyItem.path === currentPath) continue;
         
+        // Get the first segment of the history item
         const historySegments = historyItem.path.split('/').filter(segment => segment !== '');
         if (historySegments.length === 0) continue;
         
         const firstSegment = historySegments[0];
         
+        // Add history item if not already added
         if (!historyAdded.has(firstSegment)) {
             breadcrumbs.push({
                 label: historyItem.label,
@@ -272,11 +288,14 @@ function handleHistoryBasedNavigation(breadcrumbs, segments, req, currentPath) {
         }
     }
     
+    // Add the current page
     handleSimpleNavigation(breadcrumbs, segments, req);
 }
 
-
+// Handle simple path-based breadcrumbs
+// Check if a path is relevant for breadcrumbs
 function isRelevantForBreadcrumbs(path) {
+    // Skip irrelevant paths that shouldn't be in breadcrumbs
     const irrelevantPaths = [
         '/login', '/signup', '/logout', '/verify-otp', '/resend-otp',
         '/forgot-password', '/reset-password'
@@ -286,8 +305,9 @@ function isRelevantForBreadcrumbs(path) {
         return false;
     }
     
+    // Get the first segment of the path
     const segments = path.split('/').filter(segment => segment !== '');
-    if (segments.length === 0) return false; 
+    if (segments.length === 0) return false; // Skip home page
     
     return true;
 }
@@ -300,6 +320,7 @@ function handleSimpleNavigation(breadcrumbs, segments, req) {
         
         const label = formatLabel(segment);
         
+        // Handle query parameters
         if (segment === 'productDetails' && req.query.id) {
             breadcrumbs.push({
                 label,

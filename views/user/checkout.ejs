@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout</title>
+        <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
@@ -465,8 +466,7 @@
     </div>
 
     <script>
-        // Initialize Notyf with custom settings
-        // Initialize Notyf with simpler settings
+        
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -477,7 +477,6 @@
             dismissible: true
         });
         
-        // Create custom toast functions
         const showSuccessToast = (message) => {
             const toastElement = document.createElement('div');
             toastElement.className = 'custom-toast success-toast';
@@ -504,7 +503,6 @@
             }, 3000);
         };
         
-        // Add custom toast styles
         const toastStyles = document.createElement('style');
         toastStyles.textContent = `
             .custom-toast {
@@ -547,7 +545,6 @@
         document.head.appendChild(toastStyles);
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Set delivery date
             const today = new Date();
             const deliveryDate = new Date(today);
             deliveryDate.setDate(today.getDate() + 7);
@@ -555,22 +552,18 @@
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('deliveryDate').textContent = deliveryDate.toLocaleDateString('en-US', options);
 
-            // Handle address form submissions
             document.querySelectorAll('.set-default-form').forEach(form => {
                 form.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     
-                    // Create and show the custom dialog
                     const dialogId = 'dialog-' + Date.now();
                     const backdropId = 'backdrop-' + Date.now();
                     
-                    // Create backdrop
                     const backdrop = document.createElement('div');
                     backdrop.id = backdropId;
                     backdrop.className = 'custom-dialog-backdrop';
                     document.body.appendChild(backdrop);
                     
-                    // Create dialog
                     const dialog = document.createElement('div');
                     dialog.id = dialogId;
                     dialog.className = 'custom-dialog';
@@ -595,15 +588,12 @@
                     `;
                     document.body.appendChild(dialog);
                     
-                    // Add event listeners
                     document.getElementById(`cancel-${dialogId}`).addEventListener('click', function() {
-                        // Remove dialog and backdrop
                         document.getElementById(dialogId).remove();
                         document.getElementById(backdropId).remove();
                     });
                     
                     document.getElementById(`confirm-${dialogId}`).addEventListener('click', async function() {
-                        // Update dialog to show loading state
                         dialog.innerHTML = `
                             <div class="text-center">
                                 <div class="flex items-center justify-center gap-3 mb-2">
@@ -626,26 +616,20 @@
                             const result = await response.json();
 
                             if (response.ok) {
-                                // Show success notification with custom toast
                                 showSuccessToast('Default address updated successfully!');
                                 
-                                // Remove the dialog and backdrop
                                 document.getElementById(dialogId).remove();
                                 document.getElementById(backdropId).remove();
                                 
-                                // Set a short timeout before reloading to allow the toast to be visible
                                 setTimeout(() => {
-                                    // Reload the page to reflect the updated default address
                                     window.location.reload();
-                                }, 1000); // 1 second delay to show the toast before reload
+                                }, 1000); 
                             } else {
                                 throw new Error(result.message || 'Failed to update default address');
                             }
                         } catch (error) {
-                            // Show error notification
                             notyf.error(error.message || 'Failed to update default address');
                             
-                            // Revert dialog to error state
                             dialog.innerHTML = `
                                 <div class="text-center mb-4">
                                     <div class="w-12 h-12 rounded-full bg-red-400 bg-opacity-10 mx-auto flex items-center justify-center mb-3">
@@ -672,27 +656,22 @@
                 });
             });
 
-            // Address card click handler for selection
             document.querySelectorAll('.address-card').forEach(card => {
                 card.addEventListener('click', function(e) {
-                    // Prevent click on buttons or links from triggering selection
                     if (e.target.closest('.btn-group') || e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
                         return;
                     }
 
-                    // Remove selected state from all cards
                     document.querySelectorAll('.address-card').forEach(c => {
                         c.classList.remove('selected-address', 'border-yellow-400');
                         c.classList.add('border-gray-700');
                     });
 
-                    // Add selected state to clicked card
                     this.classList.add('selected-address', 'border-yellow-400');
                     this.classList.remove('border-gray-700');
                 });
             });
 
-            // Handle proceed to payment button
             const proceedButton = document.querySelector('form[action="/proceed-payment"] button');
             if (proceedButton) {
                 proceedButton.addEventListener('click', async (e) => {
@@ -704,17 +683,14 @@
                     `;
 
                     try {
-                        // Get selected address
                         const selectedAddressCard = document.querySelector('.address-card.selected-address');
                         if (!selectedAddressCard) {
                             throw new Error('Please select a delivery address');
                         }
 
-                        // Here you would typically make an API call to validate the order
-                        // For demo purposes, we'll simulate a successful response
+                       
                         await new Promise(resolve => setTimeout(resolve, 1000));
 
-                        // Redirect to payment page
                         window.location.href = '/proceed-payment';
                     } catch (error) {
                         notyf.error(error.message || 'Failed to proceed to payment');
