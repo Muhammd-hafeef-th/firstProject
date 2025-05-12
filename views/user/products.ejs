@@ -242,6 +242,11 @@
   </div>
 </header>
 
+<!-- Include Breadcrumbs -->
+<div class="sticky top-[80px] z-40">
+  <%- include('../partials/user/breadcrumbs') %>
+</div>
+
 <section class="bg-gradient-to-b from-[#1A1A1A] to-[#1F1F1F] min-h-screen overflow-hidden py-6 sm:py-10 relative">
   <!-- Background Elements -->
   <div class="absolute top-10 left-5 w-48 h-48 bg-[#FFB568]/5 rounded-full blur-3xl"></div>
@@ -487,13 +492,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Initialize AOS
   AOS.init({
     once: true,
-    disable: window.innerWidth < 640 // Disable on small screens for better performance
+    disable: window.innerWidth < 640 
   });
   
-  // Check for error messages in URL
   const urlParams = new URLSearchParams(window.location.search);
   const errorMessage = urlParams.get('error');
   
@@ -512,13 +515,11 @@ document.addEventListener('DOMContentLoaded', function () {
       iconColor: '#FFB568'
     });
     
-    // Remove the error parameter from URL without refreshing the page
     const url = new URL(window.location.href);
     url.searchParams.delete('error');
     window.history.replaceState({}, '', url);
   }
 
-  // Mobile menu toggle
   const menuToggle = document.getElementById('menu-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
 
@@ -527,12 +528,10 @@ document.addEventListener('DOMContentLoaded', function () {
     mobileMenu.classList.toggle('hidden');
 
       if (this.classList.contains('active')) {
-        // Animate hamburger to X
         this.children[0].classList.add('rotate-45', 'translate-y-2');
         this.children[1].classList.add('opacity-0');
         this.children[2].classList.add('-rotate-45', '-translate-y-2');
       } else {
-        // Animate X back to hamburger
         this.children[0].classList.remove('rotate-45', 'translate-y-2');
         this.children[1].classList.remove('opacity-0');
         this.children[2].classList.remove('-rotate-45', '-translate-y-2');
@@ -543,7 +542,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Search toggle
     const searchToggle = document.getElementById('search-toggle');
     const mobileSearch = document.getElementById('mobile-search');
 
@@ -559,7 +557,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Filter toggle
     const toggleFilters = document.getElementById('toggleFilters');
     const filterMenu = document.getElementById('filterMenu');
     const closeFilters = document.getElementById('closeFilters');
@@ -569,7 +566,6 @@ document.addEventListener('DOMContentLoaded', function () {
       filterMenu.classList.toggle('hidden');
 
       if (!filterMenu.classList.contains('hidden')) {
-        // Add blur effect to content
         document.querySelector('.grid').classList.add('blur-sm', 'pointer-events-none');
         document.querySelector('.grid').classList.add('transition-all', 'duration-300');
       } else {
@@ -582,7 +578,6 @@ document.addEventListener('DOMContentLoaded', function () {
       document.querySelector('.grid').classList.remove('blur-sm', 'pointer-events-none');
     });
 
-    // Close filter menu when clicking outside
     document.addEventListener('click', function (event) {
       if (!filterMenu.contains(event.target) && event.target !== toggleFilters) {
         filterMenu.classList.add('hidden');
@@ -590,7 +585,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Close mobile menu when clicking outside
     document.addEventListener('click', function (event) {
       if (!mobileMenu.contains(event.target) && !menuToggle.contains(event.target)) {
         if (!mobileMenu.classList.contains('hidden')) {
@@ -603,7 +597,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Add hover effects to product cards
     const productCards = document.querySelectorAll('.grid > div');
     productCards.forEach(card => {
       card.addEventListener('mouseenter', function () {
@@ -614,7 +607,6 @@ document.addEventListener('DOMContentLoaded', function () {
         this.querySelector('h3').classList.remove('text-[#E8B888]');
       });
 
-      // Fix for image loading - ensure only one image is visible at a time
       const firstImage = card.querySelector('.first-image');
       const secondImage = card.querySelector('.second-image');
 
@@ -627,11 +619,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    // Smooth scroll to top when page buttons are clicked
     const pageLinks = document.querySelectorAll('.flex.justify-center a');
     pageLinks.forEach(link => {
       link.addEventListener('click', function (e) {
-        // Only do smooth scroll if not on mobile
         if (window.innerWidth >= 768) {
           e.preventDefault();
           const href = this.getAttribute('href');
@@ -641,7 +631,6 @@ document.addEventListener('DOMContentLoaded', function () {
             behavior: 'smooth'
           });
 
-          // Navigate after scroll animation
           setTimeout(() => {
             window.location.href = href;
           }, 500);
@@ -650,26 +639,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Enhanced add to cart function with visual feedback
   function enhancedAddToCart(event, productId) {
     event.preventDefault();
 
-    // Call the original function from cart-utils.js
     addToCart(productId);
 
-    // Add visual feedback
     const button = event.currentTarget;
     const originalText = button.innerHTML;
 
     button.innerHTML = '<span class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Adding...</span>';
     button.disabled = true;
 
-    // Listen for the custom event from cart-utils.js
     document.addEventListener('cartUpdated', function cartUpdateHandler(e) {
       if (e.detail.success) {
         button.innerHTML = '<span class="flex items-center justify-center"><svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>Added to Cart</span>';
 
-        // Flash effect on cart icon
         const cartIcon = document.querySelector('a[href="/cart"] svg');
         cartIcon.classList.add('text-[#E8B888]', 'scale-125');
 
@@ -783,7 +767,6 @@ document.addEventListener('DOMContentLoaded', function () {
     background: linear-gradient(to bottom, #c99d66, #a87c45);
   }
 
-  /* Active hamburger menu styles */
   #menu-toggle.active span:first-child {
     transform: rotate(45deg) translate(5px, 5px);
   }
@@ -796,13 +779,11 @@ document.addEventListener('DOMContentLoaded', function () {
     transform: rotate(-45deg) translate(5px, -5px);
   }
 
-  /* Glassmorphism for filter menu */
   #filterMenu {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 
-  /* Improved card hover effects */
   .grid>div {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
@@ -812,7 +793,6 @@ document.addEventListener('DOMContentLoaded', function () {
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(232, 184, 136, 0.2);
   }
 
-  /* Preloader for images */
   img {
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
@@ -822,7 +802,6 @@ document.addEventListener('DOMContentLoaded', function () {
     opacity: 1;
   }
 
-  /* Font enhancements */
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
 
   h2,
@@ -834,7 +813,6 @@ document.addEventListener('DOMContentLoaded', function () {
     font-family: 'Poppins', sans-serif;
   }
 
-  /* Responsive adjustments */
   @media (max-width: 640px) {
     .grid>div {
       padding: 1rem;

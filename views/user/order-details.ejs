@@ -661,7 +661,10 @@
                             confirmButtonColor: '#B76E79'
                         });
 
-                        console.log('Server response:', data);
+                        // Automatically reload the page after 2 seconds
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
                     })
                     .catch(error => {
                         Swal.fire({
@@ -676,37 +679,37 @@
                         console.error('Fetch error:', error);
                     });
             }
-
         });
     }
+
     function openReturnModal(orderId) {
         const modalContent = `
-    <div class="text-left">
-        <p class="text-white mb-4">Are you sure you want to return this order?</p>
-        
-        <div class="mb-4">
-            <label for="swalReturnReason" class="block text-white mb-2">Reason for return:</label>
-            <select 
-                id="swalReturnReason"
-                class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold">
-                <option value="" disabled selected>Select a reason</option>
-                <option value="defective">Defective item</option>
-                <option value="not-as-described">Not as described</option>
-                <option value="changed-mind">Changed my mind</option>
-                <option value="wrong-item">Wrong item received</option>
-                <option value="other">Other reason</option>
-            </select>
-        </div>
-        
-        <div id="swalOtherReasonContainer" class="mb-4 hidden">
-            <label for="swalOtherReason" class="block text-white mb-2">Please specify:</label>
-            <textarea 
-                id="swalOtherReason"
-                class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
-                rows="3"></textarea>
-        </div>
-    </div>
-    `;
+            <div class="text-left">
+                <p class="text-white mb-4">Are you sure you want to return this order?</p>
+                
+                <div class="mb-4">
+                    <label for="swalReturnReason" class="block text-white mb-2">Reason for return:</label>
+                    <select 
+                        id="swalReturnReason"
+                        class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold">
+                        <option value="" disabled selected>Select a reason</option>
+                        <option value="defective">Defective item</option>
+                        <option value="not-as-described">Not as described</option>
+                        <option value="changed-mind">Changed my mind</option>
+                        <option value="wrong-item">Wrong item received</option>
+                        <option value="other">Other reason</option>
+                    </select>
+                </div>
+                
+                <div id="swalOtherReasonContainer" class="mb-4 hidden">
+                    <label for="swalOtherReason" class="block text-white mb-2">Please specify:</label>
+                    <textarea 
+                        id="swalOtherReason"
+                        class="w-full bg-[#2F2F2F] border border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-1 focus:ring-rose-gold"
+                        rows="3"></textarea>
+                </div>
+            </div>
+        `;
 
         Swal.fire({
             title: 'Return Order',
@@ -781,7 +784,10 @@
                             confirmButtonColor: '#B76E79'
                         });
 
-                        console.log('Server response:', data);
+                        // Automatically reload the page after 2 seconds
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
                     })
                     .catch(error => {
                         Swal.fire({
@@ -921,5 +927,4 @@
             });
     }
 </script>
-
 <%- include('../../views/partials/user/footer') %>

@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="/js/cart-utils.js"></script>
+    <script src="/js/breadcrumbs-handler.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -97,7 +98,8 @@
             border-radius: 50%;
             padding: 2px;
             background: linear-gradient(135deg, rgba(255, 181, 104, 0.5), rgba(255, 215, 0, 0));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             opacity: 0;
@@ -227,15 +229,16 @@
         </div>
     </header>
 
+    <%- include('../user/breadcrumbs') %>
+
     <script>
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
         
         mobileMenuButton.addEventListener('click', function() {
             this.classList.toggle('active');
-            // Add a subtle vibration effect on mobile devices
             if ('vibrate' in navigator) {
-                navigator.vibrate(15);  // 15ms subtle vibration for tactile feedback
+                navigator.vibrate(15);  
             }
             mobileMenu.classList.toggle('hidden');
             mobileMenu.classList.toggle('scale-y-0');

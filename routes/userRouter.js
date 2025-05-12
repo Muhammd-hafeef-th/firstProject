@@ -15,10 +15,12 @@ const referralController=require('../controllers/user/referralController')
 const pageController=require('../controllers/user/pageController')
 const cartCount=require('../middlewares/cartCount')
 const wishlistCount=require('../middlewares/wishlistCount')
+const breadcrumbsMiddleware = require('../middlewares/breadcrumbs')
 
 
 router.use(cartCount)
 router.use(wishlistCount)
+router.use(breadcrumbsMiddleware)
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
