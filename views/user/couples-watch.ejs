@@ -3,27 +3,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LB | Lybros</title>
     <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png"> 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="/js/cart-utils.js"></script>
-    <script src="/js/breadcrumbs-handler.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+   
 </head>
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
   <%- include('../../views/partials/user/header')%>
 </header>
-<script src="https://cdn.tailwindcss.com"></script>
+
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <section class="relative h-[300px] lg:h-[400px] overflow-hidden bg-[#1A1A1A] flex items-center justify-center">
-    <!-- Background Elements -->
+    
     <div class="absolute inset-0 bg-gradient-animated opacity-80"></div>
     <div class="absolute w-full h-full bg-[url('/images/image copy 2.png')] bg-cover bg-center opacity-20"></div>
     <div class="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80"></div>
     <div class="absolute -top-20 -right-20 w-64 h-64 bg-[#E8B888]/20 opacity-20 rounded-full filter blur-3xl animate-pulse-subtle"></div>
     <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-[#E8B888]/20 opacity-20 rounded-full filter blur-3xl animate-pulse-subtle" style="animation-delay: 1s;"></div>
     
-    <!-- Content -->
+    
     <div class="relative z-10 text-center px-4">
         <h1 class="text-4xl md:text-6xl font-bold mb-4 text-white relative">
             <span class="absolute -inset-1 rounded-lg bg-gradient-to-r from-[#E8B888]/20 to-amber-600/20 blur"></span>
@@ -48,7 +44,7 @@
       </p>
     </div>
 
-    <!-- Filter Button -->
+    
     <div class="flex justify-end mb-8 relative z-20">
       <button id="toggleFilters" 
               class="relative overflow-hidden group px-6 py-3 rounded-full shadow-lg transition-all duration-300">
@@ -62,7 +58,7 @@
         </span>
       </button>
 
-      <!-- Filter Dropdown -->
+      
       <form action="/couples-brandFilter" method="post" id="filterMenu"
             class="hidden bg-[#222] p-6 rounded-lg w-full md:w-80 absolute top-14 right-0 z-40 shadow-[0_10px_40px_-15px_rgba(232,184,136,0.3)] border border-[#E8B888]/20">
         <div class="relative mb-4">
@@ -102,7 +98,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8">
       <% couples.forEach(watch=> { %>
         <div class="relative group">
-          <!-- Background Glow Effect -->
+          
           <div class="absolute -inset-1 bg-gradient-to-r from-[#E8B888]/30 to-amber-600/30 rounded-xl blur opacity-0 group-hover:opacity-70 transition duration-500"></div>
           
           <div class="relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-6 rounded-xl shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_10px_40px_-15px_rgba(232,184,136,0.3)] overflow-hidden">

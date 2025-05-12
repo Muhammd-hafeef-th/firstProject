@@ -3,17 +3,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LB | Lybros</title>
     <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png"> 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <script src="/js/cart-utils.js"></script>
-    <script src="/js/breadcrumbs-handler.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+   
 </head>
 
 <header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
     <%- include('../../views/partials/user/header')%>
 </header>
-<script src="https://cdn.tailwindcss.com"></script>
+
 <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
 <style>
@@ -188,7 +184,7 @@
             <% products.forEach((watch, index) => { %>
                 <div class="product-card group relative bg-gradient-to-b from-[#2A2A2A] to-[#1E1E1E] p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden"
                      style="animation-delay: <%= index * 0.1 %>s">
-                    <!-- Decorative corner elements -->
+                    
                     <div class="absolute top-0 left-0 w-16 h-16 overflow-hidden">
                         <div class="absolute -top-8 -left-8 w-16 h-16 bg-gradient-to-br from-[#E8B888]/20 to-transparent rounded-full"></div>
                     </div>
