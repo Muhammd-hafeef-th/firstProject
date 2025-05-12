@@ -497,30 +497,25 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    const button = document.querySelector(`button[onclick*="toggleProductStatus('${productId}',"]`); // Fixed selector syntax
-                    if (!button) {
-                        console.error('Could not find toggle button for product:', productId);
+                    // Show success message
+                    const status = result.isListed ? 'listed' : 'unlisted';
+                    const successMessage = `Product successfully ${status}!`;
+                    
+                    // Create a temporary notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+                    notification.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-check-circle"></i>
+                            <span>${successMessage}</span>
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    // Automatically reload the page after a short delay
+                    setTimeout(() => {
                         window.location.reload();
-                        return;
-                    }
-
-                    const row = button.closest('.mobile-list-item') || button.closest('tr');
-                    const statusBadge = row.querySelector('.mobile-list-status') || row.querySelector('.status-badge');
-                    const buttonIcon = button.querySelector('i');
-
-                    if (result.isListed) {
-                        statusBadge.innerHTML = 'Listed';
-                        statusBadge.className = statusBadge.className.replace(/bg-red-900\/50 text-red-300 border-red-800/, 'bg-green-900/50 text-green-300 border-green-800');
-                        buttonIcon.className = 'fas fa-eye-slash';
-                        button.className = button.className.replace(/text-green-400 hover:text-green-300/, 'text-yellow-400 hover:text-yellow-300');
-                        button.title = 'Unlist';
-                    } else {
-                        statusBadge.innerHTML = 'Unlisted';
-                        statusBadge.className = statusBadge.className.replace(/bg-green-900\/50 text-green-300 border-green-800/, 'bg-red-900/50 text-red-300 border-red-800');
-                        buttonIcon.className = 'fas fa-eye';
-                        button.className = button.className.replace(/text-yellow-400 hover:text-yellow-300/, 'text-green-400 hover:text-green-300');
-                        button.title = 'List';
-                    }
+                    }, 800); // Reload after 800ms to allow the user to see the notification
                 } else {
                     alert(result.message || 'Failed to update status');
                 }

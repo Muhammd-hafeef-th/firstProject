@@ -414,7 +414,7 @@
                 }
             }
 
-            form.addEventListener("submit", function (event) {
+            form.addEventListener("submit", async function (event) {
                 event.preventDefault();
 
                 if (isSubmitting) return;
@@ -437,8 +437,69 @@
                     submitButton.innerHTML = 'UPDATE PRODUCT';
                     return false;
                 }
-
-                form.submit();
+                
+                try {
+                    // Create FormData from the form
+                    const formData = new FormData(form);
+                    
+                    // Send the form data using fetch
+                    const response = await fetch('/admin/edit-productItem', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to update product');
+                    }
+                    
+                    // Show toast notification for success
+                    const toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+                    
+                    toast.fire({
+                        icon: 'success',
+                        title: 'Product updated successfully'
+                    });
+                    
+                    // Redirect after toast is shown
+                    setTimeout(() => {
+                        window.location.href = "/admin/products";
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    
+                    // Show toast notification for error
+                    const toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+                    
+                    toast.fire({
+                        icon: 'error',
+                        title: error.message || 'Failed to update product'
+                    });
+                } finally {
+                    isSubmitting = false;
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = 'UPDATE PRODUCT';
+                }
             });
 
             function validateForm() {
@@ -578,10 +639,22 @@
             const urlParams = new URLSearchParams(window.location.search);
             const errorMessage = urlParams.get('error');
             if (errorMessage) {
-                Swal.fire({
+                // Show toast notification for error
+                const toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+                
+                toast.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
+                    title: errorMessage
                 });
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

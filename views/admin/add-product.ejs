@@ -333,22 +333,49 @@
                     }
 
                     const data = await response.json();
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success",
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = "/admin/products";
+                    
+                    // Show toast notification for success
+                    const toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
                     });
+                    
+                    toast.fire({
+                        icon: 'success',
+                        title: data.message || 'Product added successfully'
+                    });
+                    
+                    // Redirect after toast is shown
+                    setTimeout(() => {
+                        window.location.href = "/admin/products";
+                    }, 1000);
 
                 } catch (error) {
                     console.error("Error:", error);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: error.message
+                    
+                    // Show toast notification for error
+                    const toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                    });
+                    
+                    toast.fire({
+                        icon: 'error',
+                        title: error.message || 'Failed to add product'
                     });
                 } finally {
                     isSubmitting = false;

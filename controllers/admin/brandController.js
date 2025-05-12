@@ -113,15 +113,26 @@ const editBrandDetails = async (req, res) => {
     try {
         const { brandId, name, description } = req.body;
         
+        // Check if the request is AJAX (fetch) or regular form submission
+        const isAjaxRequest = req.xhr || req.headers.accept.indexOf('json') > -1;
+        
         if (!brandId) {
-            req.flash("error", "Invalid Brand ID");
-            return res.redirect("/admin/brands");
+            if (isAjaxRequest) {
+                return res.status(400).json({ success: false, message: "Invalid Brand ID" });
+            } else {
+                req.flash("error", "Invalid Brand ID");
+                return res.redirect("/admin/brands");
+            }
         }
 
         const existingBrand = await Brand.findById(brandId);
         if (!existingBrand) {
-            req.flash("error", "Brand not found");
-            return res.redirect("/admin/brands");
+            if (isAjaxRequest) {
+                return res.status(404).json({ success: false, message: "Brand not found" });
+            } else {
+                req.flash("error", "Brand not found");
+                return res.redirect("/admin/brands");
+            }
         }
 
         const duplicateBrand = await Brand.findOne({ 
@@ -130,8 +141,12 @@ const editBrandDetails = async (req, res) => {
         });
 
         if (duplicateBrand) {
-            req.flash("error", "Brand name already exists!");
-            return res.redirect(`/admin/edit-brand?id=${brandId}`); 
+            if (isAjaxRequest) {
+                return res.status(400).json({ success: false, message: "Brand name already exists!" });
+            } else {
+                req.flash("error", "Brand name already exists!");
+                return res.redirect(`/admin/edit-brand?id=${brandId}`);
+            }
         }
 
         const updateData = { 
@@ -147,12 +162,21 @@ const editBrandDetails = async (req, res) => {
 
         await Brand.updateOne({ _id: brandId }, { $set: updateData });
 
-        req.flash("success", "Brand updated successfully!");
-        return res.redirect("/admin/brands"); 
+        if (isAjaxRequest) {
+            return res.status(200).json({ success: true, message: "Brand updated successfully!" });
+        } else {
+            req.flash("success", "Brand updated successfully!");
+            return res.redirect("/admin/brands");
+        }
     } catch (error) {
         console.log("Error in editBrandDetails:", error);
-        req.flash("error", "Internal Server Error");
-        return res.redirect(`/admin/edit-brand?id=${req.body.brandId}`); 
+        
+        if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+            return res.status(500).json({ success: false, message: "Internal Server Error" });
+        } else {
+            req.flash("error", "Internal Server Error");
+            return res.redirect(`/admin/edit-brand?id=${req.body.brandId}`);
+        }
     }
 };
 

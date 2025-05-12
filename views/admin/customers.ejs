@@ -236,15 +236,15 @@
                                     <div class="flex justify-center space-x-3">
                                         <!-- Block/Unblock Button -->
                                         <% if (data[i].isBlocked === false) { %>
-                                            <a href="/admin/blockCustomer?id=<%= data[i]._id %>"
+                                            <button onclick="blockUser('<%= data[i]._id %>')" 
                                                class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1">
                                                 <i class="fas fa-lock"></i> Block
-                                            </a>
+                                            </button>
                                         <% } else { %>
-                                            <a href="/admin/unblockCustomer?id=<%= data[i]._id %>"
+                                            <button onclick="unblockUser('<%= data[i]._id %>')" 
                                                class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-1">
                                                 <i class="fas fa-lock-open"></i> Unblock
-                                            </a>
+                                            </button>
                                         <% } %>
                                     </div>
                                 </td>
@@ -305,17 +305,17 @@
                             <!-- Actions -->
                             <div class="mobile-list-actions">
                                 <% if (data[i].isBlocked === false) { %>
-                                    <a href="/admin/blockCustomer?id=<%= data[i]._id %>"
+                                    <button onclick="blockUser('<%= data[i]._id %>')"
                                        class="mobile-list-action-btn blocked text-red-400 hover:text-red-300" 
                                        title="Block">
                                         <i class="fas fa-lock"></i>
-                                    </a>
+                                    </button>
                                 <% } else { %>
-                                    <a href="/admin/unblockCustomer?id=<%= data[i]._id %>"
+                                    <button onclick="unblockUser('<%= data[i]._id %>')"
                                        class="mobile-list-action-btn unblocked text-green-400 hover:text-green-300" 
                                        title="Unblock">
                                         <i class="fas fa-lock-open"></i>
-                                    </a>
+                                    </button>
                                 <% } %>
                             </div>
                         </div>
@@ -360,7 +360,85 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Toast notification mixin
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
+        
+        // Block user function
+        async function blockUser(userId) {
+            try {
+                const response = await fetch(`/admin/blockCustomer?id=${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'User blocked successfully'
+                    });
+                    
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Failed to block user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message || 'Failed to block user'
+                });
+            }
+        }
+        
+        // Unblock user function
+        async function unblockUser(userId) {
+            try {
+                const response = await fetch(`/admin/unblockCustomer?id=${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'User unblocked successfully'
+                    });
+                    
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    throw new Error('Failed to unblock user');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Toast.fire({
+                    icon: 'error',
+                    title: error.message || 'Failed to unblock user'
+                });
+            }
+        }
+        
         function filterUsers() {
             let input = document.getElementById("search").value.toLowerCase();
             let rows = document.querySelectorAll(".user-row, .mobile-list-item");
