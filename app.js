@@ -53,9 +53,12 @@ app.use((req, res, next) => {
 
 app.set("view engine", "ejs");
 app.set("views", [path.join(__dirname, "views/user"), path.join(__dirname, "views/admin")]);
-app.use(express.static(path.join(__dirname, "public")));
-app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
-
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d'  
+}));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+  maxAge: '1d'
+}));
 
 app.use("/", userRouter);
 app.use('/admin', adminRouter);
