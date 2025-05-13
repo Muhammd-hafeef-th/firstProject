@@ -1066,7 +1066,22 @@
 
             var couponName = nameInput.value;
             if (couponName !== couponName.toUpperCase() || couponName.includes(' ')) {
-                swal("Invalid Format", "Coupon code must be uppercase and contain no spaces", "warning");
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+                
+                Toast.fire({
+                    icon: 'warning',
+                    title: 'Coupon code must be uppercase and contain no spaces'
+                });
                 return;
             }
 
@@ -1076,12 +1091,18 @@
 
             if (discountType === 'percentage') {
                 if (offerPrice <= 0 || offerPrice > 100) {
-                    swal("Invalid Percentage", "Percentage discount must be between 1 and 100", "warning");
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Percentage discount must be between 1 and 100'
+                    });
                     return;
                 }
             } else {
                 if (offerPrice >= minimumPrice) {
-                    swal("Invalid Amount", "Discount amount must be less than minimum purchase amount", "warning");
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Discount amount must be less than minimum purchase amount'
+                    });
                     return;
                 }
             }
@@ -1120,27 +1141,35 @@
                     submitButton.innerHTML = originalButtonHTML;
                     submitButton.disabled = false;
                     
+                    // Close the modal first
+                    closeModal();
+                    
                     if (data.success) {
-                        swal({
-                            title: "Success",
-                            text: isEdit ? "Coupon updated successfully" : "Coupon created successfully",
-                            icon: "success",
-                            button: {
-                                text: "OK",
-                                className: "bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg"
-                            }
+                        Toast.fire({
+                            icon: 'success',
+                            title: isEdit ? 'Coupon updated successfully' : 'Coupon created successfully'
                         }).then(function () {
                             window.location.reload();
                         });
                     } else {
-                        swal("Error", data.message || "Something went wrong", "error");
+                        Toast.fire({
+                            icon: 'error',
+                            title: data.message || 'Something went wrong'
+                        });
                     }
                 })
                 .catch(function (error) {
                     submitButton.innerHTML = originalButtonHTML;
                     submitButton.disabled = false;
                     console.error('Error submitting coupon form:', error);
-                    swal("Error", "Failed to " + (isEdit ? "update" : "create") + " coupon", "error");
+                    
+                    // Close the modal even on error
+                    closeModal();
+                    
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Failed to ' + (isEdit ? 'update' : 'create') + ' coupon'
+                    });
                 });
         });
 

@@ -31,7 +31,9 @@ const GetOrder = async (req, res, next) => {
             const finalFilter = search ? searchFilter : { user: userId };
             totalOrders = await Order.countDocuments(finalFilter);
             orders = await Order.find(finalFilter)
-                .sort({ createdOn: -1 })
+                .sort({
+                    createdOn: -1
+                })
                 .skip(skip)
                 .limit(limit)
                 .populate({
@@ -41,7 +43,7 @@ const GetOrder = async (req, res, next) => {
                 .populate('address');
         }
         const formattedOrders = orders.map(order => ({
-            paymentMethod:order.paymentMethod.type,
+            paymentMethod: order.paymentMethod.type,
             id: order.orderId,
             price: order.finalAmount,
             date: order.createdOn.toLocaleDateString('en-GB'),
@@ -102,13 +104,13 @@ const orderDetails = async (req, res, next) => {
 
         const orderWithDiscountDetails = {
             ...order.toObject(),
-            invoiceDate: invoiceDate, 
+            invoiceDate: invoiceDate,
             orderItems: order.orderItems.map(item => {
                 const product = item.product;
                 const brandOffer = product.brand?.brandOffer || 0;
                 const productOffer = product.discount || 0;
                 const effectiveDiscount = Math.max(brandOffer, productOffer);
-                
+
 
                 const savings = (item.price * item.quantity * effectiveDiscount / 100);
                 totalSavings += savings;
@@ -122,7 +124,7 @@ const orderDetails = async (req, res, next) => {
             discountAmount: totalSavings
 
         };
-        
+
 
 
         res.render('order-details', {
@@ -139,25 +141,25 @@ const cancelOrder = async (req, res, next) => {
     try {
         const { orderId, reason, otherReason } = req.body;
         const finalReason = reason === 'other' ? otherReason : reason;
-        
+
         const order = await Order.findOne({ orderId })
             .populate('orderItems.product')
             .populate('user');
-            
+
         if (!order) {
             return res.status(404).json({ message: 'Order not found' });
         }
-        
+
         if (['Cancelled', 'Returned'].includes(order.status)) {
             return res.status(400).json({ message: 'Order already cancelled or returned' });
         }
-        
+
         for (const item of order.orderItems) {
             const product = item.product;
             product.quantity += item.quantity;
             await product.save();
         }
-        
+
         let refundProcessed = false;
 
         if (order.paymentStatus === 'completed') {
@@ -167,14 +169,14 @@ const cancelOrder = async (req, res, next) => {
                     if (!userData) {
                         throw new Error('User not found');
                     }
-                    
+
                     const wallet = await Wallet.findOne({ 'user.email': userData.email });
                     if (!wallet) {
                         throw new Error('Wallet not found');
                     }
-                    
+
                     const refundRef = `REFUND-${orderId}-${Date.now()}`;
-                    
+
                     wallet.transactions.push({
                         amount: order.finalAmount,
                         type: 'refund',
@@ -183,11 +185,11 @@ const cancelOrder = async (req, res, next) => {
                         referenceId: refundRef,
                         date: new Date()
                     });
-                    
+
                     wallet.balance += order.finalAmount;
                     await wallet.save();
                     refundProcessed = true;
-                    
+
                 } else if (order.paymentMethod.type === 'razorpay') {
                     const paymentId = order.paymentMethod.details.razorpayPaymentId;
                     if (!paymentId) {
@@ -237,20 +239,20 @@ const cancelOrder = async (req, res, next) => {
                         date: new Date()
                     });
                     await wallet.save();
-                    
+
                     refundProcessed = true;
                 }
             } catch (refundError) {
                 console.error('Error processing refund:', refundError);
-               
+
             }
         }
-        
+
         order.status = 'Cancelled';
         order.cancelReason = finalReason;
         order.cancelledAt = new Date();
         await order.save();
-        
+
         res.status(200).json({
             message: 'Order cancelled successfully',
             refundProcessed,
@@ -357,7 +359,7 @@ const downloadInvoice = async (req, res, next) => {
         y += 15;
         doc.text(`Product Discount: -₹${productDiscount.toFixed(2)}`, 50, y);
         y += 15;
-        
+
         if (couponDiscount > 0) {
             doc.text(`Coupon Discount: -₹${couponDiscount.toFixed(2)}`, 50, y);
             if (order.coupon && order.coupon.code) {
@@ -366,7 +368,7 @@ const downloadInvoice = async (req, res, next) => {
             }
             y += 15;
         }
-        
+
         doc.text(`Shipping Charges: ₹${shippingCharge.toFixed(2)}`, 50, y);
         y += 15;
         doc.font('Helvetica-Bold');
@@ -398,27 +400,27 @@ const returnOrder = async (req, res, next) => {
             });
         }
         const finalReason = reason === 'other' ? otherReason : reason;
-        
+
         const order = await Order.findOne({ orderId }).populate('user');
-        
+
         if (!order) {
             return res.status(404).json({
                 message: 'Order not found'
             });
         }
-        
+
         if (order.status === 'Return Request') {
             return res.status(400).json({
                 message: 'Return request already submitted for this order'
             });
         }
-        
+
         if (!['Delivered', 'Shipped'].includes(order.status)) {
             return res.status(400).json({
                 message: 'Order cannot be returned in its current status'
             });
         }
-        
+
         order.status = 'Return Request';
         order.returnReason = finalReason;
         order.returnRequestedAt = new Date();
@@ -432,10 +434,10 @@ const returnOrder = async (req, res, next) => {
                 status: 'pending',
                 requestedAt: new Date()
             };
-            
+
             await order.save();
         }
-        
+
         res.status(200).json({
             success: true,
             message: 'Return request submitted successfully',

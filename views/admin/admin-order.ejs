@@ -250,6 +250,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-700/50">
+                                <!-- Orders are sorted by latest first (newest to oldest) -->
                                 <% orders.forEach(order => { %>
                                     <tr class="hover:bg-gray-800/40 transition-colors duration-200 group">
                                         <td class="py-5 px-4 truncate">
@@ -325,6 +326,7 @@
 
                     <!-- Mobile List View -->
                     <div class="md:hidden">
+                        <!-- Orders are sorted by latest first (newest to oldest) -->
                         <% orders.forEach(order => { %>
                             <div class="mobile-list-item">
                                 <!-- Main Row -->
