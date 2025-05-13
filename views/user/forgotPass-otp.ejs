@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTP Verification</title>
-        <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png">
+    <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -14,8 +14,6 @@
 <body>
     <div class="flex items-center justify-center min-h-screen bg-gray-100 px-4 md:px-0">
         <div class="flex flex-col md:flex-row w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
-
-            
             <div class="w-full md:w-1/2 p-8 flex flex-col justify-center relative">
                 <div class="absolute top-2 left-4 flex items-center">
                     <img src="/images/hand watch2.png" class="h-8 w-8">
@@ -24,9 +22,9 @@
 
                 <h2 class="text-2xl font-semibold mt-6 text-center md:text-left">Enter OTP</h2>
                 <p class="text-gray-500 text-sm mt-2 text-center md:text-left">Please enter the OTP sent to your registered email ID</p>
-                <div id="timer" class="text-yellow-500 font-semibold text-lg mt-4 text-center md:text-left">1:00</div>
+                <div id="timer" class="text-yellow-500 font-semibold text-lg mt-4 text-center md:text-left bg-yellow-50 py-2 px-4 rounded-lg">1:00</div>
                 
-                <form id="otpForm"  action="" method="post" class="flex flex-col items-center md:items-start">
+                <form id="otpForm" action="" method="post" class="flex flex-col items-center md:items-start">
                     <div class="flex justify-center gap-2 mt-4">
                         <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
                         <input type="text" maxlength="1" class="otp-input w-10 h-10 sm:w-12 sm:h-12 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xl">
@@ -38,46 +36,53 @@
 
                     <button type="submit" class="w-full bg-black text-white py-3 mt-6 rounded-lg hover:bg-gray-800 transition">Verify Code</button>
                 </form>
-               <%if(locals.message && message.length>0){%>
-                <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5 ">
-                    <%=message%>
+                <% if (locals.message && message.length > 0) { %>
+                <div class="bg-red-400 text-red-800 text-center p-1 rounded-lg mt-5">
+                    <%= message %>
                 </div>
-                <%}%>
+                <% } %>
 
-                <p class="text-gray-500 text-sm mt-4 text-center md:text-left">
-                    Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-blue-500 font-semibold">Resend OTP</a>
-                </p>
+                <div id="resendContainer" class="text-center md:text-left mt-4 hidden">
+                    <p class="text-gray-500 text-sm">
+                        Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-blue-500 font-semibold">Resend OTP</a>
+                    </p>
+                </div>
             </div>
 
-            
             <div class="hidden md:block w-1/2 h-auto">
                 <img src="/images/img 6.webp" alt="Watch" class="w-full h-full object-cover">
             </div>
-
         </div>
     </div>
 
-</body>
-</html>
-
     <script>
-        let timer = 60; 
+        let timer = 60;
         let timerInterval;
 
         function startTimer() {
-            clearInterval(timerInterval); 
+            clearInterval(timerInterval);
             timer = 60;
+
+            const resendContainer = document.getElementById("resendContainer");
+            resendContainer.classList.add("hidden"); // Ensure resend link is hidden at the start
+
+            const timerDisplay = document.getElementById("timer");
+            timerDisplay.classList.remove("bg-red-50", "text-red-500");
+            timerDisplay.classList.add("bg-yellow-50", "text-yellow-500");
 
             timerInterval = setInterval(() => {
                 let minutes = Math.floor(timer / 60);
                 let seconds = timer % 60;
-                document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
                 timer--;
 
                 if (timer < 0) {
                     clearInterval(timerInterval);
-                    document.getElementById("timer").classList.add("text-red-500");
-                    document.getElementById("timer").textContent = "Expired";
+                    timerDisplay.classList.remove("bg-yellow-50", "text-yellow-500");
+                    timerDisplay.classList.add("bg-red-50", "text-red-500");
+                    timerDisplay.textContent = "Expired";
+
+                    resendContainer.classList.remove("hidden"); // Show resend link only after timer expires
 
                     document.querySelectorAll(".otp-input").forEach(input => {
                         input.disabled = true;
@@ -100,40 +105,39 @@
                 input.value = "";
             });
 
-            document.getElementById("timer").classList.remove("text-red-500");
-            startTimer(); 
+            const resendContainer = document.getElementById("resendContainer");
+            resendContainer.classList.add("hidden"); // Hide resend link after resending
+
+            startTimer(); // Restart the timer
 
             $.ajax({
-                type:"POST",
-                url:'/resend-forgot-otp',
-                success:function(response){
-                    if(response.success){
+                type: "POST",
+                url: '/resend-forgot-otp',
+                success: function (response) {
+                    if (response.success) {
                         Swal.fire({
-                            icon:"success",
-                            title:"Resend Otp successfull",
-                            showConfirmButton:false,
-                            timer:1500,
-                            
-                        })
-                    }else{
+                            icon: "success",
+                            title: "Resend Otp successful",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    } else {
                         Swal.fire({
-                            icon:"error",
-                            title:"Error",
-                            text:"Failed to resend otp . please try again"
-                        })
+                            icon: "error",
+                            title: "Error",
+                            text: "Failed to resend OTP. Please try again"
+                        });
                     }
-                   
                 },
-                error:function (){
+                error: function () {
                     Swal.fire({
-                        icon:"error",
-                        title:'Error',
-                        text:"Failed to resend otp .please try again" 
-                    })
+                        icon: "error",
+                        title: 'Error',
+                        text: "Failed to resend OTP. Please try again"
+                    });
                 }
-            })
-            return false
-
+            });
+            return false;
         }
 
         document.getElementById("otpForm").onsubmit = function (event) {
@@ -170,7 +174,7 @@
                     } else {
                         Swal.fire({
                             icon: "error",
-                            title: "error", 
+                            title: "Error",
                             text: response.message
                         });
                     }
@@ -183,27 +187,24 @@
                     });
                 }
             });
-            return false
+            return false;
         };
 
         document.addEventListener("DOMContentLoaded", startTimer);
 
+        document.querySelectorAll(".otp-input").forEach((input, index, inputs) => {
+            input.addEventListener("input", (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
 
-    document.querySelectorAll(".otp-input").forEach((input, index, inputs) => {
-    input.addEventListener("input", (e) => {
-        if (e.target.value.length === 1 && index < inputs.length - 1) {
-            inputs[index + 1].focus();
-        }
-    });
-
-    input.addEventListener("keydown", (e) => {
-        if (e.key === "Backspace" && index > 0 && e.target.value === "") {
-            inputs[index - 1].focus();
-        }
-    });
-});
-
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && index > 0 && e.target.value === "") {
+                    inputs[index - 1].focus();
+                }
+            });
+        });
     </script>
-
 </body>
 </html>

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OTP Verification | LB</title>
-        <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png">
+    <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -55,8 +55,6 @@
 <body class="bg-gray-50">
     <div class="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col lg:flex-row w-full max-w-4xl bg-white rounded-xl shadow-xl overflow-hidden">
-
-            
             <div class="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center relative">
                 <div class="flex items-center justify-center mb-8">
                     <div class="flex items-center">
@@ -70,7 +68,6 @@
                     <p class="text-gray-500 text-sm sm:text-base text-center mb-6">Please enter the 6-digit code sent to your registered email</p>
                     <div id="timer" class="text-yellow-600 font-semibold text-lg mb-6 text-center bg-yellow-50 py-2 px-4 rounded-lg">1:00</div>
 
-                    
                     <form id="otpForm" action="/verify-otp" method="post" class="flex flex-col w-full">
                         <div class="flex justify-center gap-2 sm:gap-3 otp-container">
                             <input type="text" maxlength="1" class="otp-input w-11 h-11 sm:w-14 sm:h-14 text-center border border-gray-300 rounded-lg focus:outline-none text-xl font-semibold">
@@ -86,13 +83,12 @@
 
                     <div id="resendContainer" class="flex justify-center mt-6 hidden">
                         <p class="text-gray-500 text-sm sm:text-base">
-                            Haven't received the code? <a href="#" onclick="resendOtp()" class="text-black font-semibold resend-link">Resend OTP</a>
+                            Haven’t got the OTP yet? <a href="#" onclick="resendOtp()" class="text-black font-semibold resend-link">Resend OTP</a>
                         </p>
                     </div>
                 </div>
             </div>
 
-            
             <div class="hidden lg:block w-1/2 h-auto relative overflow-hidden">
                 <div class="absolute inset-0 bg-black bg-opacity-30 z-10 flex items-center justify-center">
                     <div class="text-white text-center p-8 max-w-lg">
@@ -106,30 +102,32 @@
     </div>
 
     <script>
-        let timer = 60; 
+        let timer = 60;
         let timerInterval;
 
         function startTimer() {
-            clearInterval(timerInterval); 
+            clearInterval(timerInterval);
             timer = 60;
 
-            // Hide the resend link when the timer starts
             const resendContainer = document.getElementById("resendContainer");
-            resendContainer.classList.add("hidden");
+            resendContainer.classList.add("hidden"); 
+
+            const timerDisplay = document.getElementById("timer");
+            timerDisplay.classList.remove("bg-red-50", "text-red-600");
+            timerDisplay.classList.add("bg-yellow-50", "text-yellow-600");
 
             timerInterval = setInterval(() => {
                 let minutes = Math.floor(timer / 60);
                 let seconds = timer % 60;
-                document.getElementById("timer").textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+                timerDisplay.textContent = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
                 timer--;
 
                 if (timer < 0) {
                     clearInterval(timerInterval);
-                    document.getElementById("timer").classList.remove("bg-yellow-50", "text-yellow-600");
-                    document.getElementById("timer").classList.add("bg-red-50", "text-red-600");
-                    document.getElementById("timer").textContent = "Expired";
+                    timerDisplay.classList.remove("bg-yellow-50", "text-yellow-600");
+                    timerDisplay.classList.add("bg-red-50", "text-red-600");
+                    timerDisplay.textContent = "Expired";
 
-                    // Show the resend link when the timer expires
                     resendContainer.classList.remove("hidden");
 
                     document.querySelectorAll(".otp-input").forEach(input => {
@@ -142,7 +140,7 @@
         function resendOtp() {
             Swal.fire({
                 icon: "info",
-                title: "Otp Resend successfully!",
+                title: "OTP Resent successfully!",
                 text: "A new OTP has been sent to your email.",
                 timer: 1500,
                 showConfirmButton: false
@@ -153,19 +151,21 @@
                 input.value = "";
             });
 
-            document.getElementById("timer").classList.remove("text-red-500");
+            const resendContainer = document.getElementById("resendContainer");
+            resendContainer.classList.add("hidden"); 
+
             startTimer(); 
 
             $.ajax({
-                type:"POST",
-                url:'resend-otp',
-                success:function(response){
-                    if(!response.success){
+                type: "POST",
+                url: 'resend-otp',
+                success: function (response) {
+                    if (!response.success) {
                         Swal.fire({
-                            icon:"error",
-                            title:"Error",
-                            text:"An error occurred while resending OTP. Please try again"
-                        })
+                            icon: "error",
+                            title: "Error",
+                            text: "An error occurred while resending OTP. Please try again"
+                        });
                     }
                 }
             });
