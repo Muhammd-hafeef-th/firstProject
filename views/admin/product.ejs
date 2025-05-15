@@ -403,7 +403,7 @@
                                 </div>
                                 <!-- Actions -->
                                 <div class="mobile-list-actions">
-                                    <a href="/admin/edit-product/<%= product._id %>" class="mobile-list-action-btn text-blue-400 hover:text-blue-300" title="Edit">
+                                    <a href="/admin/edit-product?id=<%= product._id %>" class="mobile-list-action-btn text-blue-400 hover:text-blue-300" title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button onclick="toggleProductStatus('<%= product._id %>', <%= product.isListed %>)" 
