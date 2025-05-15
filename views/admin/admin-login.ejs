@@ -1,12 +1,14 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
     .error-message {
-        color: red;
-        font-size: 0.75rem;
+        color: #ef4444;
+        font-size: 0.65rem;
+        margin-top: 0.2rem;
         display: none;
     }
     .password-container {
         position: relative;
+        width: 100%;
     }
     .toggle-password {
         position: absolute;
@@ -15,49 +17,133 @@
         transform: translateY(-50%);
         cursor: pointer;
         color: #6b7280;
+        padding: 4px;
+    }
+    .custom-input {
+        transition: all 0.3s ease;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+    .custom-input:focus {
+        border-color: #7E3AF2;
+        box-shadow: 0 0 0 3px rgba(126, 58, 242, 0.1);
+    }
+    .custom-button {
+        transition: all 0.3s ease;
+    }
+    .custom-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 360px) {
+        .custom-input {
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+        .custom-button {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .toggle-password {
+            right: 6px;
+        }
+        .toggle-password svg {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+        .error-message {
+            font-size: 0.6rem;
+            margin-top: 0.15rem;
+        }
+    }
+    @media (max-width: 640px) {
+        .toggle-password {
+            right: 8px;
+        }
+        .toggle-password svg {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+    }
+    @media (min-width: 640px) and (max-width: 1024px) {
+        .custom-input {
+            padding: 0.875rem;
+            font-size: 0.95rem;
+        }
+        .custom-button {
+            padding: 0.875rem;
+            font-size: 1rem;
+        }
     }
 </style>
 
-<section class="bg-[#121317] min-h-screen">
-    <div class="bg-[#121317] flex">
-        <img src="/images/hand-watch - Copy.png" class="h-8 w-8 ml-10 mt-10">
-        <p class="text-white bg-[#121317] ml-1.5 mt-10 font-extrabold text-3xl">LB</p>
+<section class="bg-[#121317] min-h-screen flex items-center justify-center px-2 xs:px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="absolute top-4 xs:top-6 sm:top-8 left-4 xs:left-6 sm:left-8 flex items-center">
+        <img src="/images/hand-watch - Copy.png" class="h-7 w-7 xs:h-8 xs:w-8 sm:h-10 sm:w-10">
+        <p class="text-white font-extrabold text-xl xs:text-2xl sm:text-3xl ml-2">LB</p>
     </div>
-    <div class="flex justify-center items-center m-10">
-        <div class="bg-[#121317] flex">
-            <div class="w-1/2 md:block hidden">
-                <img class="rounded-2xl" src="/images/img 6.webp">
-            </div>
-            <div class="md:w-1/2 px-16 bg-[#24262D]">
-                <h1 class="font-bold text-2xl text-white mt-10">Admin Login</h1>
-                <h6 class="text-white mt-14 ml-1">Email</h6>
-                <form method="POST" action="/admin/login" id="loginForm" class="flex flex-col">
-                    <input class="rounded-xl border p-2 text-black" type="email" id="email" name="email"
-                        placeholder="email">
+
+    <!-- Main Container -->
+    <div class="w-full max-w-md xs:max-w-lg sm:max-w-2xl md:max-w-3xl lg:max-w-4xl bg-gradient-to-b from-[#24262D] to-[#1F2127] rounded-2xl shadow-xl overflow-hidden flex flex-col lg:flex-row mt-12 xs:mt-16 sm:mt-20">
+        <!-- Image Section (Visible on Desktop) -->
+        <div class="hidden lg:block w-full lg:w-1/2">
+            <img class="w-full h-full object-cover rounded-l-2xl" src="/images/img 6.webp" alt="Watch">
+        </div>
+
+        <!-- Form Section -->
+        <div class="w-full lg:w-1/2 p-4 xs:p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
+            <h1 class="font-bold text-xl xs:text-2xl sm:text-3xl text-white text-center lg:text-left mb-4 xs:mb-6 sm:mb-8">Admin Login</h1>
+
+            <form method="POST" action="/admin/login" id="loginForm" class="flex flex-col space-y-4 xs:space-y-5 sm:space-y-6">
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="text-white text-xs xs:text-sm sm:text-base mb-1 xs:mb-2 block">Email</label>
+                    <input 
+                        class="custom-input w-full rounded-xl border border-gray-600 bg-[#2F2F2F] text-white p-2 xs:p-3 sm:p-4 focus:outline-none focus:ring-2 focus:ring-[#7E3AF2]" 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your email"
+                    >
                     <div id="error-email" class="error-message"></div>
-                    
-                    <h6 class="text-white mt-7 ml-1">Password</h6>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="text-white text-xs xs:text-sm sm:text-base mb-1 xs:mb-2 block">Password</label>
                     <div class="password-container">
-                        <input class="rounded-xl border p-2 text-black w-full pr-10" type="password" id="password" name="password"
-                            placeholder="password">
+                        <input 
+                            class="custom-input w-full rounded-xl border border-gray-600 bg-[#2F2F2F] text-white p-2 xs:p-3 sm:p-4 pr-10 xs:pr-12 focus:outline-none focus:ring-2 focus:ring-[#7E3AF2]" 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="Enter your password"
+                        >
                         <span class="toggle-password" id="togglePassword">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                         </span>
                     </div>
                     <div id="error-password" class="error-message"></div>
-                    
-                    <% if (messages.error && messages.error.length > 0) { %>
-                        <div class="bg-red-500 text-white mt-3 text-center rounded-xl h-8">
-                            <%= messages.error[0] %>  
-                        </div>
-                    <% } %>
-                    
-                    <button type="submit" class="bg-[#7E3AF2] text-white py-1 mt-8 mb-15">Login</button>
-                </form>
-            </div>
+                </div>
+
+                <!-- Server-Side Error Message -->
+                <% if (messages.error && messages.error.length > 0) { %>
+                    <div class="bg-red-500 text-white text-center rounded-xl py-1 xs:py-2 px-3 xs:px-4 text-xs xs:text-sm sm:text-base">
+                        <%= messages.error[0] %>
+                    </div>
+                <% } %>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="custom-button bg-[#7E3AF2] text-white py-2 xs:py-3 sm:py-4 rounded-xl font-semibold text-sm xs:text-base sm:text-lg hover:bg-[#6D31ED] transition"
+                >
+                    Login
+                </button>
+            </form>
         </div>
     </div>
 </section>
@@ -78,13 +164,13 @@
         // Toggle icon
         if (type === 'text') {
             this.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
                 </svg>
             `;
         } else {
             this.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 xs:h-5 xs:w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
@@ -92,25 +178,23 @@
         }
     });
 
-    function passwordValidation(){
+    function passwordValidation() {
         const passwordValue = password.value;
-        if(passwordValue === ""){
+        if (passwordValue === "") {
             errorPassword.style.display = 'block';
             errorPassword.innerHTML = 'Please enter the password';
-        }
-        else{
+        } else {
             errorPassword.style.display = 'none';
             errorPassword.innerHTML = '';
         }
     }
     
-    function emailValidation(){
+    function emailValidation() {
         const emailValue = email.value;
-        if(emailValue === ""){
+        if (emailValue === "") {
             errorEmail.style.display = 'block';
             errorEmail.innerHTML = 'Please enter the email';
-        }
-        else{
+        } else {
             errorEmail.style.display = 'none';
             errorEmail.innerHTML = '';
         }
