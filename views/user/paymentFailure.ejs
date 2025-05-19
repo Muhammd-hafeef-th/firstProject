@@ -1,0 +1,59 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LB | Payment Failed</title>
+    <link rel="icon" href="/images/hand-watch - Copy.png" type="image/png"> 
+</head>
+<header class="sticky top-0 z-50 bg-[#1F1F1F] shadow-md">
+    <%- include('../../views/partials/user/header') %>
+</header>
+
+<body class="bg-[#1F1F1F] text-white min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-6xl">
+        <div class="bg-[#2A2A2A] rounded-xl p-8 shadow-lg max-w-2xl mx-auto">
+            <div class="text-center mb-8">
+                <div class="flex justify-center mb-6">
+                    <div class="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-wider mb-2">PAYMENT FAILED</h1>
+                <div class="w-20 h-1 bg-red-500 mx-auto mb-6"></div>
+                <p class="text-gray-300 mb-8">
+                    We're sorry, but there was a problem processing your payment. 
+                    <br>Please try again or choose a different payment method.
+                </p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-4 mt-8">
+                    <a href="/" class="bg-[#1F1F1F] hover:bg-gray-800 text-white py-3 px-6 rounded font-semibold transition-colors">
+                        Return to Home
+                    </a>
+                    <button id="retryPaymentBtn" class="bg-yellow-500 hover:bg-yellow-600 text-black py-3 px-6 rounded font-semibold transition-colors">
+                        Retry Payment
+                    </button>
+                </div>
+            </div>
+            
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                <div class="bg-[#1F1F1F] p-4 rounded-lg mt-6">
+                    <h3 class="text-red-400 font-medium mb-2">Error Details:</h3>
+                    <p class="text-gray-400 text-sm"><%= errorMessage %></p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const retryBtn = document.getElementById('retryPaymentBtn');
+            
+            retryBtn.addEventListener('click', function() {
+                window.location.href = '/proceed-payment';
+            });
+        });
+    </script>
+</body>
+
+<%- include('../../views/partials/user/footer') %>

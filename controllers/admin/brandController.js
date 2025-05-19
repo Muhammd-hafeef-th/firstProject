@@ -113,7 +113,6 @@ const editBrandDetails = async (req, res) => {
     try {
         const { brandId, name, description } = req.body;
         
-        // Check if the request is AJAX (fetch) or regular form submission
         const isAjaxRequest = req.xhr || req.headers.accept.indexOf('json') > -1;
         
         if (!brandId) {

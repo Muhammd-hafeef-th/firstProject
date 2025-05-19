@@ -179,6 +179,7 @@ router.get('/proceed-payment',checkoutController.proceedPayment)
 router.post('/choose-payment',checkoutController.choosePayment)
 router.post('/razorpay/verify', checkoutController.verifyRazorpayPayment)
 router.get('/paymentSuccess/:orderId',checkoutController.paymentSuccess)
+router.get('/paymentFailure',checkoutController.paymentFailure)
 
 
 //coupon management

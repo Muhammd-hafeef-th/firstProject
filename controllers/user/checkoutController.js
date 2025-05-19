@@ -858,6 +858,15 @@ const paymentSuccess = async (req, res, next) => {
     }
 }
 
+const paymentFailure = async (req, res, next) => {
+    try {
+        const errorMessage = req.query.error || 'An error occurred during payment processing';
+        res.render('paymentFailure', { errorMessage });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     checkout,
     addAddress,
@@ -869,5 +878,6 @@ module.exports = {
     proceedPayment,
     choosePayment,
     verifyRazorpayPayment,
-    paymentSuccess
+    paymentSuccess,
+    paymentFailure
 }
