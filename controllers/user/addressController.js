@@ -22,6 +22,9 @@ const addressPageGet = async (req, res, next) => {
 
 
         }
+          if (!userData) {
+            return res.redirect('/login');
+        }
         res.render('address', { userDatas: userData, addresses: address || { address: [] } })
     } catch (error) {
         next(error);
