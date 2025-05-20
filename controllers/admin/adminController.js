@@ -434,7 +434,7 @@ const downloadReport = async (req, res) => {
                 const row = worksheet.addRow([
                     order.orderId,
                     new Date(order.createdOn).toLocaleDateString(),
-                    order.user.firstname,
+                    order.user && order.user.firstname ? order.user.firstname : 'N/A',
                     order.paymentMethod.type.toUpperCase(),
                     order.totalPrice,
                     order.totalPrice - order.finalAmount,
@@ -612,7 +612,7 @@ const downloadReport = async (req, res) => {
                 doc.text(new Date(order.createdOn).toLocaleDateString(), xPosition + 5, yPosition + 5, { width: colWidths[1] - 10, align: 'center' });
                 xPosition += colWidths[1];
 
-                doc.text(order.user.firstname, xPosition + 5, yPosition + 5, { width: colWidths[2] - 10 });
+                doc.text(order.user && order.user.firstname ? order.user.firstname : 'N/A', xPosition + 5, yPosition + 5, { width: colWidths[2] - 10 });
                 xPosition += colWidths[2];
 
                 doc.text(order.paymentMethod.type.toUpperCase(), xPosition + 5, yPosition + 5, { width: colWidths[3] - 10, align: 'center' });
