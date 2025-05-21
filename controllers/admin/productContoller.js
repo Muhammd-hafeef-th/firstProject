@@ -48,12 +48,19 @@ const addProductItem = async (req, res) => {
             return res.status(400).json({ error: "Exactly 3 images required" });
         }
 
-        const { name, description, brand, category, amount, discount, salesAmount,  stock, featured, new: isNew, color } = req.body;
+        const { name, description, brand, category, amount, discount, salesAmount, stock, featured, new: isNew, color } = req.body;
 
         const brandDoc = await Brand.findOne({ _id: brand });
         if (!brandDoc) return res.status(400).json({ error: "Brand not found" });
 
         const productImages = req.files.map(file => `/uploads/${file.filename}`);
+
+        const products = await Product.find();
+        console.log(products)
+        if (products.productName == name) {
+            return res.status(400).json({ error: "This name is already exists" })
+        }
+
 
         const newProduct = new Product({
             productName: name.trim(),
@@ -128,6 +135,13 @@ const editProductItem = async (req, res) => {
         const brandExists = await Brand.findById(brand);
         if (!brandExists) {
             return res.redirect(`/admin/edit-product?id=${productId}&error=Brand does not exist. Please add the brand first`);
+        }
+        if (name !== product.productName) {
+           
+            const existingProduct = await Product.findOne({productName:name.trim()});
+            if (existingProduct) {
+                return res.redirect(`/admin/edit-product?id=${productId}&error=This name is already exist`)
+            }
         }
 
         let productImages = [];
@@ -231,31 +245,31 @@ const deleteProduct = async (req, res) => {
 const toggleProductStatus = async (req, res) => {
     try {
         const { productId, isListed } = req.body;
-        const currentStatus = typeof isListed === 'string' ? 
-                             isListed === 'true' : 
-                             Boolean(isListed);
+        const currentStatus = typeof isListed === 'string' ?
+            isListed === 'true' :
+            Boolean(isListed);
 
         if (!productId) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Product ID is required' 
+            return res.status(400).json({
+                success: false,
+                message: 'Product ID is required'
             });
         }
 
         const updatedProduct = await Product.findByIdAndUpdate(
             productId,
-            { isListed: !currentStatus }, 
+            { isListed: !currentStatus },
             { new: true }
         );
 
         if (!updatedProduct) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Product not found' 
+            return res.status(404).json({
+                success: false,
+                message: 'Product not found'
             });
         }
 
-        res.status(200).json({ 
+        res.status(200).json({
             success: true,
             isListed: updatedProduct.isListed,
             message: `Product ${updatedProduct.isListed ? 'listed' : 'unlisted'} successfully`
@@ -263,9 +277,9 @@ const toggleProductStatus = async (req, res) => {
 
     } catch (error) {
         console.error('Error toggling product status:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Server error while updating product status' 
+        res.status(500).json({
+            success: false,
+            message: 'Server error while updating product status'
         });
     }
 };
