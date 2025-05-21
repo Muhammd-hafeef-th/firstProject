@@ -55,10 +55,10 @@ const addProductItem = async (req, res) => {
 
         const productImages = req.files.map(file => `/uploads/${file.filename}`);
 
-        const products = await Product.find();
-        console.log(products)
-        if (products.productName == name) {
-            return res.status(400).json({ error: "This name is already exists" })
+
+        const existingProduct = await Product.findOne({ productName: name.trim() });
+        if (existingProduct) {
+            return res.status(400).json({ error: "This Product Name is already exists" })
         }
 
 
@@ -137,10 +137,10 @@ const editProductItem = async (req, res) => {
             return res.redirect(`/admin/edit-product?id=${productId}&error=Brand does not exist. Please add the brand first`);
         }
         if (name !== product.productName) {
-           
-            const existingProduct = await Product.findOne({productName:name.trim()});
+
+            const existingProduct = await Product.findOne({ productName: name.trim() });
             if (existingProduct) {
-                return res.redirect(`/admin/edit-product?id=${productId}&error=This name is already exist`)
+                return res.status(400).json({ error: "This Product Name is already exists" })
             }
         }
 

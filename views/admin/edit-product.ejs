@@ -439,20 +439,18 @@
                 }
                 
                 try {
-                    // Create FormData from the form
                     const formData = new FormData(form);
                     
-                    // Send the form data using fetch
                     const response = await fetch('/admin/edit-productItem', {
                         method: 'POST',
                         body: formData
                     });
                     
                     if (!response.ok) {
-                        throw new Error('Failed to update product');
+                        console.log(response)
+                        throw new Error("The product Name is already exist");
                     }
                     
-                    // Show toast notification for success
                     const toast = Swal.mixin({
                         toast: true,
                         position: 'top-end',
@@ -470,7 +468,6 @@
                         title: 'Product updated successfully'
                     });
                     
-                    // Redirect after toast is shown
                     setTimeout(() => {
                         window.location.href = "/admin/products";
                     }, 1000);
@@ -478,7 +475,6 @@
                 } catch (error) {
                     console.error('Error:', error);
                     
-                    // Show toast notification for error
                     const toast = Swal.mixin({
                         toast: true,
                         position: 'top-end',
